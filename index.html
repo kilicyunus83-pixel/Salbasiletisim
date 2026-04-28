@@ -179,14 +179,15 @@
         </div>
     </div>
 
-    <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-20 h-full overflow-hidden">
+    <!-- MOBİL UYUMLU, SCROLL EDİLEBİLİR DÜZELTİLMİŞ SIDEBAR -->
+    <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
         <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0">
             <a href="#" class="text-2xl font-bold flex items-center gap-2">
                 <i class="fas fa-shopping-cart text-blue-400"></i><span>Salbaş İletişim</span>
             </a>
         </div>
 
-        <nav class="flex-1 overflow-y-auto py-4 pb-24 custom-scrollbar">
+        <nav class="flex-1 overflow-y-auto py-4 pb-24 custom-scrollbar" style="-webkit-overflow-scrolling: touch; overscroll-behavior: contain;">
             <ul class="space-y-1 px-3 text-sm" id="main-menu">
                 <li><a href="#" onclick="simulateNavigation('Anasayfa', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 bg-blue-600 text-white rounded-lg transition"><i class="fas fa-th-large w-5 text-center"></i><span>Anasayfa</span></a></li>
                 <li><a href="#" onclick="simulateNavigation('Satış Yap', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg transition"><i class="fas fa-edit w-5 text-center"></i><span>Satış Yap</span></a></li>
@@ -913,11 +914,13 @@
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
         mobileMenuBtn.addEventListener('click', () => { 
-            sidebar.classList.toggle('hidden'); 
-            sidebar.classList.toggle('fixed'); 
-            sidebar.classList.toggle('inset-y-0'); 
-            sidebar.classList.toggle('left-0'); 
-            sidebar.classList.toggle('z-50'); 
+            if(sidebar.classList.contains('hidden')) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+            }
         });
 
         function toggleModal(modalID) { openModal(modalID); }
@@ -979,7 +982,7 @@
             }
             if(window.innerWidth < 768) { 
                 sidebar.classList.add('hidden'); 
-                sidebar.classList.remove('fixed', 'inset-y-0', 'left-0', 'z-50'); 
+                sidebar.classList.remove('flex'); 
             }
             renderAll();
         }
