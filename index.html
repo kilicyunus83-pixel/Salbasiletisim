@@ -834,11 +834,6 @@
                 }
             });
 
-            // Mobil cihazlarda Google yönlendirme hatasını yakalamak için:
-            auth.getRedirectResult().catch(error => {
-                msg("Google giriş hatası: " + error.message);
-            });
-
             loadReceiptSettings(); 
             document.getElementById('log-date-picker').value = new Date().toISOString().split('T')[0];
             setInterval(() => { const d = document.getElementById('header-date'); if(d) d.innerText = new Date().toLocaleString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}); }, 1000);
@@ -862,9 +857,13 @@
         }
 
         function loginWithGoogle() {
-            msg("Google'a yönlendiriliyor, lütfen bekleyin...", false);
+            msg("Google paneli açılıyor, lütfen bekleyin...", false);
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider);
+            auth.signInWithPopup(provider).then((result) => {
+                msg("Giriş başarılı! İçeri alınıyorsunuz...", false);
+            }).catch((error) => {
+                msg("Giriş iptal edildi veya hata: " + error.message);
+            });
         }
 
         function logoutApp() {
