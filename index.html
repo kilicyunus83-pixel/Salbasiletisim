@@ -70,7 +70,7 @@
             
             <div class="mt-4 border-t border-gray-100 pt-4">
                 <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
-                    <i class="fab fa-google"></i> Google ile Giriş Yap
+                    <i class="fab fa-google"></i> Google Hesabıyla Gir (Yeni Sistem)
                 </button>
             </div>
             <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
@@ -183,7 +183,7 @@
     <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
         <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0">
             <a href="#" class="text-2xl font-bold flex items-center gap-2">
-                <i class="fas fa-shopping-cart text-blue-400"></i><span>Salbaş İletişim</span>
+                <i class="fas fa-shopping-cart text-blue-400"></i><span>Satıcı Paneli</span>
             </a>
         </div>
 
@@ -280,7 +280,7 @@
                 <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none"><i class="fas fa-bars text-xl"></i></button>
                 <div class="flex items-center">
                     <h2 id="header-title" class="font-bold text-gray-700 uppercase text-sm md:text-base truncate">ANASAYFA</h2>
-                    <span class="ml-2 text-gray-400 text-sm hidden sm:inline-block font-semibold">| Salbaş İletişim</span>
+                    <span class="ml-2 text-gray-400 text-sm hidden sm:inline-block font-semibold">| Yönetim Paneli</span>
                 </div>
             </div>
             <div class="flex items-center gap-3 sm:gap-5 text-sm">
@@ -290,10 +290,10 @@
                 <div class="relative flex items-center gap-2 cursor-pointer border-l pl-4 border-gray-200" onclick="toggleDropdown('profileDropdown')">
                     <div class="text-right hidden sm:block">
                         <div class="font-bold text-gray-800 text-xs" id="user-email-display">Kullanıcı</div>
-                        <div class="text-gray-500 text-[10px]">YÖNETİCİ</div>
+                        <div class="text-gray-500 text-[10px]">İŞLETME SAHİBİ</div>
                     </div>
-                    <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                        <i class="fas fa-user"></i>
+                    <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center overflow-hidden">
+                        <img id="user-photo" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Kullanıcı" class="w-full h-full object-cover">
                     </div>
                     <div id="profileDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 z-50 text-sm cursor-default">
                         <a href="#" onclick="logoutApp()" class="block px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100"><i class="fas fa-power-off mr-2"></i> Çıkış Yap</a>
@@ -810,6 +810,7 @@
 
         let db = { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [] };
         let cart = []; let lastSaleId = null; let currentReportPeriod = 'gunluk'; let isPriceCheckMode = false; let activeOperator = 'TURKCELL'; let activeTarifeOp = 'TURKCELL'; let activeQuickTab = 'Liste 1'; let currentCustomerIdx = null; let chart30 = null; let chart6 = null;
+        let currentUserUid = null;
 
         const oranlar = { 2: 7.92, 3: 9.78, 4: 12.34, 5: 14.05, 6: 15.76, 7: 17.97, 8: 20.18, 9: 21.89, 10: 24.10, 11: 25.81, 12: 28.02 };
 
@@ -823,9 +824,12 @@
 
             auth.onAuthStateChanged(user => {
                 if(user) {
-                    document.getElementById('user-email-display').innerText = user.email || "Yönetici";
-                    loadCloudData();
+                    currentUserUid = user.uid; // Çoklu Kullanıcı Benzersiz Kimliği
+                    document.getElementById('user-email-display').innerText = user.email || user.displayName || "Dükkan Sahibi";
+                    if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+                    loadCloudData(user.uid);
                 } else {
+                    currentUserUid = null;
                     document.getElementById('login-screen').classList.remove('hidden');
                 }
             });
@@ -867,8 +871,9 @@
             }
         }
 
-        function loadCloudData() {
-            dbCloud.collection("dukkan").doc("veri").get().then((doc) => {
+        function loadCloudData(uid) {
+            // MULTI-TENANT: Her kullanıcının kendi ayrı "sistem_kullanicilari -> UID" klasörü var
+            dbCloud.collection("sistem_kullanicilari").doc(uid).get().then((doc) => {
                 if (doc.exists) {
                     const cloudData = doc.data();
                     db.products = cloudData.products || []; db.customers = cloudData.customers || [];
@@ -877,37 +882,56 @@
                     db.notes = cloudData.notes || []; db.tasks = cloudData.tasks || [];
                     db.opLogs = cloudData.opLogs || []; db.operatorPacks = cloudData.operatorPacks || [];
                     db.purchases = cloudData.purchases || []; 
+                } else {
+                    // Yeni bir kullanıcı kayıt olduysa veritabanını bomboş hazırla
+                    db = { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [] };
                 }
                 renderAll();
                 document.getElementById('login-screen').classList.add('hidden');
-                showToast("Bulut veritabanı bağlandı.", "success");
+                showToast("Dükkan veritabanı bağlandı.", "success");
             }).catch(err => {
                 alert("Bulut bağlantı hatası! Çevrimdışı veriler yükleniyor.\n" + err.message);
-                loadLocalData(); 
+                loadLocalData(uid); 
                 document.getElementById('login-screen').classList.add('hidden');
             });
         }
 
-        function loadLocalData() {
-            db.products = JSON.parse(localStorage.getItem('bp_prods')) || []; db.customers = JSON.parse(localStorage.getItem('bp_custs')) || [];
-            db.sales = JSON.parse(localStorage.getItem('bp_sales')) || []; db.finances = JSON.parse(localStorage.getItem('bp_fin')) || [];
-            db.logs = JSON.parse(localStorage.getItem('bp_logs')) || []; db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz')) || [];
-            db.notes = JSON.parse(localStorage.getItem('bp_notes')) || []; db.tasks = JSON.parse(localStorage.getItem('bp_tasks')) || [];
-            db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs')) || []; db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks')) || [];
-            db.purchases = JSON.parse(localStorage.getItem('bp_purchases')) || []; 
+        function loadLocalData(uid) {
+            if(!uid) return;
+            // Çevrimdışı veriler de kullanıcı UID'sine göre ayrı ayrı tutuluyor
+            db.products = JSON.parse(localStorage.getItem('bp_prods_' + uid)) || []; 
+            db.customers = JSON.parse(localStorage.getItem('bp_custs_' + uid)) || [];
+            db.sales = JSON.parse(localStorage.getItem('bp_sales_' + uid)) || []; 
+            db.finances = JSON.parse(localStorage.getItem('bp_fin_' + uid)) || [];
+            db.logs = JSON.parse(localStorage.getItem('bp_logs_' + uid)) || []; 
+            db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_' + uid)) || [];
+            db.notes = JSON.parse(localStorage.getItem('bp_notes_' + uid)) || []; 
+            db.tasks = JSON.parse(localStorage.getItem('bp_tasks_' + uid)) || [];
+            db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_' + uid)) || []; 
+            db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_' + uid)) || [];
+            db.purchases = JSON.parse(localStorage.getItem('bp_purchases_' + uid)) || []; 
             renderAll();
         }
 
         function sync() {
             if (auth.currentUser) {
-                dbCloud.collection("dukkan").doc("veri").set(db).catch(e => console.log("Cloud Hatası:", e));
+                const uid = auth.currentUser.uid;
+                // Verileri bulutta sadece o kişiye ait klasöre kaydet
+                dbCloud.collection("sistem_kullanicilari").doc(uid).set(db).catch(e => console.log("Cloud Hatası:", e));
+                
+                // Telefona indirirken de sadece o kişinin kimliğiyle kaydet
+                localStorage.setItem('bp_prods_' + uid, JSON.stringify(db.products)); 
+                localStorage.setItem('bp_custs_' + uid, JSON.stringify(db.customers));
+                localStorage.setItem('bp_sales_' + uid, JSON.stringify(db.sales)); 
+                localStorage.setItem('bp_fin_' + uid, JSON.stringify(db.finances));
+                localStorage.setItem('bp_logs_' + uid, JSON.stringify(db.logs)); 
+                localStorage.setItem('bp_faturasiz_' + uid, JSON.stringify(db.faturasiz));
+                localStorage.setItem('bp_notes_' + uid, JSON.stringify(db.notes)); 
+                localStorage.setItem('bp_tasks_' + uid, JSON.stringify(db.tasks));
+                localStorage.setItem('bp_oplogs_' + uid, JSON.stringify(db.opLogs)); 
+                localStorage.setItem('bp_oppacks_' + uid, JSON.stringify(db.operatorPacks));
+                localStorage.setItem('bp_purchases_' + uid, JSON.stringify(db.purchases)); 
             }
-            localStorage.setItem('bp_prods', JSON.stringify(db.products)); localStorage.setItem('bp_custs', JSON.stringify(db.customers));
-            localStorage.setItem('bp_sales', JSON.stringify(db.sales)); localStorage.setItem('bp_fin', JSON.stringify(db.finances));
-            localStorage.setItem('bp_logs', JSON.stringify(db.logs)); localStorage.setItem('bp_faturasiz', JSON.stringify(db.faturasiz));
-            localStorage.setItem('bp_notes', JSON.stringify(db.notes)); localStorage.setItem('bp_tasks', JSON.stringify(db.tasks));
-            localStorage.setItem('bp_oplogs', JSON.stringify(db.opLogs)); localStorage.setItem('bp_oppacks', JSON.stringify(db.operatorPacks));
-            localStorage.setItem('bp_purchases', JSON.stringify(db.purchases)); 
             renderAll();
         }
 
@@ -1838,68 +1862,4 @@
             }
 
             if(document.getElementById('fin-table')){
-                document.getElementById('fin-table').innerHTML = db.finances.slice().reverse().map((f, i) => `<tr><td class="p-3 text-xs text-gray-500">${new Date(f.date).toLocaleDateString()}</td><td class="p-3 font-bold">${f.desc}</td><td class="p-3 text-right font-bold ${f.type==='Gelir'?'text-emerald-600':'text-red-600'}">${f.type==='Gelir'?'+':'-'}₺${f.amount}</td><td class="p-3 text-center"><button onclick="db.finances.splice(${db.finances.length-1-i},1);sync()" class="text-red-300"><i class="fas fa-trash"></i></button></td></tr>`).join(''); 
-            }
-
-            const ctx30 = document.querySelector("#chart-30-days");
-            const ctx6 = document.querySelector("#chart-6-months");
-            
-            if(ctx30 && ctx6) {
-                const dData = []; const dLabels = []; 
-                for(let i=14; i>=0; i--) { 
-                    let d = new Date(); d.setDate(d.getDate() - i); 
-                    dLabels.push(d.getDate() + ' ' + ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][d.getMonth()]); 
-                    let dayTotal = db.sales.filter(s => !s.isRefunded && s.date && (new Date(s.date).getDate() === d.getDate() && new Date(s.date).getMonth() === d.getMonth())).reduce((a,b)=>a+b.total,0);
-                    dData.push(dayTotal); 
-                } 
-                
-                if(chart30) chart30.destroy();
-                chart30 = new ApexCharts(ctx30, { series: [{ name: 'Satış (₺)', data: dData }], chart: { type: 'area', height: 250, toolbar: { show: false }, fontFamily: 'inherit' }, colors: ['#008FFB'], fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } }, dataLabels: { enabled: false }, stroke: { curve: 'smooth', width: 2 }, xaxis: { categories: dLabels, axisBorder: { show: false }, axisTicks: { show: false } }, yaxis: { labels: { formatter: function (val) { return "₺" + val } } }, grid: { borderColor: '#f1f5f9', strokeDashArray: 4 } }); 
-                chart30.render();
-
-                const mNames = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]; 
-                let mLabels = []; let mData = [0,0,0,0,0,0]; 
-                let now2 = new Date(); 
-                for(let i=5; i>=0; i--) { let m = new Date(now2.getFullYear(), now2.getMonth() - i, 1); mLabels.push(mNames[m.getMonth()]); } 
-                db.sales.filter(s=>!s.isRefunded).forEach(s => { 
-                    if(!s.date) return;
-                    const sd = new Date(s.date); 
-                    const diff = (now2.getFullYear() - sd.getFullYear()) * 12 + (now2.getMonth() - sd.getMonth()); 
-                    if(diff >= 0 && diff < 6) mData[5 - diff] += s.total; 
-                }); 
-                
-                if(chart6) chart6.destroy();
-                chart6 = new ApexCharts(ctx6, { series: [{ name: 'Net Kazanç', data: mData }], chart: { type: 'bar', height: 250, toolbar: { show: false }, fontFamily: 'inherit' }, colors: ['#00E396'], plotOptions: { bar: { borderRadius: 4, columnWidth: '40%' } }, dataLabels: { enabled: false }, xaxis: { categories: mLabels, axisBorder: { show: false }, axisTicks: { show: false } }, yaxis: { labels: { formatter: function (val) { return "₺" + val } } }, grid: { borderColor: '#f1f5f9', strokeDashArray: 4 } }); 
-                chart6.render();
-            }
-        }
-
-        function refundSale(saleId) { 
-            if(!confirm("İPTAL edip ürünleri stoka eklemek istiyor musunuz?")) return; 
-            const sale = db.sales.find(s => s.id === saleId); 
-            if(!sale || sale.isRefunded) return; 
-            
-            if(sale.items) {
-                sale.items.forEach(item => { 
-                    if(!item.isCustom) { const p = db.products.find(x => x.barcode === item.barcode); if(p && !p.category) p.stock += item.qty; }
-                }); 
-            }
-
-            if(sale.type === 'Açık Hesap' && sale.customer) { 
-                const c = db.customers.find(x => x.name === sale.customer); if(c) c.debt -= sale.total; 
-            } else { 
-                db.finances.push({ id: Date.now(), type: 'Gider', amount: sale.total, desc: `İADE: (${sale.type})`, date: new Date().toISOString()}); 
-            } 
-            
-            sale.isRefunded = true; sync(); showToast("Satış İptal edildi.", "info"); 
-        }
-
-        function renderAll() { 
-            renderProducts(); renderCustomers(); renderDashboard(); renderLogs(); renderFaturasiz(); renderNotes(); renderTasks(); renderOpLogs(); renderTarifeler(); renderQuickSell(); 
-            renderPurchases(); 
-            if(document.getElementById('sayim-search')) renderStokSayimi();
-            
-            // Fiş Kes Ayarlarını Canlı Önizlemeye Yansıt
-            if(document.getElementById('mf-prev-company')) renderManuelFisLiveSettings();
-        }
-    </script></body></html>
+                document.getElementById('fin-table').innerHTML = db.finances.slice().reverse().map((f, i) => `<
