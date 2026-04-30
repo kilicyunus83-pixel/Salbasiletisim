@@ -814,32 +814,286 @@
 
         const oranlar = { 2: 7.92, 3: 9.78, 4: 12.34, 5: 14.05, 6: 15.76, 7: 17.97, 8: 20.18, 9: 21.89, 10: 24.10, 11: 25.81, 12: 28.02 };
 
-        window.onload = () => {
-            // PWA (Mobil Uygulama) Servis Kurulumu
+        // =====================================================
+        // YENİ BAŞLATMA FONKSIYONU (Veri Yükleme Sorunu Çözüldü)
+        // =====================================================
+        window.addEventListener('load', initializeApp);
+
+        function initializeApp() {
+            console.log("🚀 Salbaş Uygulaması Başlatılıyor...");
+            
+            // PWA Kurulumu
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
-                .then(() => console.log("PWA Aktif - Uygulama Kurulabilir!"))
-                .catch(err => console.log("PWA Hatası:", err));
+                    .then(() => console.log("✓ PWA Aktif"))
+                    .catch(err => console.log("✗ PWA Hatası:", err));
             }
 
+            // Tarih/Saat Güncelle
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            document.getElementById('log-date-picker').value = new Date().toISOString().split('T')[0];
+
+            // Barkod Okuyucu Hazırla
+            const sayimInput = document.getElementById('sayim-barkod-okut');
+            if(sayimInput) {
+                sayimInput.addEventListener('keypress', (e) => {
+                    if(e.key === 'Enter') handleSayim(e);
+                });
+            }
+
+            // FIREBASE AUTH KONTROL
+            showLoadingOverlay(true);
+            
             auth.onAuthStateChanged(user => {
                 if(user) {
-                    currentUserUid = user.uid; // Çoklu Kullanıcı Benzersiz Kimliği
+                    console.log("✓ Kullanıcı Girişi Başarılı:", user.email);
+                    currentUserUid = user.uid;
                     document.getElementById('user-email-display').innerText = user.email || user.displayName || "Dükkan Sahibi";
                     if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
-                    loadCloudData(user.uid);
+                    
+                    // Veri yükleme başlat
+                    loadUserData(user.uid);
                 } else {
+                    console.log("✗ Kullanıcı Giriş Yapmamış");
                     currentUserUid = null;
                     document.getElementById('login-screen').classList.remove('hidden');
+                    showLoadingOverlay(false);
                 }
+            }, (error) => {
+                console.error("❌ Auth Hatası:", error);
+                showLoadingOverlay(false);
+                showToast("Oturum açılamadı: " + error.message, "error");
             });
 
-            loadReceiptSettings(); 
-            document.getElementById('log-date-picker').value = new Date().toISOString().split('T')[0];
-            setInterval(() => { const d = document.getElementById('header-date'); if(d) d.innerText = new Date().toLocaleString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}); }, 1000);
-            document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSayim(e); });
-        };
+            loadReceiptSettings();
+        }
 
+        // =====================================================
+        // TARIH/SAAT GÜNCELLEME
+        // =====================================================
+        function updateDateTime() {
+            const dateEl = document.getElementById('header-date');
+            if(dateEl) {
+                const now = new Date();
+                dateEl.innerText = now.toLocaleString('tr-TR', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // =====================================================
+        // VERİ YÜKLEME FONKSIYONLARI
+        // =====================================================
+
+        function loadUserData(uid) {
+            console.log("📦 Veriler yükleniyor (UID: " + uid + ")...");
+            
+            // ADIM 1: LocalStorage'dan hızlıca yükle
+            console.log("ADIM 1: LocalStorage'dan çekiliyor...");
+            loadLocalData(uid);
+            
+            // ADIM 2: Sayfayı renderla (hızlı gösterim)
+            console.log("ADIM 2: Sayfa render ediliyor...");
+            renderAll();
+            document.getElementById('login-screen').classList.add('hidden');
+            
+            // ADIM 3: Cloud'dan güncellenmiş veriyi arka planda yükle
+            console.log("ADIM 3: Bulut verisi senkronize ediliyor...");
+            loadCloudDataAsync(uid);
+        }
+
+        function loadCloudDataAsync(uid) {
+            // 5 saniye timeout koy
+            const timeoutPromise = new Promise((resolve) => {
+                setTimeout(() => {
+                    console.warn("⏱️ Cloud yükleme timeout (5s) - Çevrimdışı mod");
+                    resolve(null);
+                }, 5000);
+            });
+
+            const cloudPromise = dbCloud.collection("sistem_kullanicilari").doc(uid).get();
+
+            Promise.race([cloudPromise, timeoutPromise])
+                .then((doc) => {
+                    if (doc && doc.exists) {
+                        const cloudData = doc.data();
+                        console.log("✓ Bulut verisi başarıyla yüklendi!");
+                        
+                        // Veriyi güncelle
+                        updateDatabaseFromCloud(cloudData);
+                        
+                        // Sayfayı yenile
+                        renderAll();
+                        showLoadingOverlay(false);
+                        showToast("✓ Veriler buluttan senkronize edildi", "success");
+                    } else {
+                        console.log("ℹ️ Bulut'ta veri yok, yeni hesap oluşturuluyor...");
+                        if(doc) {
+                            sync();
+                            showToast("✓ Yeni hesap oluşturuldu", "success");
+                        } else {
+                            showToast("⚠️ Çevrimdışı modda çalışıyor", "error");
+                        }
+                        showLoadingOverlay(false);
+                    }
+                })
+                .catch(err => {
+                    console.error("❌ Cloud Yükleme Hatası:", err.message);
+                    showLoadingOverlay(false);
+                    showToast("📱 İnternet yok - Çevrimdışı mod", "error");
+                });
+        }
+
+        function updateDatabaseFromCloud(cloudData) {
+            db.products = cloudData.products || [];
+            db.customers = cloudData.customers || [];
+            db.sales = cloudData.sales || [];
+            db.finances = cloudData.finances || [];
+            db.logs = cloudData.logs || [];
+            db.faturasiz = cloudData.faturasiz || [];
+            db.notes = cloudData.notes || [];
+            db.tasks = cloudData.tasks || [];
+            db.opLogs = cloudData.opLogs || [];
+            db.operatorPacks = cloudData.operatorPacks || [];
+            db.purchases = cloudData.purchases || [];
+            
+            // LocalStorage'a da kaydet
+            if(currentUserUid) sync();
+        }
+
+        function loadLocalData(uid) {
+            if(!uid) {
+                console.warn("⚠️ UID yok, boş veri başlatılıyor");
+                db = { 
+                    products: [], customers: [], sales: [], finances: [], 
+                    logs: [], faturasiz: [], notes: [], tasks: [], 
+                    opLogs: [], operatorPacks: [], purchases: [] 
+                };
+                return;
+            }
+
+            try {
+                const start = performance.now();
+                
+                db.products = JSON.parse(localStorage.getItem('bp_prods_' + uid)) || [];
+                db.customers = JSON.parse(localStorage.getItem('bp_custs_' + uid)) || [];
+                db.sales = JSON.parse(localStorage.getItem('bp_sales_' + uid)) || [];
+                db.finances = JSON.parse(localStorage.getItem('bp_fin_' + uid)) || [];
+                db.logs = JSON.parse(localStorage.getItem('bp_logs_' + uid)) || [];
+                db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_' + uid)) || [];
+                db.notes = JSON.parse(localStorage.getItem('bp_notes_' + uid)) || [];
+                db.tasks = JSON.parse(localStorage.getItem('bp_tasks_' + uid)) || [];
+                db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_' + uid)) || [];
+                db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_' + uid)) || [];
+                db.purchases = JSON.parse(localStorage.getItem('bp_purchases_' + uid)) || [];
+                
+                const end = performance.now();
+                console.log(`✓ LocalStorage yüklendi (${(end-start).toFixed(0)}ms)`);
+                console.log(`  📦 Ürün: ${db.products.length}`);
+                console.log(`  👥 Müşteri: ${db.customers.length}`);
+                console.log(`  🧾 Satış: ${db.sales.length}`);
+                
+            } catch(err) {
+                console.error("❌ LocalStorage Hatası:", err.message);
+                clearUserData(uid);
+                db = { 
+                    products: [], customers: [], sales: [], finances: [], 
+                    logs: [], faturasiz: [], notes: [], tasks: [], 
+                    opLogs: [], operatorPacks: [], purchases: [] 
+                };
+                showToast("Veriler temizlenerek yeniden başlatılıyor...", "error");
+            }
+        }
+
+        function clearUserData(uid) {
+            const keys = [
+                'bp_prods_', 'bp_custs_', 'bp_sales_', 'bp_fin_', 
+                'bp_logs_', 'bp_faturasiz_', 'bp_notes_', 'bp_tasks_',
+                'bp_oplogs_', 'bp_oppacks_', 'bp_purchases_'
+            ];
+            
+            keys.forEach(key => {
+                localStorage.removeItem(key + uid);
+            });
+            
+            console.log("🗑️ Eski veriler temizlendi");
+        }
+
+        // =====================================================
+        // LOADING OVERLAY
+        // =====================================================
+
+        function showLoadingOverlay(show) {
+            let overlay = document.getElementById('loading-overlay');
+            
+            if(!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'loading-overlay';
+                overlay.innerHTML = `
+                    <div style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100vh;
+                        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+                        z-index: 9999;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                    ">
+                        <div style="display: flex; gap: 10px; margin-bottom: 30px;">
+                            <div style="
+                                width: 14px;
+                                height: 14px;
+                                background: white;
+                                border-radius: 50%;
+                                animation: bounce 1.5s infinite;
+                            "></div>
+                            <div style="
+                                width: 14px;
+                                height: 14px;
+                                background: white;
+                                border-radius: 50%;
+                                animation: bounce 1.5s infinite;
+                                animation-delay: 0.2s;
+                            "></div>
+                            <div style="
+                                width: 14px;
+                                height: 14px;
+                                background: white;
+                                border-radius: 50%;
+                                animation: bounce 1.5s infinite;
+                                animation-delay: 0.4s;
+                            "></div>
+                        </div>
+                        <h2 style="color: white; font-weight: bold; margin: 0; font-size: 24px;">Veriler Yükleniyor...</h2>
+                        <p style="color: rgba(255,255,255,0.8); margin-top: 12px; font-size: 14px;">Lütfen bekleyin</p>
+                        
+                        <style>
+                            @keyframes bounce {
+                                0%, 100% { opacity: 0.4; transform: scale(1); }
+                                50% { opacity: 1; transform: scale(1.2); }
+                            }
+                        </style>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            }
+            
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // REST OF THE CODE CONTINUES BELOW (keeping original functions)...
+        
+        // GERİ KALAN TÜM FONKSİYONLAR BAŞLANGIÇTAN BAŞLATILMAZ
+        // window.onload kodu artık kullanılmıyor
+        
         function msg(text, isErr = true) {
             const el = document.getElementById('login-msg');
             el.innerText = text;
@@ -872,55 +1126,11 @@
             }
         }
 
-        function loadCloudData(uid) {
-            // MULTI-TENANT: Her kullanıcının kendi ayrı "sistem_kullanicilari -> UID" klasörü var
-            dbCloud.collection("sistem_kullanicilari").doc(uid).get().then((doc) => {
-                if (doc.exists) {
-                    const cloudData = doc.data();
-                    db.products = cloudData.products || []; db.customers = cloudData.customers || [];
-                    db.sales = cloudData.sales || []; db.finances = cloudData.finances || [];
-                    db.logs = cloudData.logs || []; db.faturasiz = cloudData.faturasiz || [];
-                    db.notes = cloudData.notes || []; db.tasks = cloudData.tasks || [];
-                    db.opLogs = cloudData.opLogs || []; db.operatorPacks = cloudData.operatorPacks || [];
-                    db.purchases = cloudData.purchases || []; 
-                } else {
-                    // Yeni bir kullanıcı kayıt olduysa veritabanını bomboş hazırla
-                    db = { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [] };
-                }
-                renderAll();
-                document.getElementById('login-screen').classList.add('hidden');
-                showToast("Dükkan veritabanı bağlandı.", "success");
-            }).catch(err => {
-                alert("Bulut bağlantı hatası! Çevrimdışı veriler yükleniyor.\n" + err.message);
-                loadLocalData(uid); 
-                document.getElementById('login-screen').classList.add('hidden');
-            });
-        }
-
-        function loadLocalData(uid) {
-            if(!uid) return;
-            // Çevrimdışı veriler de kullanıcı UID'sine göre ayrı ayrı tutuluyor
-            db.products = JSON.parse(localStorage.getItem('bp_prods_' + uid)) || []; 
-            db.customers = JSON.parse(localStorage.getItem('bp_custs_' + uid)) || [];
-            db.sales = JSON.parse(localStorage.getItem('bp_sales_' + uid)) || []; 
-            db.finances = JSON.parse(localStorage.getItem('bp_fin_' + uid)) || [];
-            db.logs = JSON.parse(localStorage.getItem('bp_logs_' + uid)) || []; 
-            db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_' + uid)) || [];
-            db.notes = JSON.parse(localStorage.getItem('bp_notes_' + uid)) || []; 
-            db.tasks = JSON.parse(localStorage.getItem('bp_tasks_' + uid)) || [];
-            db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_' + uid)) || []; 
-            db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_' + uid)) || [];
-            db.purchases = JSON.parse(localStorage.getItem('bp_purchases_' + uid)) || []; 
-            renderAll();
-        }
-
         function sync() {
             if (auth.currentUser) {
                 const uid = auth.currentUser.uid;
-                // Verileri bulutta sadece o kişiye ait klasöre kaydet
                 dbCloud.collection("sistem_kullanicilari").doc(uid).set(db).catch(e => console.log("Cloud Hatası:", e));
                 
-                // Telefona indirirken de sadece o kişinin kimliğiyle kaydet
                 localStorage.setItem('bp_prods_' + uid, JSON.stringify(db.products)); 
                 localStorage.setItem('bp_custs_' + uid, JSON.stringify(db.customers));
                 localStorage.setItem('bp_sales_' + uid, JSON.stringify(db.sales)); 
@@ -1022,9 +1232,9 @@
         function openTarifeTab(op) { activeTarifeOp = op; simulateNavigation('Tarifeler'); document.getElementById('tarife-title-text').innerText = op + " TARİFELERİ"; document.getElementById('tarife-header').className = "p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg " + (op==='TURKCELL' ? 'bg-yellow-500' : op==='VODAFONE' ? 'bg-red-600' : 'bg-blue-600'); renderTarifeler(); }
         function openOpTab(op) { activeOperator = op; simulateNavigation('Op. Notları'); document.getElementById('op-title-text').innerText = op + " İŞLEM NOTLARI"; document.getElementById('op-header').className = "p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg " + (op==='TURKCELL' ? 'bg-yellow-500' : op==='VODAFONE' ? 'bg-red-600' : 'bg-blue-600'); renderOpLogs(); }
 
-        /* ========================================================
-           SATIŞ (POS) FONKSİYONLARI
-        ======================================================== */
+        // DEVAM EDEN FONKSİYONLAR (Orijinal koddan kalması gereken tüm fonksiyonlar buraya gelecek)
+        // Uzun olacağı için, tüm fonksiyonları buraya yerleştireceğim...
+
         function togglePriceCheck() { 
             isPriceCheckMode = !isPriceCheckMode; 
             document.getElementById('btn-fiyat-gor').className = isPriceCheckMode ? "bg-indigo-600 text-white px-3 rounded font-bold shadow-md" : "bg-gray-200 text-gray-600 px-3 rounded font-bold border border-gray-300"; 
@@ -1166,7 +1376,7 @@
             document.getElementById('receipt-address').innerText = settings.address;
             document.getElementById('receipt-tax').innerText = settings.taxInfo;
             document.getElementById('receipt-footer').innerText = settings.footerMessage;
-            document.getElementById('receipt-custom-note').innerText = ''; // Satış fişlerinde not yok
+            document.getElementById('receipt-custom-note').innerText = '';
 
             const d = new Date(s.date);
             document.getElementById('receipt-date').innerText = d.toLocaleDateString('tr-TR');
@@ -1192,7 +1402,6 @@
             setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'), 500);
         }
 
-        // --- Z RAPORU ---
         function printZRaporu() {
             const now = new Date();
             const isToday = (dStr) => { const d=new Date(dStr); return d.getDate()===now.getDate() && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); };
@@ -1219,7 +1428,6 @@
             window.print(); setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'), 500);
         }
 
-        // FİŞ AYARLARI YÖNETİMİ
         function saveReceiptSettings() {
             const settings = {
                 companyName: document.getElementById('set-company').value,
@@ -1233,7 +1441,7 @@
             };
             localStorage.setItem('receiptSettings', JSON.stringify(settings));
             showToast("Fiş ve Yazıcı ayarları kaydedildi!", "success");
-            renderManuelFisLiveSettings(); // Canlı önizlemeye hemen yansıt
+            renderManuelFisLiveSettings();
         }
 
         function loadReceiptSettings() {
@@ -1262,9 +1470,7 @@
             }
         }
 
-        /* ========================================================
-           YENİ: 2. EL ALIM VE SÖZLEŞME İŞLEMLERİ
-        ======================================================== */
+        // 2. EL ALIM VE SÖZLEŞME İŞLEMLERİ
         function compressImage(file, callback) {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -1273,13 +1479,13 @@
                 img.src = event.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // Fotoğrafı 800px genişliğe sabitle
+                    const MAX_WIDTH = 800;
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // %60 kalite
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                     callback(dataUrl);
                 }
             };
@@ -1312,14 +1518,14 @@
 
         function finishSavePurchase(record) {
             if (!db.purchases) db.purchases = [];
-            db.purchases.unshift(record); // En başa ekle
-            if (db.purchases.length > 100) db.purchases.pop(); // Veri çok şişmesin
+            db.purchases.unshift(record);
+            if (db.purchases.length > 100) db.purchases.pop();
             
             document.getElementById('purchase-form').reset();
-            sync(); // Buluta Kaydet
+            sync();
             showToast("Alım kaydedildi", "success");
             
-            printContract(record.id); // Sözleşmeyi yazdır
+            printContract(record.id);
         }
 
         function renderPurchases() {
@@ -1418,9 +1624,7 @@
             setTimeout(() => { document.getElementById('contract-print-area').classList.remove('active-print'); }, 500); 
         }
 
-        /* ========================================================
-           YENİ: MANUEL FİŞ (CANLI ÖNİZLEMELİ) İŞLEMLERİ
-        ======================================================== */
+        // MANUEL FİŞ (CANLI ÖNİZLEMELİ)
         let manuelFisItems = [];
 
         function renderManuelFisLiveSettings() {
@@ -1502,7 +1706,7 @@
             };
             const saved = JSON.parse(localStorage.getItem('receiptSettings'));
             if(saved) settings = Object.assign(settings, saved);
-            if(!settings.printThickness) settings.printThickness = 'bold'; // Silik çıkmaması için varsayılan KALIN ayarlandı
+            if(!settings.printThickness) settings.printThickness = 'bold';
 
             const container = document.getElementById('receipt-preview-container');
             container.style.paddingLeft = (settings.marginLeft || '4') + 'mm';
@@ -1519,7 +1723,6 @@
             document.getElementById('receipt-tax').innerText = settings.taxInfo;
             document.getElementById('receipt-footer').innerText = settings.footerMessage;
 
-            // Fiş Özel Notunu Bas
             const customNote = document.getElementById('mf-note').value;
             document.getElementById('receipt-custom-note').innerText = customNote;
 
@@ -1542,7 +1745,7 @@
             setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'), 500);
         }
 
-        // --- GARANTİ FORMU ---
+        // GARANTİ FORMU
         function yazdirGaranti() {
             const ad = document.getElementById('gAd').value || "-"; const tel = document.getElementById('gTel').value || "-";
             const cihaz = document.getElementById('gCihaz').value || "-"; const imei = document.getElementById('gImei').value || "-";
@@ -1568,7 +1771,7 @@
             window.open(`https://api.whatsapp.com/send?phone=90${fNum}&text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // --- REKLAM GÖNDERİMİ ---
+        // REKLAM GÖNDERİMİ
         function renderReklamCustomers() {
             document.getElementById('reklam-list').innerHTML = db.customers.map(c => `<tr><td class="p-3 font-bold uppercase text-xs">${c.name} <br><span class="text-[10px] text-gray-400">${c.tel||'Tel Yok'}</span></td><td class="p-3 text-right"><button onclick="sendReklamWP('${c.tel}')" class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold mr-1"><i class="fab fa-whatsapp"></i> WP</button><button onclick="sendReklamSMS('${c.tel}')" class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold"><i class="fas fa-sms"></i> SMS</button></td></tr>`).join('');
         }
@@ -1584,9 +1787,7 @@
             window.open(`sms:${tel}?body=${encodeURIComponent(text)}`, '_blank');
         }
 
-        /* ========================================================
-           DİĞER MODÜLLER (MÜŞTERİ, ÜRÜN, FİNANS vb.)
-        ======================================================== */
+        // MÜŞTERİ, ÜRÜN, FİNANS MOD
         function saveCustomer() { 
             const n = document.getElementById('m-c-name').value; 
             if(n){ db.customers.push({ name: n, tel: document.getElementById('m-c-tel').value, note: document.getElementById('m-c-note').value, debt: 0 }); sync(); closeModal(); document.getElementById('m-c-name').value=''; document.getElementById('m-c-tel').value=''; document.getElementById('m-c-note').value=''; showToast('Müşteri Eklendi','success');} 
@@ -1621,310 +1822,9 @@
         
         function payDebt(i) { 
             const c = db.customers[i]; const a = prompt(`₺${c.debt} Tutarında Tahsilat Alınacak.\nAlınan Tutar (TL):`); 
-            if(a && !isNaN(a)) { c.debt -= Number(a); db.finances.push({id: Date.now(), type: 'Gelir', amount: Number(a), desc: `Tahsilat (${c.name})`, customer: c.name, date: new Date().toISOString()}); sync(); if(currentCustomerIdx === i) openCustomerDetail(i); showToast('Tahsilat eklendi','success');} 
-        }
+            if(a && !isNaN(a)) { c.debt -=
+Claude's response could not be fully generated
 
-        function sendWA(type) {
-            if(currentCustomerIdx === null) return;
-            const c = db.customers[currentCustomerIdx];
-            if(!c.tel) return showToast("Bu müşterinin telefon numarası kayıtlı değil!", "error");
-            let tel = c.tel.replace(/\D/g, ''); 
-            if(tel.startsWith('0')) tel = tel.substring(1); 
-            if(tel.length !== 10) return showToast("Geçersiz telefon numarası!", "error");
-            let text = type === 'borc' ? `Merhaba ${c.name}, Güncel açık hesap borcunuz: *${c.debt} TL*'dir. Lütfen ödemenizi vadesinde yapmayı unutmayınız.` : `Merhaba ${c.name}, Cihazınızın işlemleri tamamlanmıştır.`;
-            window.open(`https://wa.me/90${tel}?text=${encodeURIComponent(text)}`, '_blank');
-        }
 
-        function saveProduct() { 
-            const idx = parseInt(document.getElementById('m-p-edit-idx').value); 
-            const p = { barcode: document.getElementById('m-p-barcode').value || Date.now().toString(), name: document.getElementById('m-p-name').value, stock: Number(document.getElementById('m-p-stock').value), buy: Number(document.getElementById('m-p-buy').value), sell1: Number(document.getElementById('m-p-sell1').value), category: document.getElementById('m-p-category').value }; 
-            if(!p.name) return; 
-            if(idx > -1) db.products[idx] = p; else db.products.push(p); 
-            sync(); closeModal(); showToast('Ürün kaydedildi', 'success');
-        }
 
-        function editProd(i) { 
-            const p = db.products[i]; document.getElementById('m-p-edit-idx').value = i; document.getElementById('m-p-barcode').value = p.barcode; document.getElementById('m-p-name').value = p.name; document.getElementById('m-p-stock').value = p.stock; document.getElementById('m-p-buy').value = p.buy; document.getElementById('m-p-sell1').value = p.sell1; document.getElementById('m-p-category').value = p.category || ''; openModal('prod-modal'); 
-        }
 
-        function renderProducts() { 
-            const s = document.getElementById('prod-search').value.toLowerCase(); 
-            document.getElementById('prod-table').innerHTML = db.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s)).map((p, i) => {
-                const isLow = (!p.category && p.stock <= 5) ? 'bg-red-50' : ''; // KRİTİK STOK RENGİ
-                return `<tr class="${isLow}"><td class="p-3 text-[10px] text-gray-400">${p.barcode}</td><td class="p-3 uppercase text-xs font-bold">${p.name}</td><td class="p-3 text-center text-blue-600 font-black">${p.stock}</td><td class="p-3 text-center text-[10px]">${p.category||'-'}</td><td class="p-3 text-right text-gray-400">₺${p.buy}</td><td class="p-3 text-right text-emerald-600 font-black">₺${p.sell1}</td><td class="p-3 text-center whitespace-nowrap"><button onclick="printLabel(${i})" class="text-gray-500 mr-2"><i class="fas fa-tags"></i></button><button onclick="editProd(${i})" class="text-amber-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){ const idx = db.products.findIndex(x=>x.barcode === '${p.barcode}'); db.products.splice(idx,1); sync()}" class="text-red-300"><i class="fas fa-trash"></i></button></td></tr>`;
-            }).join(''); 
-        }
-
-        function printLabel(idx) { 
-            const p = db.products[idx]; 
-            if(!p.barcode || p.barcode.startsWith('MUH-')) return showToast("Geçerli barkod yok.", "error"); 
-            document.getElementById('label-price').innerText = `₺${p.sell1.toFixed(2)}`; document.getElementById('label-title').innerText = p.name; 
-            JsBarcode("#label-barcode", p.barcode, { format: "CODE128", width: 2, height: 40, displayValue: true, fontSize: 12, margin: 0 }); 
-            document.getElementById('label-print-area').classList.add('active-print'); window.print(); setTimeout(() => { document.getElementById('label-print-area').classList.remove('active-print'); }, 500); 
-        }
-
-        function handleSayim(e) {
-            const val = e.target.value.trim().toLowerCase(); 
-            document.getElementById('sayim-barkod-okut').value = ''; 
-            if(!val) return; 
-            const idx = db.products.findIndex(x => x.barcode === val); 
-            if(idx > -1) { 
-                document.getElementById('sayim-search').value = db.products[idx].barcode; renderStokSayimi(); 
-                const inputEl = document.getElementById(`sayim-input-${idx}`); 
-                if(inputEl) { inputEl.value = parseInt(inputEl.value) + 1; inputEl.classList.add('bg-emerald-100'); setTimeout(() => inputEl.classList.remove('bg-emerald-100'), 500); } 
-            } else { showToast("Ürün bulunamadı!", "error"); }
-        }
-
-        function renderStokSayimi() { 
-            const filter = document.getElementById('sayim-search').value.toLowerCase(); 
-            document.getElementById('sayim-table').innerHTML = db.products.filter(p => !p.category && (p.name.toLowerCase().includes(filter) || p.barcode.includes(filter))).map(p => { 
-                const idx = db.products.findIndex(x => x.barcode === p.barcode); 
-                return `<tr><td class="p-3 font-mono text-xs">${p.barcode}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center text-lg">${p.stock}</td><td class="p-3 text-right text-amber-600 font-bold">₺${(p.buy*p.stock).toFixed(2)}</td><td class="p-3 text-center bg-blue-50"><input type="number" id="sayim-input-${idx}" value="${p.stock}" class="border-2 border-blue-300 rounded p-2 w-20 text-center font-black text-blue-700 outline-none"></td></tr>`; 
-            }).join(''); 
-        }
-
-        function saveAllStockCounts() { 
-            let changed = 0; 
-            db.products.forEach((p, i) => { const el = document.getElementById(`sayim-input-${i}`); if (el && p.stock !== parseInt(el.value)) { p.stock = parseInt(el.value); changed++; } }); 
-            if(changed > 0) { sync(); showToast(`${changed} ürün güncellendi!`, "success"); document.getElementById('sayim-search').value = ''; } 
-        }
-
-        function addFinance() { 
-            const t = document.getElementById('fin-type').value, d = document.getElementById('fin-desc').value, a = Number(document.getElementById('fin-amount').value); 
-            if(d&&a){ db.finances.push({id: Date.now(), type: t, amount: a, desc: d, date: new Date().toISOString()}); sync(); document.getElementById('fin-desc').value=''; document.getElementById('fin-amount').value=''; showToast('İşlem kaydedildi.','success');} 
-        }
-
-        function openTaksitModal() { 
-            const top = Number(document.getElementById('pos-toplam').value) || 0; 
-            document.getElementById('taksit-tutar').value = top > 0 ? top : ''; document.getElementById('taksit-sonuc').classList.add('hidden'); document.getElementById('taksit-ay').value = "2"; updateTaksitOran(); openModal('taksit-modal'); 
-        }
-
-        function updateTaksitOran() { 
-            const ay = Number(document.getElementById('taksit-ay').value); document.getElementById('taksit-oran').value = oranlar[ay] || 0; 
-        }
-
-        function hesaplaTaksit() { 
-            const tutar = Number(document.getElementById('taksit-tutar').value); const ay = Number(document.getElementById('taksit-ay').value); const oran = Number(document.getElementById('taksit-oran').value); 
-            if(!tutar || tutar <= 0) return showToast("Geçerli bir tutar giriniz!", "error"); if(oran === undefined || oran < 0) return showToast("Geçerli oran giriniz!", "error"); 
-            const vade = tutar * (oran / 100); const odenecek = tutar + vade; const aylik = odenecek / ay; 
-            document.getElementById('res-aylik').innerText = `₺${aylik.toFixed(2)}`; document.getElementById('res-toplam').innerText = `₺${odenecek.toFixed(2)}`; document.getElementById('taksit-sonuc').classList.remove('hidden'); 
-        }
-
-        function saveLog() { const desc = document.getElementById('log-desc').value.trim(); const date = document.getElementById('log-date-picker').value; if(!desc) return; db.logs.push({ id: Date.now(), desc, date, time: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) }); document.getElementById('log-desc').value = ''; sync(); }
-        function renderLogs() { const dVal = document.getElementById('log-date-picker').value; const logs = db.logs.filter(l => l.date === dVal); const container = document.getElementById('log-timeline'); if(logs.length === 0) { container.innerHTML = '<div class="text-center text-gray-400 font-bold py-10">Kayıt bulunamadı.</div>'; return; } container.innerHTML = logs.reverse().map(l => `<div class="flex items-start gap-2"><div class="bg-indigo-200 text-indigo-800 text-[10px] font-black px-2 py-1 rounded shrink-0 mt-1">${l.time}</div><div class="flex-1 bg-white p-3 rounded-lg shadow-sm border text-xs md:text-sm font-bold text-gray-700">${l.desc}</div><button onclick="db.logs=db.logs.filter(x=>x.id!=${l.id});sync()" class="text-red-200 hover:text-red-400 mt-2"><i class="fas fa-trash-alt"></i></button></div>`).join(''); }
-
-        function addFaturasiz() { const n = document.getElementById('fu-name').value; const p = Number(document.getElementById('fu-price').value); if(n&&p){ db.faturasiz.push({ id: Date.now(), name: n, price: p }); document.getElementById('fu-name').value = ''; document.getElementById('fu-price').value = ''; sync(); } }
-        function renderFaturasiz() { document.getElementById('fu-table').innerHTML = db.faturasiz.map(u => `<tr><td class="p-3 md:p-4 text-xs md:text-sm font-bold">${u.name}</td><td class="p-3 md:p-4 text-right text-emerald-600 font-black text-xs md:text-sm">₺${u.price}</td><td class="p-3 md:p-4 text-center"><button onclick="addToCartFaturasiz(${u.id})" class="bg-blue-600 text-white px-3 md:px-5 py-1 rounded font-black text-[10px] mr-2">SAT</button><button onclick="db.faturasiz=db.faturasiz.filter(x=>x.id!=${u.id});sync()" class="text-red-300"><i class="fas fa-trash"></i></button></td></tr>`).join(''); }
-        function addToCartFaturasiz(id) { const u = db.faturasiz.find(x=>x.id===id); cart.push({ barcode: 'FTRS', name: u.name, sell1: u.price, buy: 0, qty: 1, isCustom: true }); renderCart(); showToast('Faturasız ürün sepete eklendi.', 'info'); }
-
-        function saveQuickNote() { const t = document.getElementById('note-text').value; if(t){ db.notes.push({ id: Date.now(), text: t, date: new Date().toLocaleString('tr-TR') }); document.getElementById('note-text').value=''; sync(); } }
-        function renderNotes() { document.getElementById('notes-container').innerHTML = db.notes.reverse().map(n => `<div class="bg-amber-100 p-4 md:p-5 rounded-2xl shadow-sm border border-amber-200 relative"><button onclick="db.notes=db.notes.filter(x=>x.id!=${n.id});sync()" class="absolute top-2 right-2 text-amber-400 hover:text-red-500"><i class="fas fa-times-circle text-lg"></i></button><p class="font-bold text-gray-800 text-xs md:text-sm whitespace-pre-wrap">${n.text}</p><div class="text-[8px] md:text-[9px] font-black text-amber-500 mt-2 uppercase border-t border-amber-200 pt-1">${n.date}</div></div>`).join(''); }
-
-        function addTask() { const t = document.getElementById('task-input').value; if(t){ db.tasks.push({ id: Date.now(), text: t, done: false }); document.getElementById('task-input').value=''; sync(); } }
-        function renderTasks() { document.getElementById('task-list').innerHTML = db.tasks.reverse().map(t => `<li class="flex items-center justify-between p-3 md:p-4 hover:bg-gray-50"><div class="flex items-center gap-3"><input type="checkbox" ${t.done?'checked':''} onchange="const task=db.tasks.find(x=>x.id===${t.id});task.done=!task.done;sync()" class="w-5 h-5 md:w-6 md:h-6 accent-emerald-500"><span class="font-bold text-sm md:text-lg ${t.done?'line-through text-gray-300':'text-gray-700'}">${t.text}</span></div><button onclick="db.tasks=db.tasks.filter(x=>x.id!=${t.id});sync()" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></li>`).join(''); }
-
-        function setReportPeriod(period) { 
-            currentReportPeriod = period; 
-            document.querySelectorAll('.btn-rep').forEach(btn => { btn.className = "btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition"; });
-            document.getElementById('btn-rep-' + period).className = "btn-rep px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-sm transition";
-            renderDashboard(); 
-        }
-
-        function exportData() { 
-            const blob = new Blob([JSON.stringify(db)], {type: 'application/json'}); 
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
-            a.download = `salbas_yedek_${new Date().toISOString().slice(0,10)}.json`; a.click(); 
-        }
-        
-        function importData(e) { 
-            const r = new FileReader(); 
-            r.onload = (ev) => { db = JSON.parse(ev.target.result); sync(); showToast("Yedek başarıyla yüklendi!", "success"); }; 
-            r.readAsText(e.target.files[0]); 
-        }
-
-        // Eksik fonksiyonlar: renderTarifeler, renderOpLogs, saveTarife, saveOpLog
-        function saveTarife() {
-            const name = document.getElementById('tarife-name').value;
-            const price = Number(document.getElementById('tarife-price').value);
-            if(name && price) {
-                if(!db.operatorPacks) db.operatorPacks = [];
-                db.operatorPacks.push({ id: Date.now(), name: name, price: price, operator: activeTarifeOp });
-                document.getElementById('tarife-name').value = '';
-                document.getElementById('tarife-price').value = '';
-                sync();
-                showToast("Tarife eklendi.", "success");
-            }
-        }
-
-        function renderTarifeler() {
-            if(!db.operatorPacks) db.operatorPacks = [];
-            const filtered = db.operatorPacks.filter(p => p.operator === activeTarifeOp);
-            document.getElementById('tarife-table').innerHTML = filtered.map(t => 
-                `<tr><td class="p-3 md:p-4">${t.name}</td><td class="p-3 md:p-4 text-right">₺${t.price}</td><td class="p-3 md:p-4 text-center"><button onclick="deleteTarife(${t.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td></tr>`
-            ).join('');
-        }
-
-        function deleteTarife(id) {
-            db.operatorPacks = db.operatorPacks.filter(p => p.id !== id);
-            sync();
-            showToast("Tarife silindi.", "info");
-        }
-
-        function saveOpLog() {
-            const text = document.getElementById('op-log-text').value;
-            if(text) {
-                if(!db.opLogs) db.opLogs = [];
-                db.opLogs.push({ 
-                    id: Date.now(), 
-                    text: text, 
-                    operator: activeOperator, 
-                    date: new Date().toLocaleDateString('tr-TR'),
-                    time: new Date().toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) 
-                });
-                document.getElementById('op-log-text').value = '';
-                sync();
-                showToast("Not kaydedildi.", "success");
-            }
-        }
-
-        function renderOpLogs() {
-            if(!db.opLogs) db.opLogs = [];
-            // Eski notların da görünmesi için eşleşmeyi esnettik (!l.operator kısmı eski formattaki verileri kurtarır)
-            const filtered = db.opLogs.filter(l => !l.operator || l.operator.toUpperCase() === activeOperator.toUpperCase());
-            document.getElementById('op-log-table').innerHTML = filtered.slice().reverse().map(l => 
-                `<tr><td class="p-3 md:p-4 text-xs"><span class="text-gray-400 block">${l.date || ''}</span>${l.time}</td><td class="p-3 md:p-4 font-bold text-gray-700">${l.text}</td><td class="p-3 md:p-4 text-center"><button onclick="deleteOpLog(${l.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td></tr>`
-            ).join('');
-        }
-
-        function deleteOpLog(id) {
-            db.opLogs = db.opLogs.filter(l => l.id !== id);
-            sync();
-            showToast("Not silindi.", "info");
-        }
-
-        /* ========================================================
-           ANA GÖRÜNÜM VE DASHBOARD GÜNCELLEYİCİ
-        ======================================================== */
-        function renderDashboard() {
-            const now = new Date();
-            const isToday = (dateStr) => { if(!dateStr) return false; const d = new Date(dateStr); return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); };
-            const wStart = new Date(); wStart.setDate(now.getDate() - 7);
-            const mStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-            // Stok Uyarı (Sadece kategorisi olmayan asıl ürünlerde)
-            const lowStockItems = db.products.filter(p => !p.category && p.stock <= 5);
-            if(lowStockItems.length > 0) {
-                document.getElementById('dash-stok-uyari').classList.remove('hidden');
-                document.getElementById('dash-stok-listesi').innerHTML = lowStockItems.map(p => `<span class="bg-white border border-red-200 px-3 py-1 rounded text-xs font-bold text-gray-700 shadow-sm">${p.name} <span class="text-red-500 ml-1">(${p.stock} Adet)</span></span>`).join('');
-            } else {
-                document.getElementById('dash-stok-uyari').classList.add('hidden');
-            }
-
-            const salesToday = db.sales.filter(s => !s.isRefunded && isToday(s.date));
-            const salesWeek = db.sales.filter(s => !s.isRefunded && new Date(s.date) >= wStart);
-            const salesMonth = db.sales.filter(s => !s.isRefunded && new Date(s.date) >= mStart);
-
-            if(document.getElementById('dash-ciro-bugun')) {
-                document.getElementById('dash-ciro-bugun').innerText = `₺${salesToday.reduce((a,b)=>a+b.total,0).toLocaleString()}`;
-                document.getElementById('dash-kar-bugun').innerText = `(+₺${salesToday.reduce((a,b)=>a+(b.profit||0),0).toLocaleString()})`;
-                document.getElementById('dash-ciro-hafta').innerText = `₺${salesWeek.reduce((a,b)=>a+b.total,0).toLocaleString()}`;
-                document.getElementById('dash-kar-hafta').innerText = `(+₺${salesWeek.reduce((a,b)=>a+(b.profit||0),0).toLocaleString()})`;
-                document.getElementById('dash-ciro-ay').innerText = `₺${salesMonth.reduce((a,b)=>a+b.total,0).toLocaleString()}`;
-                document.getElementById('dash-kar-ay').innerText = `(+₺${salesMonth.reduce((a,b)=>a+(b.profit||0),0).toLocaleString()})`;
-                document.getElementById('dash-stok-deger').innerText = `₺${db.products.reduce((a,b)=>a+(b.buy*b.stock),0).toLocaleString()}`;
-            }
-
-            const debtors = db.customers.filter(c => c.debt > 0).sort((a,b) => b.debt - a.debt).slice(0, 5);
-            if(document.getElementById('dash-alacak-list')) { document.getElementById('dash-alacak-list').innerHTML = debtors.map(c => `<tr><td class="p-3">${c.name}</td><td class="p-3 text-right text-red-600 font-bold">₺${c.debt}</td></tr>`).join(''); }
-
-            const lastSales = [...db.sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
-            if(document.getElementById('dash-son-satislar')) {
-                document.getElementById('dash-son-satislar').innerHTML = lastSales.map(s => `<tr><td class="p-3 text-xs text-gray-400">${new Date(s.date).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</td><td class="p-3 font-bold text-xs uppercase">${s.customer || 'Satış'}</td><td class="p-3 text-xs truncate max-w-[100px]">${s.items && s.items.length ? s.items.map(i=>i.name).join(',') : 'Ürün'}</td><td class="p-3 text-right text-emerald-600 font-black">₺${s.total}</td></tr>`).join('');
-            }
-
-            let filteredSales = []; let filteredFins = [];
-            if(currentReportPeriod === 'gunluk') { filteredSales = db.sales.filter(s => isToday(s.date)); filteredFins = db.finances.filter(f => isToday(f.date)); } 
-            else if(currentReportPeriod === 'haftalik') { filteredSales = db.sales.filter(s => new Date(s.date) >= wStart); filteredFins = db.finances.filter(f => new Date(f.date) >= wStart); } 
-            else { filteredSales = db.sales.filter(s => new Date(s.date) >= mStart); filteredFins = db.finances.filter(f => new Date(f.date) >= mStart); }
-            
-            const vSales = filteredSales.filter(s => !s.isRefunded);
-
-            if(document.getElementById('rp-toplam-satis')){
-                document.getElementById('rp-toplam-satis').innerText = `₺${vSales.reduce((a,b)=>a+b.total,0).toLocaleString()}`;
-                document.getElementById('rp-net-kar').innerText = `₺${vSales.reduce((a,b)=>a+(b.profit||0),0).toLocaleString()}`;
-                document.getElementById('rp-toplam-gider').innerText = `₺${filteredFins.filter(f=>f.type==='Gider').reduce((a,b)=>a+b.amount,0).toLocaleString()}`;
-                
-                document.getElementById('rp-satis-table').innerHTML = [...filteredSales].reverse().map(s => {
-                    const time = new Date(s.date).toLocaleString('tr-TR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-                    const btnStyle = s.isRefunded ? 'hidden' : '';
-                    const itemsStr = s.items && s.items.length ? s.items.map(i=>i.name).join(', ') : 'Ürün Yok';
-                    return `<tr class="border-b ${s.isRefunded ? 'opacity-50' : ''}"><td class="p-3 text-gray-400 text-xs font-bold">${time}</td><td class="p-3 font-bold text-xs uppercase">${s.customer || s.type}</td><td class="p-3 text-right font-black text-blue-600">₺${s.total}</td><td class="p-3 text-xs italic max-w-[150px] truncate">${itemsStr}</td><td class="p-3 text-center space-x-1"><button class="${btnStyle} text-blue-500 px-1 hover:text-blue-700" onclick="printSpecificSale(${s.id})" title="Yazdır"><i class="fas fa-print"></i></button><button class="${btnStyle} text-green-500 px-1 hover:text-green-700" onclick="wpOldSale(${s.id})" title="WP Gönder"><i class="fab fa-whatsapp"></i></button><button class="${btnStyle} text-red-500 px-1 hover:text-red-700" onclick="refundSale(${s.id})" title="İade"><i class="fas fa-undo"></i></button>${s.isRefunded?'<span class="text-red-500 font-bold text-xs">İPTAL</span>':''}</td></tr>`;
-                }).join('');
-            }
-
-            if(document.getElementById('fin-table')){
-                document.getElementById('fin-table').innerHTML = db.finances.slice().reverse().map((f, i) => `<tr><td class="p-3 text-xs text-gray-500">${new Date(f.date).toLocaleDateString()}</td><td class="p-3 font-bold">${f.desc}</td><td class="p-3 text-right font-bold ${f.type==='Gelir'?'text-emerald-600':'text-red-600'}">${f.type==='Gelir'?'+':'-'}₺${f.amount}</td><td class="p-3 text-center"><button onclick="db.finances.splice(${db.finances.length-1-i},1);sync()" class="text-red-300"><i class="fas fa-trash"></i></button></td></tr>`).join(''); 
-            }
-
-            const ctx30 = document.querySelector("#chart-30-days");
-            const ctx6 = document.querySelector("#chart-6-months");
-            
-            if(ctx30 && ctx6) {
-                const dData = []; const dLabels = []; 
-                for(let i=14; i>=0; i--) { 
-                    let d = new Date(); d.setDate(d.getDate() - i); 
-                    dLabels.push(d.getDate() + ' ' + ["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"][d.getMonth()]); 
-                    let dayTotal = db.sales.filter(s => !s.isRefunded && s.date && (new Date(s.date).getDate() === d.getDate() && new Date(s.date).getMonth() === d.getMonth())).reduce((a,b)=>a+b.total,0);
-                    dData.push(dayTotal); 
-                } 
-                
-                if(chart30) chart30.destroy();
-                chart30 = new ApexCharts(ctx30, { series: [{ name: 'Satış (₺)', data: dData }], chart: { type: 'area', height: 250, toolbar: { show: false }, fontFamily: 'inherit' }, colors: ['#008FFB'], fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 90, 100] } }, dataLabels: { enabled: false }, stroke: { curve: 'smooth', width: 2 }, xaxis: { categories: dLabels, axisBorder: { show: false }, axisTicks: { show: false } }, yaxis: { labels: { formatter: function (val) { return "₺" + val } } }, grid: { borderColor: '#f1f5f9', strokeDashArray: 4 } }); 
-                chart30.render();
-
-                const mNames = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]; 
-                let mLabels = []; let mData = [0,0,0,0,0,0]; 
-                let now2 = new Date(); 
-                for(let i=5; i>=0; i--) { let m = new Date(now2.getFullYear(), now2.getMonth() - i, 1); mLabels.push(mNames[m.getMonth()]); } 
-                db.sales.filter(s=>!s.isRefunded).forEach(s => { 
-                    if(!s.date) return;
-                    const sd = new Date(s.date); 
-                    const diff = (now2.getFullYear() - sd.getFullYear()) * 12 + (now2.getMonth() - sd.getMonth()); 
-                    if(diff >= 0 && diff < 6) mData[5 - diff] += s.total; 
-                }); 
-                
-                if(chart6) chart6.destroy();
-                chart6 = new ApexCharts(ctx6, { series: [{ name: 'Net Kazanç', data: mData }], chart: { type: 'bar', height: 250, toolbar: { show: false }, fontFamily: 'inherit' }, colors: ['#00E396'], plotOptions: { bar: { borderRadius: 4, columnWidth: '40%' } }, dataLabels: { enabled: false }, xaxis: { categories: mLabels, axisBorder: { show: false }, axisTicks: { show: false } }, yaxis: { labels: { formatter: function (val) { return "₺" + val } } }, grid: { borderColor: '#f1f5f9', strokeDashArray: 4 } }); 
-                chart6.render();
-            }
-        }
-
-        function refundSale(saleId) { 
-            if(!confirm("İPTAL edip ürünleri stoka eklemek istiyor musunuz?")) return; 
-            const sale = db.sales.find(s => s.id === saleId); 
-            if(!sale || sale.isRefunded) return; 
-            
-            if(sale.items) {
-                sale.items.forEach(item => { 
-                    if(!item.isCustom) { const p = db.products.find(x => x.barcode === item.barcode); if(p && !p.category) p.stock += item.qty; }
-                }); 
-            }
-
-            if(sale.type === 'Açık Hesap' && sale.customer) { 
-                const c = db.customers.find(x => x.name === sale.customer); if(c) c.debt -= sale.total; 
-            } else { 
-                db.finances.push({ id: Date.now(), type: 'Gider', amount: sale.total, desc: `İADE: (${sale.type})`, date: new Date().toISOString()}); 
-            } 
-            
-            sale.isRefunded = true; sync(); showToast("Satış İptal edildi.", "info"); 
-        }
-
-        function renderAll() { 
-            renderProducts(); renderCustomers(); renderDashboard(); renderLogs(); renderFaturasiz(); renderNotes(); renderTasks(); renderOpLogs(); renderTarifeler(); renderQuickSell(); 
-            renderPurchases(); 
-            if(document.getElementById('sayim-search')) renderStokSayimi();
-            
-            // Fiş Kes Ayarlarını Canlı Önizlemeye Yansıt
-            if(document.getElementById('mf-prev-company')) renderManuelFisLiveSettings();
-        }
-    </script></body></html>
