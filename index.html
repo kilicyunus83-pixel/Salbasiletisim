@@ -6,7 +6,7 @@
     <!-- PWA (Mobil Uygulama) Ayarları -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968282.png">
+    <link rel="apple-touch-icon" href="logo.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -80,7 +80,10 @@
             
             <div class="mt-4 border-t border-gray-100 pt-4">
                 <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
-                    <i class="fab fa-google"></i> Google Hesabıyla Gir (Yeni Sistem)
+                    <i class="fab fa-google"></i> Google Hesabıyla Gir
+                </button>
+                <button onclick="bypassLogin()" class="mt-4 text-xs text-slate-400 font-bold hover:text-slate-600 transition flex items-center justify-center gap-1 mx-auto">
+                    <i class="fas fa-hdd"></i> Sisteme Çevrimdışı (Yerel) Devam Et
                 </button>
             </div>
             <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
@@ -773,7 +776,7 @@
                                 <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Telefon / Adres</label><textarea id="set-address" rows="2" class="w-full p-2 border rounded font-bold bg-gray-50 text-xs"></textarea></div>
                             </div>
                             
-                            <!-- LOGO YÜKLEME ALANI EKLENDİ -->
+                            <!-- LOGO YÜKLEME ALANI -->
                             <div class="col-span-2 border-t border-dashed mt-2 pt-4">
                                 <label class="block text-xs font-bold text-blue-600 uppercase mb-2"><i class="fas fa-image"></i> İşletme Logosu (Arayüz & Fişler)</label>
                                 <div class="flex items-center gap-4 bg-blue-50 p-3 rounded-xl border border-blue-100">
@@ -950,6 +953,16 @@
             el.className = isErr ? "text-xs font-bold text-red-500 mt-4 h-4" : "text-xs font-bold text-emerald-500 mt-4 h-4";
         }
 
+        // --- ACİL DURUM YEREL GİRİŞ (GEÇİCİ OLARAK EKLENDİ) ---
+        function bypassLogin() {
+            currentUserUid = "test-user-123";
+            document.getElementById('user-email-display').innerText = "Yerel Kullanıcı";
+            document.getElementById('login-screen').classList.add('hidden');
+            loadLocalData(currentUserUid);
+            showToast("Uyarı: Bulut bağlantısı yok. Sadece bu cihazdaki yerel veriler görünüyor.", "error");
+        }
+        // -----------------------------------------------------
+
         function loginApp() {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-pass').value;
@@ -966,7 +979,13 @@
             auth.signInWithPopup(provider).then((result) => {
                 msg("Giriş başarılı! İçeri alınıyorsunuz...", false);
             }).catch((error) => {
-                msg("Giriş iptal edildi veya hata: " + error.message);
+                // Eğer hata popup engellemesiyse redirect dene veya detaylı bilgi ver
+                if (error.code === 'auth/popup-blocked') {
+                    msg("Pop-up engellendi. Lütfen tarayıcı ayarlarından izin verin.");
+                } else {
+                    msg("Hata: " + error.message);
+                    alert("Firebase Giriş Hatası!\n\nLütfen Firebase Console -> Authentication -> Settings -> Authorized Domains kısmına sitenizi (kilicyunus83-pixel.github.io) eklediğinizden emin olun.\n\nHata Detayı: " + error.message);
+                }
             });
         }
 
@@ -1972,19 +1991,4 @@
         }
 
         function saveProduct() { 
-            const idx = parseInt(document.getElementById('m-p-edit-idx').value); 
-            const p = { barcode: document.getElementById('m-p-barcode').value || Date.now().toString(), name: document.getElementById('m-p-name').value, stock: Number(document.getElementById('m-p-stock').value), buy: Number(document.getElementById('m-p-buy').value), sell1: Number(document.getElementById('m-p-sell1').value), category: document.getElementById('m-p-category').value }; 
-            if(!p.name) return; 
-            if(idx > -1) db.products[idx] = p; else db.products.push(p); 
-            sync(); closeModal(); showToast('Ürün kaydedildi', 'success');
-        }
-
-        function editProd(i) { 
-            const p = db.products[i]; document.getElementById('m-p-edit-idx').value = i; document.getElementById('m-p-barcode').value = p.barcode; document.getElementById('m-p-name').value = p.name; document.getElementById('m-p-stock').value = p.stock; document.getElementById('m-p-buy').value = p.buy; document.getElementById('m-p-sell1').value = p.sell1; document.getElementById('m-p-category').value = p.category || ''; openModal('prod-modal'); 
-        }
-
-        function renderProducts() { 
-            const s = document.getElementById('prod-search').value.toLowerCase(); 
-            document.getElementById('prod-table').innerHTML = db.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s)).map((p, i) => {
-                const isLow = (!p.category && p.stock <= 5) ? 'bg-red-50' : ''; 
-                return `<tr class="${isLow}"><td class="p-3 text-[10px] text-gray-400">${p.barcode}</td><td class="p-3 uppercase text-xs font-
+            const idx = parseInt(document.getElementById('m-p-edit-idx').value);
