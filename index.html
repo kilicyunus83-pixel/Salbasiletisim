@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html><html lang="tr"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -6,7 +7,7 @@
     <!-- PWA (Mobil Uygulama) Ayarları -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
-    <link rel="apple-touch-icon" href="logo.jpg">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968282.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -69,7 +70,7 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[200] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-            <img id="login-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/5968/5968282.png';">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl">
             <h1 class="text-4xl font-black text-blue-600 mb-1 mt-2">SALBAŞ<span class="text-slate-700">İletişim</span></h1>
             <p class="text-slate-400 font-bold mb-8 uppercase text-xs tracking-widest flex items-center justify-center gap-2"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
             
@@ -80,10 +81,10 @@
             
             <div class="mt-4 border-t border-gray-100 pt-4">
                 <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
-                    <i class="fab fa-google"></i> Google Hesabıyla Gir
+                    <i class="fab fa-google"></i> Google Hesabıyla Gir (Yeni Sistem)
                 </button>
-                <button onclick="bypassLogin()" class="mt-4 text-xs text-slate-400 font-bold hover:text-slate-600 transition flex items-center justify-center gap-1 mx-auto">
-                    <i class="fas fa-hdd"></i> Sisteme Çevrimdışı (Yerel) Devam Et
+                <button onclick="bypassLogin()" class="w-full bg-gray-800 text-white mt-2 py-3 rounded-xl font-bold shadow hover:bg-gray-900 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-vial"></i> Test Modu (Şifresiz Giriş)
                 </button>
             </div>
             <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
@@ -93,7 +94,7 @@
     <div id="print-area">
         <div id="receipt-preview-container" class="font-mono text-black relative thickness-normal bg-white mx-auto">
             <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
-                <img id="receipt-prev-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/5968/5968282.png';">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
                 <h2 id="receipt-company" class="font-bold uppercase leading-tight mb-1" style="font-size: 1.2em;">İŞLETME ADI</h2>
                 <p id="receipt-address" class="whitespace-pre-line leading-tight break-text" style="font-size: 0.85em;">ADRES BİLGİSİ</p>
                 <p id="receipt-tax" class="mt-1" style="font-size: 0.85em;">VD: -</p>
@@ -140,7 +141,7 @@
     
     <div id="contract-print-area">
         <div class="text-center mb-8 border-b-2 border-black pb-4">
-            <img id="contract-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 80px; margin: 0 auto 10px; display: block;" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/5968/5968282.png';">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 80px; margin: 0 auto 10px; display: block;">
             <h1 class="text-2xl font-black uppercase tracking-wide">İkinci El Cihaz Alım-Satım Sözleşmesi</h1>
         </div>
         
@@ -201,7 +202,7 @@
     <!-- MOBİL UYUMLU, SCROLL EDİLEBİLİR DÜZELTİLMİŞ SIDEBAR -->
     <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
         <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0 bg-white p-2">
-            <img id="sidebar-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="h-full object-contain" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/5968/5968282.png';">
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="h-full object-contain">
             <a href="#" class="text-2xl font-bold items-center gap-2 hidden text-blue-600" style="display: none;">
                 <i class="fas fa-shopping-cart text-blue-400"></i><span>Satıcı Paneli</span>
             </a>
@@ -332,8 +333,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-emerald-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bugün Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-bugun" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-bugun" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-blue-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Hafta Ciro / Kâr <br><span class="text-[9px] lowercase text-blue-500 font-normal">(Pazartesi itibariyle)</span></p><div class="flex items-end space-x-2"><h3 id="dash-ciro-hafta" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-hafta" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-indigo-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Ay Ciro / Kâr <br><span class="text-[9px] lowercase text-indigo-500 font-normal">(Ayın 1'i itibariyle)</span></p><div class="flex items-end space-x-2"><h3 id="dash-ciro-ay" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-ay" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-blue-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Hafta Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-hafta" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-hafta" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-indigo-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Ay Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-ay" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-ay" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
                     <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-amber-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Toplam Stok Maliyeti</p><h3 id="dash-stok-deger" class="text-2xl font-black text-gray-800">₺0</h3></div>
                 </div>
 
@@ -674,7 +675,7 @@
 
                         <div id="mf-live-preview" class="bg-white shadow-xl border border-gray-300 p-4 font-mono text-black w-[75mm] min-h-[100mm]">
                             <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
-                                <img id="mf-prev-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/5968/5968282.png';">
+                                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
                                 <h2 id="mf-prev-company" class="font-bold uppercase leading-tight mb-1" style="font-size: 1.2em;">İŞLETME ADI</h2>
                                 <p id="mf-prev-address" class="whitespace-pre-line leading-tight" style="font-size: 0.85em;">Adres</p>
                                 <p id="mf-prev-tax" class="mt-1" style="font-size: 0.85em;">VD: -</p>
@@ -775,20 +776,7 @@
                                 <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vergi Dairesi & No</label><input type="text" id="set-tax" class="w-full p-2 border rounded font-bold bg-gray-50" placeholder="KARAİSALI MAL MÜD."></div>
                                 <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Telefon / Adres</label><textarea id="set-address" rows="2" class="w-full p-2 border rounded font-bold bg-gray-50 text-xs"></textarea></div>
                             </div>
-                            
-                            <!-- LOGO YÜKLEME ALANI -->
-                            <div class="col-span-2 border-t border-dashed mt-2 pt-4">
-                                <label class="block text-xs font-bold text-blue-600 uppercase mb-2"><i class="fas fa-image"></i> İşletme Logosu (Arayüz & Fişler)</label>
-                                <div class="flex items-center gap-4 bg-blue-50 p-3 rounded-xl border border-blue-100">
-                                    <img id="settings-logo-preview" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="h-16 w-16 object-contain border border-gray-300 rounded bg-white shadow-sm">
-                                    <div class="flex-1">
-                                        <input type="file" id="set-logo-file" accept="image/*" onchange="handleLogoUpload(event)" class="text-xs font-bold w-full mb-1 text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
-                                        <button type="button" onclick="clearLogo()" class="text-[10px] text-red-500 font-bold hover:underline mt-1"><i class="fas fa-trash"></i> Varsayılana Dön (Logoyu Temizle)</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1 mt-2">Fiş Alt Bilgisi (Teşekkür Mesajı vs.)</label><textarea id="set-footer" rows="2" class="w-full p-2 border rounded font-bold bg-gray-50 text-xs"></textarea></div>
+                            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fiş Alt Bilgisi (Teşekkür Mesajı vs.)</label><textarea id="set-footer" rows="2" class="w-full p-2 border rounded font-bold bg-gray-50 text-xs"></textarea></div>
                             <button type="button" onclick="saveReceiptSettings()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-black shadow hover:bg-blue-700 transition">AYARLARI KAYDET</button>
                         </form>
                     </div>
@@ -854,22 +842,6 @@
             <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-600 py-3 rounded-xl font-black mt-2">İptal</button>
         </div>
 
-        <!-- İŞLEM/SATIŞ DÜZENLEME MODALI -->
-        <div id="sale-edit-modal" class="hidden bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
-            <h3 class="font-black text-xl mb-4 text-amber-600 uppercase tracking-tighter"><i class="fas fa-edit mr-2"></i>Satışı Düzenle</h3>
-            <input type="hidden" id="s-edit-id" value="">
-            <div class="mb-4">
-                <label class="text-[10px] font-black uppercase text-gray-500">Müşteri / Açıklama</label>
-                <input type="text" id="s-edit-customer" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-amber-500">
-            </div>
-            <div class="mb-6">
-                <label class="text-[10px] font-black uppercase text-gray-500">İşlem Tutarı (₺)</label>
-                <input type="number" id="s-edit-total" class="w-full border p-3 rounded-xl font-black text-emerald-600 text-lg bg-emerald-50 outline-none focus:border-amber-500" step="0.01">
-            </div>
-            <button onclick="saveSaleEdit()" class="w-full bg-amber-500 text-white py-4 rounded-xl font-black shadow-lg hover:bg-amber-600 transition">KAYDET VE GÜNCELLE</button>
-            <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-black mt-2 hover:bg-gray-300 transition">İptal</button>
-        </div>
-
         <div id="price-check-modal" class="hidden bg-white w-full max-w-sm rounded-3xl p-6 text-center">
             <h2 id="pc-name" class="text-2xl font-black mb-4 uppercase">Ürün Adı</h2>
             <div class="bg-emerald-50 p-6 rounded-3xl mb-4 border border-emerald-100"><p class="text-[10px] font-black text-emerald-600 mb-1 uppercase">SATIŞ FİYATI</p><h1 id="pc-price" class="text-5xl font-black text-emerald-700">₺0</h1></div>
@@ -901,37 +873,22 @@
         let db = { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] };
         let cart = []; let lastSaleId = null; let currentReportPeriod = 'gunluk'; let isPriceCheckMode = false; let activeOperator = 'TURKCELL'; let activeTarifeOp = 'TURKCELL'; let activeQuickTab = 'Liste 1'; let currentCustomerIdx = null; let chart30 = null; let chart6 = null;
         let currentUserUid = null;
-        
-        let currentLogoBase64 = "https://cdn-icons-png.flaticon.com/512/5968/5968282.png";
 
         const oranlar = { 2: 7.92, 3: 9.78, 4: 12.34, 5: 14.05, 6: 15.76, 7: 17.97, 8: 20.18, 9: 21.89, 10: 24.10, 11: 25.81, 12: 28.02 };
-
-        // TAKVİM YARDIMCILARI (Pazartesi Hafta Başı & 1'i Ay Başı)
-        const getStartOfWeek = (dStr) => { 
-            const now2 = dStr ? new Date(dStr) : new Date();
-            const diff = now2.getDate() - now2.getDay() + (now2.getDay() === 0 ? -6 : 1); 
-            const start = new Date(now2.setDate(diff)); 
-            start.setHours(0,0,0,0); 
-            return start; 
-        };
-        const getStartOfMonth = (dStr) => {
-            const now2 = dStr ? new Date(dStr) : new Date();
-            now2.setDate(1);
-            now2.setHours(0,0,0,0);
-            return now2;
-        };
 
         window.onload = () => {
             // PWA (Mobil Uygulama) Servis Kurulumu
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
-                .then(() => console.log("PWA Aktif - Uygulama Kurulabilir!"))
+                .then(() => console.log("PWA Aktif"))
                 .catch(err => console.log("PWA Hatası:", err));
             }
 
+            // Auth Değişiklik Dinleyicisi
             auth.onAuthStateChanged(user => {
                 if(user) {
-                    currentUserUid = user.uid; 
+                    currentUserUid = user.uid;
+                    document.getElementById('login-screen').classList.add('hidden'); // Hemen gizle
                     document.getElementById('user-email-display').innerText = user.email || user.displayName || "Dükkan Sahibi";
                     if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
                     loadCloudData(user.uid);
@@ -953,16 +910,6 @@
             el.className = isErr ? "text-xs font-bold text-red-500 mt-4 h-4" : "text-xs font-bold text-emerald-500 mt-4 h-4";
         }
 
-        // --- ACİL DURUM YEREL GİRİŞ (GEÇİCİ OLARAK EKLENDİ) ---
-        function bypassLogin() {
-            currentUserUid = "test-user-123";
-            document.getElementById('user-email-display').innerText = "Yerel Kullanıcı";
-            document.getElementById('login-screen').classList.add('hidden');
-            loadLocalData(currentUserUid);
-            showToast("Uyarı: Bulut bağlantısı yok. Sadece bu cihazdaki yerel veriler görünüyor.", "error");
-        }
-        // -----------------------------------------------------
-
         function loginApp() {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-pass').value;
@@ -973,20 +920,33 @@
             }).catch(err => msg("Hatalı giriş! E-posta veya şifre yanlış."));
         }
 
+        // GOOGLE GİRİŞ DÜZELTMESİ
         function loginWithGoogle() {
             msg("Google paneli açılıyor, lütfen bekleyin...", false);
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then((result) => {
-                msg("Giriş başarılı! İçeri alınıyorsunuz...", false);
-            }).catch((error) => {
-                // Eğer hata popup engellemesiyse redirect dene veya detaylı bilgi ver
+            // popup engellemesini önlemek için kullanıcı etkileşimi içinde çağrılmalı
+            auth.signInWithPopup(provider)
+            .then((result) => {
+                msg("Giriş başarılı!", false);
+            })
+            .catch((error) => {
+                console.error("Auth Hata:", error);
                 if (error.code === 'auth/popup-blocked') {
-                    msg("Pop-up engellendi. Lütfen tarayıcı ayarlarından izin verin.");
+                    msg("Hata: Tarayıcı pencereyi engelledi. Adres çubuğundaki ikona tıklayarak izin verin.");
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    msg("Hata: Firebase Console'da Google Giriş yöntemi aktif değil.");
                 } else {
-                    msg("Hata: " + error.message);
-                    alert("Firebase Giriş Hatası!\n\nLütfen Firebase Console -> Authentication -> Settings -> Authorized Domains kısmına sitenizi (kilicyunus83-pixel.github.io) eklediğinizden emin olun.\n\nHata Detayı: " + error.message);
+                    msg("Hata: " + (error.message || "Bağlantı sorunu oluştu."));
                 }
             });
+        }
+
+        function bypassLogin() {
+            currentUserUid = "test-user-123";
+            document.getElementById('user-email-display').innerText = "Test Kullanıcısı";
+            document.getElementById('login-screen').classList.add('hidden');
+            loadLocalData(currentUserUid);
+            showToast("Test modunda giriş yapıldı. (Veriler tarayıcıda kalır)", "info");
         }
 
         function logoutApp() {
@@ -999,39 +959,24 @@
             dbCloud.collection("sistem_kullanicilari").doc(uid).get().then((doc) => {
                 if (doc.exists) {
                     const cloudData = doc.data();
-                    db.products = cloudData.products || []; db.customers = cloudData.customers || [];
-                    db.sales = cloudData.sales || []; db.finances = cloudData.finances || [];
-                    db.logs = cloudData.logs || []; db.faturasiz = cloudData.faturasiz || [];
-                    db.notes = cloudData.notes || []; db.tasks = cloudData.tasks || [];
-                    db.opLogs = cloudData.opLogs || []; db.operatorPacks = cloudData.operatorPacks || [];
-                    db.purchases = cloudData.purchases || []; db.repairs = cloudData.repairs || [];
-                } else {
-                    db = { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] };
+                    db = Object.assign(db, cloudData);
                 }
                 renderAll();
-                document.getElementById('login-screen').classList.add('hidden');
-                showToast("Dükkan veritabanı bağlandı.", "success");
+                showToast("Bulut veritabanı senkronize edildi.", "success");
             }).catch(err => {
-                alert("Bulut bağlantı hatası! Çevrimdışı veriler yükleniyor.\n" + err.message);
+                console.warn("Bulut verisi alınamadı, offline devam ediliyor.", err);
                 loadLocalData(uid); 
-                document.getElementById('login-screen').classList.add('hidden');
             });
         }
 
         function loadLocalData(uid) {
             if(!uid) return;
-            db.products = JSON.parse(localStorage.getItem('bp_prods_' + uid)) || []; 
-            db.customers = JSON.parse(localStorage.getItem('bp_custs_' + uid)) || [];
-            db.sales = JSON.parse(localStorage.getItem('bp_sales_' + uid)) || []; 
-            db.finances = JSON.parse(localStorage.getItem('bp_fin_' + uid)) || [];
-            db.logs = JSON.parse(localStorage.getItem('bp_logs_' + uid)) || []; 
-            db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_' + uid)) || [];
-            db.notes = JSON.parse(localStorage.getItem('bp_notes_' + uid)) || []; 
-            db.tasks = JSON.parse(localStorage.getItem('bp_tasks_' + uid)) || [];
-            db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_' + uid)) || []; 
-            db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_' + uid)) || [];
-            db.purchases = JSON.parse(localStorage.getItem('bp_purchases_' + uid)) || []; 
-            db.repairs = JSON.parse(localStorage.getItem('bp_repairs_' + uid)) || [];
+            const prefix = 'bp_';
+            const keys = Object.keys(db);
+            keys.forEach(k => {
+                const stored = localStorage.getItem(prefix + k + '_' + uid);
+                if(stored) db[k] = JSON.parse(stored);
+            });
             renderAll();
         }
 
@@ -1040,18 +985,10 @@
                 const uid = auth.currentUser.uid;
                 dbCloud.collection("sistem_kullanicilari").doc(uid).set(db).catch(e => console.log("Cloud Hatası:", e));
                 
-                localStorage.setItem('bp_prods_' + uid, JSON.stringify(db.products)); 
-                localStorage.setItem('bp_custs_' + uid, JSON.stringify(db.customers));
-                localStorage.setItem('bp_sales_' + uid, JSON.stringify(db.sales)); 
-                localStorage.setItem('bp_fin_' + uid, JSON.stringify(db.finances));
-                localStorage.setItem('bp_logs_' + uid, JSON.stringify(db.logs)); 
-                localStorage.setItem('bp_faturasiz_' + uid, JSON.stringify(db.faturasiz));
-                localStorage.setItem('bp_notes_' + uid, JSON.stringify(db.notes)); 
-                localStorage.setItem('bp_tasks_' + uid, JSON.stringify(db.tasks));
-                localStorage.setItem('bp_oplogs_' + uid, JSON.stringify(db.opLogs)); 
-                localStorage.setItem('bp_oppacks_' + uid, JSON.stringify(db.operatorPacks));
-                localStorage.setItem('bp_purchases_' + uid, JSON.stringify(db.purchases)); 
-                localStorage.setItem('bp_repairs_' + uid, JSON.stringify(db.repairs)); 
+                const prefix = 'bp_';
+                Object.keys(db).forEach(k => {
+                    localStorage.setItem(prefix + k + '_' + uid, JSON.stringify(db[k]));
+                });
             }
             renderAll();
         }
@@ -1328,7 +1265,7 @@
             const netKasa = ciro - gider;
 
             let html = `<div style="text-align:center; font-family:monospace; margin-bottom:15px; border-bottom:2px solid #000; padding-bottom:10px;">
-                <img src="${currentLogoBase64}" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
                 <h3 style="margin:0;">SALBAŞ İLETİŞİM</h3><p style="margin:0;font-weight:bold;">Z RAPORU (GÜN SONU)</p><p style="margin:0;font-size:10px;">${now.toLocaleString('tr-TR')}</p></div>`;
             html += `<table style="width:100%; font-family:monospace; font-size:12px;">
                 <tr><td>Toplam İşlem:</td><td style="text-align:right">${salesToday.length} Adet</td></tr>
@@ -1343,72 +1280,7 @@
             window.print(); setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'), 500);
         }
 
-        // --- İŞLEM / SATIŞ DÜZENLEME (YENİ EKLENEN) ---
-        function editSale(id) {
-            const s = db.sales.find(x => x.id === id);
-            if(!s) return;
-            document.getElementById('s-edit-id').value = id;
-            document.getElementById('s-edit-customer').value = s.customer || '';
-            document.getElementById('s-edit-total').value = s.total;
-            openModal('sale-edit-modal');
-        }
-
-        function saveSaleEdit() {
-            const id = Number(document.getElementById('s-edit-id').value);
-            const newCustomer = document.getElementById('s-edit-customer').value;
-            const newTotal = Number(document.getElementById('s-edit-total').value);
-
-            const sIndex = db.sales.findIndex(x => x.id === id);
-            if(sIndex > -1) {
-                const s = db.sales[sIndex];
-                
-                // Eğer bu bir veresiye işlemiyse ve tutar değişiyorsa, müşterinin borcunu da aradaki farka göre güncelle
-                if (s.type === 'Açık Hesap') {
-                    const diff = newTotal - s.total;
-                    if (diff !== 0 && s.customer) {
-                        const custIndex = db.customers.findIndex(c => c.name === s.customer);
-                        if (custIndex > -1) {
-                            db.customers[custIndex].debt += diff;
-                        }
-                    }
-                }
-                
-                // Müşteriyi ve tutarı yeni değerlerle değiştir
-                db.sales[sIndex].customer = newCustomer;
-                db.sales[sIndex].total = newTotal;
-                sync();
-                closeModal();
-                showToast("Satış başarıyla güncellendi!", "success");
-            }
-        }
-        // --- BİTİŞ ---
-
-        // --- LOGO YÜKLEME VE YÖNETİMİ ---
-        function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            compressImage(file, (base64) => {
-                document.getElementById('settings-logo-preview').src = base64;
-            });
-        }
-
-        function clearLogo() {
-            const defaultLogo = "https://cdn-icons-png.flaticon.com/512/5968/5968282.png";
-            document.getElementById('settings-logo-preview').src = defaultLogo;
-            document.getElementById('set-logo-file').value = "";
-        }
-
-        function applyLogo(src) {
-            currentLogoBase64 = src;
-            const targetIds = ['login-logo', 'receipt-prev-logo', 'contract-logo', 'sidebar-logo', 'mf-prev-logo'];
-            targetIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.src = src;
-            });
-        }
-
         function saveReceiptSettings() {
-            const logoSrc = document.getElementById('settings-logo-preview').src;
             const settings = {
                 companyName: document.getElementById('set-company').value,
                 taxInfo: document.getElementById('set-tax').value,
@@ -1417,11 +1289,9 @@
                 printThickness: document.getElementById('set-print-thickness').value,
                 paperSize: document.getElementById('set-paper-size').value,
                 marginLeft: document.getElementById('set-margin-left').value,
-                fontSize: document.getElementById('set-font-size').value,
-                logoBase64: logoSrc
+                fontSize: document.getElementById('set-font-size').value
             };
             localStorage.setItem('receiptSettings', JSON.stringify(settings));
-            applyLogo(logoSrc);
             showToast("Fiş ve Yazıcı ayarları kaydedildi!", "success");
             renderManuelFisLiveSettings(); 
         }
@@ -1429,11 +1299,9 @@
         function loadReceiptSettings() {
             const saved = localStorage.getItem('receiptSettings');
             let settings = {
-                companyName: 'SALBAŞ İLETİŞİM', taxInfo: 'KARAİSALI MAL MÜD.', address: 'SALBAŞ GÜVEN ECZANESİ KARŞISI ÇUKUROVA / ADANA', footerMessage: 'FATURA ÖDEMELERİNİZ ÖDENDİĞİ AN...\nBizi tercih ettiğiniz için teşekkürler.', printThickness: 'bold', paperSize: '58mm', marginLeft: '2', fontSize: '11', logoBase64: 'https://cdn-icons-png.flaticon.com/512/5968/5968282.png'
+                companyName: 'SALBAŞ İLETİŞİM', taxInfo: 'KARAİSALI MAL MÜD.', address: 'SALBAŞ GÜVEN ECZANESİ KARŞISI ÇUKUROVA / ADANA', footerMessage: 'FATURA ÖDEMELERİNİZ ÖDENDİĞİ AN...\nBizi tercih ettiğiniz için teşekkürler.', printThickness: 'bold', paperSize: '58mm', marginLeft: '2', fontSize: '11'
             };
             if (saved) settings = Object.assign(settings, JSON.parse(saved));
-
-            applyLogo(settings.logoBase64);
 
             if(document.getElementById('set-company')) {
                 document.getElementById('set-company').value = settings.companyName;
@@ -1444,10 +1312,8 @@
                 document.getElementById('set-paper-size').value = settings.paperSize;
                 document.getElementById('set-margin-left').value = settings.marginLeft || '2';
                 document.getElementById('set-font-size').value = settings.fontSize || '11';
-                document.getElementById('settings-logo-preview').src = settings.logoBase64;
             }
         }
-        // --- BİTİŞ ---
 
         function compressImage(file, callback) {
             const reader = new FileReader();
@@ -1463,8 +1329,7 @@
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    // Logoların şeffaflığı bozulmasın diye png olarak çıkartıyoruz.
-                    const dataUrl = canvas.toDataURL('image/png'); 
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
                     callback(dataUrl);
                 }
             };
@@ -1844,7 +1709,7 @@
 
             let html = `
             <div style="text-align:center; border-bottom:2px dashed #000; padding-bottom:5px; margin-bottom:10px; font-family:monospace;">
-                <img src="${currentLogoBase64}" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
+                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
                 <h3 style="margin:0; font-size:18px;">SALBAŞ İLETİŞİM</h3>
                 <p style="margin:0; font-size:12px; font-weight:bold;">TEKNİK SERVİS FİŞİ</p>
                 <p style="margin:0; font-size:10px;">Kayıt No: #${r.kayitNo}</p>
@@ -1991,4 +1856,388 @@
         }
 
         function saveProduct() { 
-            const idx = parseInt(document.getElementById('m-p-edit-idx').value);
+            const idx = parseInt(document.getElementById('m-p-edit-idx').value); 
+            const p = { barcode: document.getElementById('m-p-barcode').value || Date.now().toString(), name: document.getElementById('m-p-name').value, stock: Number(document.getElementById('m-p-stock').value), buy: Number(document.getElementById('m-p-buy').value), sell1: Number(document.getElementById('m-p-sell1').value), category: document.getElementById('m-p-category').value }; 
+            if(!p.name) return; 
+            if(idx > -1) db.products[idx] = p; else db.products.push(p); 
+            sync(); closeModal(); showToast('Ürün kaydedildi', 'success');
+        }
+
+        function editProd(i) { 
+            const p = db.products[i]; document.getElementById('m-p-edit-idx').value = i; document.getElementById('m-p-barcode').value = p.barcode; document.getElementById('m-p-name').value = p.name; document.getElementById('m-p-stock').value = p.stock; document.getElementById('m-p-buy').value = p.buy; document.getElementById('m-p-sell1').value = p.sell1; document.getElementById('m-p-category').value = p.category || ''; openModal('prod-modal'); 
+        }
+
+        function renderProducts() { 
+            const s = document.getElementById('prod-search').value.toLowerCase(); 
+            document.getElementById('prod-table').innerHTML = db.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s)).map((p, i) => {
+                const isLow = (!p.category && p.stock <= 5) ? 'bg-red-50' : ''; 
+                return `<tr class="${isLow}"><td class="p-3 text-[10px] text-gray-400">${p.barcode}</td><td class="p-3 uppercase text-xs font-bold">${p.name}</td><td class="p-3 text-center text-blue-600 font-black">${p.stock}</td><td class="p-3 text-center text-[10px]">${p.category||'-'}</td><td class="p-3 text-right text-gray-400">₺${p.buy}</td><td class="p-3 text-right text-emerald-600 font-black">₺${p.sell1}</td><td class="p-3 text-center whitespace-nowrap"><button onclick="printLabel(${i})" class="text-gray-500 mr-2"><i class="fas fa-tags"></i></button><button onclick="editProd(${i})" class="text-amber-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){ const idx = db.products.findIndex(x=>x.barcode === '${p.barcode}'); db.products.splice(idx,1); sync()}" class="text-red-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+            }).join(''); 
+        }
+
+        function printLabel(idx) { 
+            const p = db.products[idx]; 
+            if(!p.barcode || p.barcode.startsWith('MUH-')) return showToast("Geçerli barkod yok.", "error"); 
+            document.getElementById('label-price').innerText = `₺${p.sell1.toFixed(2)}`; document.getElementById('label-title').innerText = p.name; 
+            JsBarcode("#label-barcode", p.barcode, { format: "CODE128", width: 2, height: 40, displayValue: true, fontSize: 12, margin: 0 }); 
+            document.getElementById('label-print-area').classList.add('active-print'); window.print(); setTimeout(() => { document.getElementById('label-print-area').classList.remove('active-print'); }, 500); 
+        }
+
+        function handleSayim(e) {
+            const val = e.target.value.trim().toLowerCase(); 
+            document.getElementById('sayim-barkod-okut').value = ''; 
+            if(!val) return; 
+            const idx = db.products.findIndex(x => x.barcode === val); 
+            if(idx > -1) { 
+                document.getElementById('sayim-search').value = db.products[idx].barcode; renderStokSayimi(); 
+                const inputEl = document.getElementById(`sayim-input-${idx}`); 
+                if(inputEl) { inputEl.value = parseInt(inputEl.value) + 1; inputEl.classList.add('bg-emerald-100'); setTimeout(() => inputEl.classList.remove('bg-emerald-100'), 500); } 
+            } else { showToast("Ürün bulunamadı!", "error"); }
+        }
+
+        function renderStokSayimi() { 
+            const filter = document.getElementById('sayim-search').value.toLowerCase(); 
+            document.getElementById('sayim-table').innerHTML = db.products.filter(p => !p.category && (p.name.toLowerCase().includes(filter) || p.barcode.includes(filter))).map(p => { 
+                const idx = db.products.findIndex(x => x.barcode === p.barcode); 
+                return `<tr><td class="p-3 font-mono text-xs">${p.barcode}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center text-lg">${p.stock}</td><td class="p-3 text-right text-amber-600 font-bold">₺${(p.buy*p.stock).toFixed(2)}</td><td class="p-3 text-center bg-blue-50"><input type="number" id="sayim-input-${idx}" value="${p.stock}" class="border-2 border-blue-300 rounded p-2 w-20 text-center font-black text-blue-700 outline-none"></td></tr>`; 
+            }).join(''); 
+        }
+
+        function saveAllStockCounts() { 
+            let changed = 0; 
+            db.products.forEach((p, i) => { const el = document.getElementById(`sayim-input-${i}`); if (el && p.stock !== parseInt(el.value)) { p.stock = parseInt(el.value); changed++; } }); 
+            if(changed > 0) { sync(); showToast(`${changed} ürün güncellendi!`, "success"); document.getElementById('sayim-search').value = ''; } 
+        }
+
+        function editFinance(id) {
+            const f = db.finances.find(x => x.id == id);
+            if(!f) return;
+            document.getElementById('fin-edit-id').value = id;
+            document.getElementById('fin-type').value = f.type;
+            document.getElementById('fin-desc').value = f.desc;
+            document.getElementById('fin-amount').value = f.amount;
+            document.getElementById('btn-fin-save').innerText = 'GÜNCELLE';
+            document.getElementById('fin-desc').focus();
+        }
+
+        function addFinance() { 
+            const id = document.getElementById('fin-edit-id').value;
+            const t = document.getElementById('fin-type').value;
+            const d = document.getElementById('fin-desc').value;
+            const a = Number(document.getElementById('fin-amount').value);
+
+            if(!d || !a) return showToast("Açıklama ve tutar girin!", "error");
+
+            if(id) {
+                const f = db.finances.find(x => x.id == id);
+                if(f) { f.type = t; f.desc = d; f.amount = a; }
+                document.getElementById('fin-edit-id').value = '';
+                document.getElementById('btn-fin-save').innerText = 'KAYDET';
+                showToast("Finans kaydı güncellendi", "success");
+            } else {
+                db.finances.push({id: Date.now(), type: t, desc: d, amount: a, date: new Date().toISOString()});
+                showToast("Finans kaydı eklendi", "success");
+            }
+
+            document.getElementById('fin-desc').value = ''; document.getElementById('fin-amount').value = '';
+            sync();
+        }
+
+        function deleteFinance(id) {
+            if(confirm("Kasa işlemini silmek istediğinize emin misiniz?")) {
+                db.finances = db.finances.filter(x => x.id !== id);
+                sync();
+            }
+        }
+
+        function renderFinances() {
+            document.getElementById('fin-table').innerHTML = db.finances.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(f => {
+                const isGelir = f.type === 'Gelir';
+                return `<tr><td class="p-3 text-xs">${new Date(f.date).toLocaleDateString('tr-TR')}</td><td class="p-3 font-bold text-xs">${f.desc}</td><td class="p-3 text-right font-black ${isGelir ? 'text-emerald-600' : 'text-red-500'}">${isGelir?'+':'-'}₺${f.amount.toFixed(2)}</td><td class="p-3 text-center"><button onclick="editFinance(${f.id})" class="text-amber-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="deleteFinance(${f.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+            }).join('');
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "salbas_yedek_" + new Date().toISOString().split('T')[0] + ".json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if(confirm("Mevcut veriler silinip yedek yüklenecek. Emin misiniz?")) {
+                        db = Object.assign(db, importedData);
+                        sync();
+                        showToast("Yedek başarıyla yüklendi!", "success");
+                    }
+                } catch(err) { showToast("Geçersiz yedek dosyası!", "error"); }
+            };
+            reader.readAsText(file);
+        }
+
+        function openTaksitModal() {
+            const t = Number(document.getElementById('pos-toplam').value);
+            if(t <= 0) return showToast("Hesaplamak için sepete ürün ekleyin veya tutarı kontrol edin.", "error");
+            document.getElementById('taksit-tutar').value = t;
+            document.getElementById('taksit-ay').value = '2';
+            updateTaksitOran();
+            document.getElementById('taksit-sonuc').classList.add('hidden');
+            openModal('taksit-modal');
+        }
+
+        function updateTaksitOran() {
+            const ay = document.getElementById('taksit-ay').value;
+            document.getElementById('taksit-oran').value = oranlar[ay] || 0;
+        }
+
+        function hesaplaTaksit() {
+            const t = Number(document.getElementById('taksit-tutar').value);
+            const ay = Number(document.getElementById('taksit-ay').value);
+            const oran = Number(document.getElementById('taksit-oran').value);
+            const toplam = t + (t * oran / 100);
+            const aylik = toplam / ay;
+            document.getElementById('res-aylik').innerText = `₺${aylik.toFixed(2)}`;
+            document.getElementById('res-toplam').innerText = `₺${toplam.toFixed(2)}`;
+            document.getElementById('taksit-sonuc').classList.remove('hidden');
+        }
+
+        function addFaturasiz() {
+            const id = document.getElementById('fu-edit-id').value;
+            const n = document.getElementById('fu-name').value;
+            const p = Number(document.getElementById('fu-price').value);
+            if(!n || !p) return showToast("Alanları doldurun", "error");
+            if(id) {
+                const f = db.faturasiz.find(x=>x.id==id);
+                if(f) { f.name = n; f.price = p; }
+                document.getElementById('fu-edit-id').value = '';
+                document.getElementById('btn-fu-save').innerText = 'EKLE';
+            } else {
+                db.faturasiz.push({id: Date.now(), name: n, price: p});
+            }
+            document.getElementById('fu-name').value = ''; document.getElementById('fu-price').value = '';
+            sync();
+        }
+
+        function editFaturasiz(id) {
+            const f = db.faturasiz.find(x=>x.id==id);
+            if(f) {
+                document.getElementById('fu-edit-id').value = id;
+                document.getElementById('fu-name').value = f.name;
+                document.getElementById('fu-price').value = f.price;
+                document.getElementById('btn-fu-save').innerText = 'GÜNCELLE';
+            }
+        }
+
+        function renderFaturasiz() {
+            document.getElementById('fu-table').innerHTML = db.faturasiz.map(f => `<tr><td class="p-3">${f.name}</td><td class="p-3 text-right text-emerald-600">₺${f.price}</td><td class="p-3 text-center"><button onclick="editFaturasiz(${f.id})" class="text-amber-500 mr-2"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){db.faturasiz=db.faturasiz.filter(x=>x.id!==${f.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+        }
+
+        function saveLog() {
+            const d = document.getElementById('log-desc').value;
+            if(!d) return;
+            db.logs.unshift({id: Date.now(), desc: d, date: new Date().toISOString()});
+            document.getElementById('log-desc').value = '';
+            sync();
+        }
+
+        function renderLogs() {
+            const filterDate = document.getElementById('log-date-picker').value;
+            const filtered = db.logs.filter(l => l.date.startsWith(filterDate));
+            document.getElementById('log-timeline').innerHTML = filtered.length === 0 ? '<p class="text-gray-400 text-center py-4">Kayıt yok</p>' : filtered.map(l => `<div class="bg-white p-3 rounded shadow flex justify-between"><span class="font-bold text-sm text-gray-700">${l.desc}</span><div class="flex items-center gap-2"><span class="text-[10px] text-gray-400">${new Date(l.date).toLocaleTimeString('tr-TR')}</span><button onclick="if(confirm('Sil?')){db.logs=db.logs.filter(x=>x.id!==${l.id});sync()}" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></div></div>`).join('');
+        }
+
+        function saveQuickNote() {
+            const text = document.getElementById('note-text').value;
+            if(!text) return;
+            db.notes.unshift({id: Date.now(), text, date: new Date().toISOString()});
+            document.getElementById('note-text').value = '';
+            sync();
+        }
+
+        function renderNotes() {
+            document.getElementById('notes-container').innerHTML = db.notes.map(n => `<div class="bg-amber-100 p-4 rounded shadow relative"><p class="text-sm font-bold text-gray-800 break-words pr-6">${n.text}</p><span class="text-[10px] text-amber-600 block mt-2">${new Date(n.date).toLocaleString('tr-TR')}</span><button onclick="if(confirm('Sil?')){db.notes=db.notes.filter(x=>x.id!==${n.id});sync()}" class="absolute top-2 right-2 text-amber-500 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('');
+        }
+
+        function addTask() {
+            const text = document.getElementById('task-input').value;
+            if(!text) return;
+            db.tasks.push({id: Date.now(), text, done: false});
+            document.getElementById('task-input').value = '';
+            sync();
+        }
+
+        function toggleTask(id) {
+            const t = db.tasks.find(x=>x.id==id);
+            if(t) { t.done = !t.done; sync(); }
+        }
+
+        function renderTasks() {
+            document.getElementById('task-list').innerHTML = db.tasks.map(t => `<li class="py-3 flex justify-between items-center"><div class="flex items-center gap-2 cursor-pointer" onclick="toggleTask(${t.id})"><input type="checkbox" ${t.done?'checked':''} class="w-4 h-4 text-emerald-500"><span class="text-sm font-bold ${t.done?'line-through text-gray-400':'text-gray-700'}">${t.text}</span></div><button onclick="if(confirm('Sil?')){db.tasks=db.tasks.filter(x=>x.id!==${t.id});sync()}" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button></li>`).join('');
+        }
+
+        function saveTarife() {
+            const n = document.getElementById('tarife-name').value;
+            const p = document.getElementById('tarife-price').value;
+            if(!n || !p) return;
+            db.operatorPacks.push({id: Date.now(), op: activeTarifeOp, name: n, price: Number(p)});
+            document.getElementById('tarife-name').value = ''; document.getElementById('tarife-price').value = '';
+            sync();
+        }
+
+        function renderTarifeler() {
+            const p = db.operatorPacks.filter(x=>x.op === activeTarifeOp);
+            document.getElementById('tarife-table').innerHTML = p.map(t => `<tr><td class="p-3">${t.name}</td><td class="p-3 text-right text-emerald-600 font-black">₺${t.price}</td><td class="p-3 text-center"><button onclick="if(confirm('Sil?')){db.operatorPacks=db.operatorPacks.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+        }
+
+        function saveOpLog() {
+            const t = document.getElementById('op-log-text').value;
+            if(!t) return;
+            db.opLogs.unshift({id: Date.now(), op: activeOperator, text: t, date: new Date().toISOString()});
+            document.getElementById('op-log-text').value = '';
+            sync();
+        }
+
+        function renderOpLogs() {
+            const p = db.opLogs.filter(x=>x.op === activeOperator);
+            document.getElementById('op-log-table').innerHTML = p.map(t => `<tr><td class="p-3 text-xs text-gray-500">${new Date(t.date).toLocaleTimeString('tr-TR')}</td><td class="p-3 text-sm font-bold text-gray-700">${t.text}</td><td class="p-3 text-center"><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+        }
+
+        function setReportPeriod(period) {
+            currentReportPeriod = period;
+            document.querySelectorAll('.btn-rep').forEach(b => { b.classList.remove('bg-blue-600', 'text-white'); b.classList.add('bg-white', 'text-gray-600'); });
+            document.getElementById('btn-rep-'+period).classList.add('bg-blue-600', 'text-white');
+            document.getElementById('btn-rep-'+period).classList.remove('bg-white', 'text-gray-600');
+            renderRaporlar();
+        }
+
+        function renderRaporlar() {
+            const now = new Date();
+            const sales = db.sales.filter(s => {
+                const d = new Date(s.date);
+                if(currentReportPeriod === 'gunluk') return d.toDateString() === now.toDateString();
+                if(currentReportPeriod === 'haftalik') {
+                    const diff = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
+                    const start = new Date(now.setDate(diff)); start.setHours(0,0,0,0);
+                    return d >= start;
+                }
+                if(currentReportPeriod === 'aylik') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                return true;
+            });
+            const fins = db.finances.filter(f => {
+                const d = new Date(f.date);
+                if(currentReportPeriod === 'gunluk') return d.toDateString() === now.toDateString();
+                if(currentReportPeriod === 'haftalik') {
+                    const now2 = new Date();
+                    const diff = now2.getDate() - now2.getDay() + (now2.getDay() === 0 ? -6 : 1);
+                    const start = new Date(now2.setDate(diff)); start.setHours(0,0,0,0);
+                    return d >= start;
+                }
+                if(currentReportPeriod === 'aylik') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                return true;
+            });
+
+            const totalSatis = sales.filter(s=>!s.isRefunded).reduce((a,b)=>a+b.total,0);
+            const totalKar = sales.filter(s=>!s.isRefunded).reduce((a,b)=>a+(b.profit||0),0);
+            const totalGider = fins.filter(f=>f.type==='Gider').reduce((a,b)=>a+b.amount,0);
+
+            document.getElementById('rp-toplam-satis').innerText = `₺${totalSatis.toFixed(2)}`;
+            document.getElementById('rp-net-kar').innerText = `₺${totalKar.toFixed(2)}`;
+            document.getElementById('rp-toplam-gider').innerText = `₺${totalGider.toFixed(2)}`;
+
+            document.getElementById('rp-satis-table').innerHTML = sales.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => {
+                return `<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleString('tr-TR')}</td><td class="p-3 font-bold text-xs uppercase">${s.type}</td><td class="p-3 font-black text-right ${s.isRefunded ? 'line-through text-gray-400' : 'text-blue-600'}">₺${s.total.toFixed(2)}</td><td class="p-3 text-xs">${s.items.map(i=>i.qty+'x '+i.name).join(', ')}</td><td class="p-3 text-center"><button onclick="printSpecificSale(${s.id})" class="text-blue-500 mr-2"><i class="fas fa-print"></i></button><button onclick="wpOldSale(${s.id})" class="text-green-500 mr-2"><i class="fab fa-whatsapp"></i></button><button onclick="if(confirm('İptal?')){const x=db.sales.find(z=>z.id==${s.id});if(x)x.isRefunded=true;sync()}" class="text-red-500"><i class="fas fa-ban"></i></button></td></tr>`;
+            }).join('');
+        }
+
+        function renderDashboard() {
+            const now = new Date();
+            const isToday = (dStr) => { const d=new Date(dStr); return d.getDate()===now.getDate() && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); };
+            const isThisWeek = (dStr) => { const d=new Date(dStr); const diff = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1); const start = new Date(new Date().setDate(diff)); start.setHours(0,0,0,0); return d >= start; };
+            const isThisMonth = (dStr) => { const d=new Date(dStr); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); };
+
+            const salesT = db.sales.filter(s=>!s.isRefunded && isToday(s.date));
+            const salesW = db.sales.filter(s=>!s.isRefunded && isThisWeek(s.date));
+            const salesM = db.sales.filter(s=>!s.isRefunded && isThisMonth(s.date));
+
+            document.getElementById('dash-ciro-bugun').innerText = `₺${salesT.reduce((a,b)=>a+b.total,0).toFixed(2)}`;
+            document.getElementById('dash-kar-bugun').innerText = `(+₺${salesT.reduce((a,b)=>a+(b.profit||0),0).toFixed(2)})`;
+
+            document.getElementById('dash-ciro-hafta').innerText = `₺${salesW.reduce((a,b)=>a+b.total,0).toFixed(2)}`;
+            document.getElementById('dash-kar-hafta').innerText = `(+₺${salesW.reduce((a,b)=>a+(b.profit||0),0).toFixed(2)})`;
+
+            document.getElementById('dash-ciro-ay').innerText = `₺${salesM.reduce((a,b)=>a+b.total,0).toFixed(2)}`;
+            document.getElementById('dash-kar-ay').innerText = `(+₺${salesM.reduce((a,b)=>a+(b.profit||0),0).toFixed(2)})`;
+
+            document.getElementById('dash-stok-deger').innerText = `₺${db.products.reduce((a,b)=>a+(b.buy*b.stock),0).toFixed(2)}`;
+
+            const low = db.products.filter(p=>!p.category && p.stock <= 5);
+            if(low.length > 0) {
+                document.getElementById('dash-stok-uyari').classList.remove('hidden');
+                document.getElementById('dash-stok-listesi').innerHTML = low.map(p=>`<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-bold border border-red-200">${p.name} (${p.stock})</span>`).join('');
+            } else {
+                document.getElementById('dash-stok-uyari').classList.add('hidden');
+            }
+
+            document.getElementById('dash-alacak-list').innerHTML = db.customers.filter(c=>c.debt>0).sort((a,b)=>b.debt-a.debt).slice(0,5).map(c=>`<tr><td class="p-3 text-xs font-bold uppercase">${c.name}</td><td class="p-3 text-right text-red-500 font-black">₺${c.debt.toFixed(2)}</td></tr>`).join('');
+
+            document.getElementById('dash-son-satislar').innerHTML = db.sales.filter(s=>!s.isRefunded).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(s=>`<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleTimeString('tr-TR', {hour:'2-digit',minute:'2-digit'})}</td><td class="p-3 text-[10px] font-bold">${s.type}</td><td class="p-3 text-xs truncate max-w-[120px]">${s.items.map(i=>i.name).join(', ')}</td><td class="p-3 text-right font-black text-blue-600">₺${s.total.toFixed(2)}</td></tr>`).join('');
+
+            renderCharts();
+        }
+
+        function renderCharts() {
+            if(!window.ApexCharts) return;
+            
+            const last30 = Array.from({length: 30}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toLocaleDateString('tr-TR'); }).reverse();
+            const sales30 = last30.map(dStr => db.sales.filter(s=>!s.isRefunded && new Date(s.date).toLocaleDateString('tr-TR') === dStr).reduce((a,b)=>a+b.total,0));
+            const opts30 = { series: [{name: 'Ciro', data: sales30}], chart: {type: 'area', height: 250, toolbar: {show: false}}, stroke: {curve: 'smooth', width: 2}, fill: {type: 'gradient', gradient: {shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1}}, xaxis: {categories: last30, labels: {show: false}}, dataLabels: {enabled: false}, colors: ['#3b82f6'] };
+            if(chart30) chart30.destroy();
+            chart30 = new ApexCharts(document.querySelector("#chart-30-days"), opts30);
+            chart30.render();
+
+            const mNames = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+            const mData = []; const mCat = [];
+            for(let i=5; i>=0; i--) {
+                const d = new Date(); d.setMonth(d.getMonth() - i);
+                mCat.push(mNames[d.getMonth()]);
+                mData.push(db.sales.filter(s=>!s.isRefunded && new Date(s.date).getMonth() === d.getMonth() && new Date(s.date).getFullYear() === d.getFullYear()).reduce((a,b)=>a+b.total,0));
+            }
+            const opts6 = { series: [{name: 'Ciro', data: mData}], chart: {type: 'bar', height: 250, toolbar: {show: false}}, plotOptions: {bar: {borderRadius: 4, dataLabels: {position: 'top'}}}, dataLabels: {enabled: true, formatter: val => '₺'+val, offsetY: -20, style: {fontSize: '10px', colors: ["#304758"]}}, xaxis: {categories: mCat}, colors: ['#10b981'] };
+            if(chart6) chart6.destroy();
+            chart6 = new ApexCharts(document.querySelector("#chart-6-months"), opts6);
+            chart6.render();
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderProducts();
+            renderCustomers();
+            renderCart();
+            renderQuickSell();
+            renderRaporlar();
+            renderFinances();
+            renderStokSayimi();
+            renderLogs();
+            renderFaturasiz();
+            renderPurchases();
+            renderRepairs();
+            renderNotes();
+            renderTasks();
+            renderTarifeler();
+            renderOpLogs();
+        }
+
+    </script>
+</body>
+</html>
+
+```
