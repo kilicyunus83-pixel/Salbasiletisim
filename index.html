@@ -6,7 +6,7 @@
     <!-- PWA (Mobil Uygulama) Ayarları -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2563eb">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968282.png">
+    <link rel="apple-touch-icon" href="Ekran görüntüsü 2026-05-01 122953.jpg">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -69,7 +69,7 @@
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[200] flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl">
+            <img src="Ekran görüntüsü 2026-05-01 122953.jpg" alt="Salbaş İletişim Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl">
             <h1 class="text-4xl font-black text-blue-600 mb-1 mt-2">SALBAŞ<span class="text-slate-700">İletişim</span></h1>
             <p class="text-slate-400 font-bold mb-8 uppercase text-xs tracking-widest flex items-center justify-center gap-2"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
             
@@ -82,9 +82,7 @@
                 <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
                     <i class="fab fa-google"></i> Google Hesabıyla Gir (Yeni Sistem)
                 </button>
-                <button onclick="bypassLogin()" class="w-full bg-gray-800 text-white mt-2 py-3 rounded-xl font-bold shadow hover:bg-gray-900 transition flex items-center justify-center gap-2">
-                    <i class="fas fa-vial"></i> Test Modu (Şifresiz Giriş)
-                </button>
+                <!-- Test Modu Girişi İsteğiniz Üzerine Tamamen Kaldırılmıştır -->
             </div>
             <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
         </div>
@@ -93,7 +91,7 @@
     <div id="print-area">
         <div id="receipt-preview-container" class="font-mono text-black relative thickness-normal bg-white mx-auto">
             <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
-                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
+                <img src="Ekran görüntüsü 2026-05-01 122953.jpg" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
                 <h2 id="receipt-company" class="font-bold uppercase leading-tight mb-1" style="font-size: 1.2em;">İŞLETME ADI</h2>
                 <p id="receipt-address" class="whitespace-pre-line leading-tight break-text" style="font-size: 0.85em;">ADRES BİLGİSİ</p>
                 <p id="receipt-tax" class="mt-1" style="font-size: 0.85em;">VD: -</p>
@@ -140,7 +138,7 @@
     
     <div id="contract-print-area">
         <div class="text-center mb-8 border-b-2 border-black pb-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 80px; margin: 0 auto 10px; display: block;">
+            <img src="Ekran görüntüsü 2026-05-01 122953.jpg" style="max-width: 100%; max-height: 80px; margin: 0 auto 10px; display: block;">
             <h1 class="text-2xl font-black uppercase tracking-wide">İkinci El Cihaz Alım-Satım Sözleşmesi</h1>
         </div>
         
@@ -201,7 +199,7 @@
     <!-- MOBİL UYUMLU, SCROLL EDİLEBİLİR DÜZELTİLMİŞ SIDEBAR -->
     <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
         <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0 bg-white p-2">
-            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Salbaş İletişim Logo" class="h-full object-contain">
+            <img src="Ekran görüntüsü 2026-05-01 122953.jpg" alt="Salbaş İletişim Logo" class="h-full object-contain">
             <a href="#" class="text-2xl font-bold items-center gap-2 hidden text-blue-600" style="display: none;">
                 <i class="fas fa-shopping-cart text-blue-400"></i><span>Satıcı Paneli</span>
             </a>
@@ -332,8 +330,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-emerald-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bugün Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-bugun" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-bugun" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-blue-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Hafta Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-hafta" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-hafta" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-indigo-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Ay Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-ay" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-ay" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-blue-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Hafta Ciro / Kâr <br><span class="text-[9px] lowercase text-blue-500 font-normal">(Pazartesi itibariyle)</span></p><div class="flex items-end space-x-2"><h3 id="dash-ciro-hafta" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-hafta" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
+                    <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-indigo-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Ay Ciro / Kâr <br><span class="text-[9px] lowercase text-indigo-500 font-normal">(Ayın 1'i itibariyle)</span></p><div class="flex items-end space-x-2"><h3 id="dash-ciro-ay" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-ay" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
                     <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-amber-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Toplam Stok Maliyeti</p><h3 id="dash-stok-deger" class="text-2xl font-black text-gray-800">₺0</h3></div>
                 </div>
 
@@ -674,7 +672,7 @@
 
                         <div id="mf-live-preview" class="bg-white shadow-xl border border-gray-300 p-4 font-mono text-black w-[75mm] min-h-[100mm]">
                             <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
-                                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
+                                <img src="Ekran görüntüsü 2026-05-01 122953.jpg" style="max-width: 100%; max-height: 45px; margin: 0 auto 5px; display: block; filter: grayscale(100%) contrast(1.2);">
                                 <h2 id="mf-prev-company" class="font-bold uppercase leading-tight mb-1" style="font-size: 1.2em;">İŞLETME ADI</h2>
                                 <p id="mf-prev-address" class="whitespace-pre-line leading-tight" style="font-size: 0.85em;">Adres</p>
                                 <p id="mf-prev-tax" class="mt-1" style="font-size: 0.85em;">VD: -</p>
@@ -841,6 +839,22 @@
             <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-600 py-3 rounded-xl font-black mt-2">İptal</button>
         </div>
 
+        <!-- İŞLEM/SATIŞ DÜZENLEME MODALI -->
+        <div id="sale-edit-modal" class="hidden bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+            <h3 class="font-black text-xl mb-4 text-amber-600 uppercase tracking-tighter"><i class="fas fa-edit mr-2"></i>Satışı Düzenle</h3>
+            <input type="hidden" id="s-edit-id" value="">
+            <div class="mb-4">
+                <label class="text-[10px] font-black uppercase text-gray-500">Müşteri / Açıklama</label>
+                <input type="text" id="s-edit-customer" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-amber-500">
+            </div>
+            <div class="mb-6">
+                <label class="text-[10px] font-black uppercase text-gray-500">İşlem Tutarı (₺)</label>
+                <input type="number" id="s-edit-total" class="w-full border p-3 rounded-xl font-black text-emerald-600 text-lg bg-emerald-50 outline-none focus:border-amber-500" step="0.01">
+            </div>
+            <button onclick="saveSaleEdit()" class="w-full bg-amber-500 text-white py-4 rounded-xl font-black shadow-lg hover:bg-amber-600 transition">KAYDET VE GÜNCELLE</button>
+            <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl font-black mt-2 hover:bg-gray-300 transition">İptal</button>
+        </div>
+
         <div id="price-check-modal" class="hidden bg-white w-full max-w-sm rounded-3xl p-6 text-center">
             <h2 id="pc-name" class="text-2xl font-black mb-4 uppercase">Ürün Adı</h2>
             <div class="bg-emerald-50 p-6 rounded-3xl mb-4 border border-emerald-100"><p class="text-[10px] font-black text-emerald-600 mb-1 uppercase">SATIŞ FİYATI</p><h1 id="pc-price" class="text-5xl font-black text-emerald-700">₺0</h1></div>
@@ -875,6 +889,21 @@
 
         const oranlar = { 2: 7.92, 3: 9.78, 4: 12.34, 5: 14.05, 6: 15.76, 7: 17.97, 8: 20.18, 9: 21.89, 10: 24.10, 11: 25.81, 12: 28.02 };
 
+        // TAKVİM YARDIMCILARI (Pazartesi Hafta Başı & 1'i Ay Başı)
+        const getStartOfWeek = (dStr) => { 
+            const now2 = dStr ? new Date(dStr) : new Date();
+            const diff = now2.getDate() - now2.getDay() + (now2.getDay() === 0 ? -6 : 1); 
+            const start = new Date(now2.setDate(diff)); 
+            start.setHours(0,0,0,0); 
+            return start; 
+        };
+        const getStartOfMonth = (dStr) => {
+            const now2 = dStr ? new Date(dStr) : new Date();
+            now2.setDate(1);
+            now2.setHours(0,0,0,0);
+            return now2;
+        };
+
         window.onload = () => {
             // PWA (Mobil Uygulama) Servis Kurulumu
             if ('serviceWorker' in navigator) {
@@ -885,7 +914,7 @@
 
             auth.onAuthStateChanged(user => {
                 if(user) {
-                    currentUserUid = user.uid; // Çoklu Kullanıcı Benzersiz Kimliği
+                    currentUserUid = user.uid; 
                     document.getElementById('user-email-display').innerText = user.email || user.displayName || "Dükkan Sahibi";
                     if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
                     loadCloudData(user.uid);
@@ -925,14 +954,6 @@
             }).catch((error) => {
                 msg("Giriş iptal edildi veya hata: " + error.message);
             });
-        }
-
-        function bypassLogin() {
-            currentUserUid = "test-user-123";
-            document.getElementById('user-email-display').innerText = "Test Kullanıcısı";
-            document.getElementById('login-screen').classList.add('hidden');
-            loadLocalData(currentUserUid);
-            showToast("Test modunda giriş yapıldı. (Veriler tarayıcıda kalır)", "info");
         }
 
         function logoutApp() {
@@ -1274,7 +1295,7 @@
             const netKasa = ciro - gider;
 
             let html = `<div style="text-align:center; font-family:monospace; margin-bottom:15px; border-bottom:2px solid #000; padding-bottom:10px;">
-                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
+                <img src="Ekran görüntüsü 2026-05-01 122953.jpg" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
                 <h3 style="margin:0;">SALBAŞ İLETİŞİM</h3><p style="margin:0;font-weight:bold;">Z RAPORU (GÜN SONU)</p><p style="margin:0;font-size:10px;">${now.toLocaleString('tr-TR')}</p></div>`;
             html += `<table style="width:100%; font-family:monospace; font-size:12px;">
                 <tr><td>Toplam İşlem:</td><td style="text-align:right">${salesToday.length} Adet</td></tr>
@@ -1288,6 +1309,46 @@
             document.getElementById('print-area').classList.add('active-print');
             window.print(); setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'), 500);
         }
+
+        // --- İŞLEM / SATIŞ DÜZENLEME (YENİ EKLENEN) ---
+        function editSale(id) {
+            const s = db.sales.find(x => x.id === id);
+            if(!s) return;
+            document.getElementById('s-edit-id').value = id;
+            document.getElementById('s-edit-customer').value = s.customer || '';
+            document.getElementById('s-edit-total').value = s.total;
+            openModal('sale-edit-modal');
+        }
+
+        function saveSaleEdit() {
+            const id = Number(document.getElementById('s-edit-id').value);
+            const newCustomer = document.getElementById('s-edit-customer').value;
+            const newTotal = Number(document.getElementById('s-edit-total').value);
+
+            const sIndex = db.sales.findIndex(x => x.id === id);
+            if(sIndex > -1) {
+                const s = db.sales[sIndex];
+                
+                // Eğer bu bir veresiye işlemiyse ve tutar değişiyorsa, müşterinin borcunu da aradaki farka göre güncelle
+                if (s.type === 'Açık Hesap') {
+                    const diff = newTotal - s.total;
+                    if (diff !== 0 && s.customer) {
+                        const custIndex = db.customers.findIndex(c => c.name === s.customer);
+                        if (custIndex > -1) {
+                            db.customers[custIndex].debt += diff;
+                        }
+                    }
+                }
+                
+                // Müşteriyi ve tutarı yeni değerlerle değiştir
+                db.sales[sIndex].customer = newCustomer;
+                db.sales[sIndex].total = newTotal;
+                sync();
+                closeModal();
+                showToast("Satış başarıyla güncellendi!", "success");
+            }
+        }
+        // --- BİTİŞ ---
 
         function saveReceiptSettings() {
             const settings = {
@@ -1718,7 +1779,7 @@
 
             let html = `
             <div style="text-align:center; border-bottom:2px dashed #000; padding-bottom:5px; margin-bottom:10px; font-family:monospace;">
-                <img src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
+                <img src="Ekran görüntüsü 2026-05-01 122953.jpg" style="max-width: 100%; max-height: 50px; margin: 0 auto 5px; display: block; filter: grayscale(100%);">
                 <h3 style="margin:0; font-size:18px;">SALBAŞ İLETİŞİM</h3>
                 <p style="margin:0; font-size:12px; font-weight:bold;">TEKNİK SERVİS FİŞİ</p>
                 <p style="margin:0; font-size:10px;">Kayıt No: #${r.kayitNo}</p>
@@ -2129,28 +2190,30 @@
         }
 
         function renderRaporlar() {
-            const now = new Date();
             const sales = db.sales.filter(s => {
                 const d = new Date(s.date);
-                if(currentReportPeriod === 'gunluk') return d.toDateString() === now.toDateString();
-                if(currentReportPeriod === 'haftalik') {
-                    const diff = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1);
-                    const start = new Date(now.setDate(diff)); start.setHours(0,0,0,0);
-                    return d >= start;
+                if(currentReportPeriod === 'gunluk') {
+                    const now = new Date(); return d.toDateString() === now.toDateString();
                 }
-                if(currentReportPeriod === 'aylik') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                if(currentReportPeriod === 'haftalik') {
+                    return d >= getStartOfWeek();
+                }
+                if(currentReportPeriod === 'aylik') {
+                    return d >= getStartOfMonth();
+                }
                 return true;
             });
             const fins = db.finances.filter(f => {
                 const d = new Date(f.date);
-                if(currentReportPeriod === 'gunluk') return d.toDateString() === now.toDateString();
-                if(currentReportPeriod === 'haftalik') {
-                    const now2 = new Date();
-                    const diff = now2.getDate() - now2.getDay() + (now2.getDay() === 0 ? -6 : 1);
-                    const start = new Date(now2.setDate(diff)); start.setHours(0,0,0,0);
-                    return d >= start;
+                if(currentReportPeriod === 'gunluk') {
+                    const now = new Date(); return d.toDateString() === now.toDateString();
                 }
-                if(currentReportPeriod === 'aylik') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                if(currentReportPeriod === 'haftalik') {
+                    return d >= getStartOfWeek();
+                }
+                if(currentReportPeriod === 'aylik') {
+                    return d >= getStartOfMonth();
+                }
                 return true;
             });
 
@@ -2163,15 +2226,21 @@
             document.getElementById('rp-toplam-gider').innerText = `₺${totalGider.toFixed(2)}`;
 
             document.getElementById('rp-satis-table').innerHTML = sales.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => {
-                return `<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleString('tr-TR')}</td><td class="p-3 font-bold text-xs uppercase">${s.type}</td><td class="p-3 font-black text-right ${s.isRefunded ? 'line-through text-gray-400' : 'text-blue-600'}">₺${s.total.toFixed(2)}</td><td class="p-3 text-xs">${s.items.map(i=>i.qty+'x '+i.name).join(', ')}</td><td class="p-3 text-center"><button onclick="printSpecificSale(${s.id})" class="text-blue-500 mr-2"><i class="fas fa-print"></i></button><button onclick="wpOldSale(${s.id})" class="text-green-500 mr-2"><i class="fab fa-whatsapp"></i></button><button onclick="if(confirm('İptal?')){const x=db.sales.find(z=>z.id==${s.id});if(x)x.isRefunded=true;sync()}" class="text-red-500"><i class="fas fa-ban"></i></button></td></tr>`;
+                return `<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleString('tr-TR')}</td><td class="p-3 font-bold text-xs uppercase">${s.type}</td><td class="p-3 font-black text-right ${s.isRefunded ? 'line-through text-gray-400' : 'text-blue-600'}">₺${s.total.toFixed(2)}</td><td class="p-3 text-xs">${s.items.map(i=>i.qty+'x '+i.name).join(', ')}</td>
+                <td class="p-3 text-center flex justify-center items-center gap-2">
+                    <button onclick="editSale(${s.id})" class="text-amber-500" title="Düzenle"><i class="fas fa-edit"></i></button>
+                    <button onclick="printSpecificSale(${s.id})" class="text-blue-500" title="Yazdır"><i class="fas fa-print"></i></button>
+                    <button onclick="wpOldSale(${s.id})" class="text-green-500" title="WP İlet"><i class="fab fa-whatsapp"></i></button>
+                    <button onclick="if(confirm('İptal?')){const x=db.sales.find(z=>z.id==${s.id});if(x)x.isRefunded=true;sync()}" class="text-red-500" title="İptal Et"><i class="fas fa-ban"></i></button>
+                </td></tr>`;
             }).join('');
         }
 
         function renderDashboard() {
             const now = new Date();
             const isToday = (dStr) => { const d=new Date(dStr); return d.getDate()===now.getDate() && d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); };
-            const isThisWeek = (dStr) => { const d=new Date(dStr); const diff = now.getDate() - now.getDay() + (now.getDay() === 0 ? -6 : 1); const start = new Date(new Date().setDate(diff)); start.setHours(0,0,0,0); return d >= start; };
-            const isThisMonth = (dStr) => { const d=new Date(dStr); return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear(); };
+            const isThisWeek = (dStr) => { const d=new Date(dStr); return d >= getStartOfWeek(); };
+            const isThisMonth = (dStr) => { const d=new Date(dStr); return d >= getStartOfMonth(); };
 
             const salesT = db.sales.filter(s=>!s.isRefunded && isToday(s.date));
             const salesW = db.sales.filter(s=>!s.isRefunded && isThisWeek(s.date));
