@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- Firebase SDK'lar -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
@@ -41,29 +42,38 @@
         <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
         <img id="login-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="w-24 h-24 object-contain mx-auto mb-4">
         <h1 class="text-4xl font-black text-blue-600">SALBAŞ<span class="text-slate-700">İletişim</span></h1>
-        <p class="text-slate-400 font-bold mb-8 uppercase text-xs"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
+        <p class="text-slate-400 font-bold mb-6 uppercase text-xs"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
         
-        <!-- DEMO GİRİŞ BUTONU - KESİN ÇALIŞIR -->
+        <!-- DEMO GİRİŞ BUTONU (HER ZAMAN ÇALIŞIR) -->
         <button onclick="demoGiris()" class="w-full bg-emerald-500 text-white py-3 rounded-xl font-bold mb-4 flex items-center justify-center gap-2 hover:bg-emerald-600 transition">
-            <i class="fas fa-vial"></i> Demo Hesap ile Giriş (Anında)
+            <i class="fas fa-vial"></i> Demo Hesap ile Giriş (Anında Çalışır)
         </button>
         
-        <div class="relative my-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">veya</span></div></div>
+        <div class="relative my-4">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
+            <div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-gray-500">veya</span></div>
+        </div>
         
         <input type="email" id="login-email" placeholder="E-posta Adresiniz" class="w-full border-2 border-gray-200 p-4 rounded-xl mb-4 font-bold outline-none focus:border-blue-500">
         <input type="password" id="login-pass" placeholder="Şifreniz" class="w-full border-2 border-gray-200 p-4 rounded-xl mb-6 font-bold outline-none focus:border-blue-500" onkeypress="if(event.key==='Enter') loginApp()">
-        <button onclick="loginApp()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg hover:bg-blue-700 transition">GİRİŞ YAP</button>
+        <button onclick="loginApp()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black text-lg hover:bg-blue-700 transition">E-POSTA İLE GİRİŞ</button>
+        
         <div class="mt-4 pt-4 border-t">
-            <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-600 transition">
+            <button onclick="loginWithGoogle()" id="googleLoginBtn" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-600 transition">
                 <i class="fab fa-google"></i> Google ile Giriş
             </button>
         </div>
+        
+        <div class="mt-4 p-3 bg-yellow-50 rounded-lg text-xs text-yellow-700">
+            <i class="fas fa-info-circle"></i> İpucu: Firebase bağlantı sorunu yaşıyorsanız "Demo Hesap" butonunu kullanın.
+        </div>
+        
         <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
     </div>
 </div>
 
 <!-- BASKI ALANLARI -->
-<div id="print-area"><div id="receipt-preview-container" class="font-mono text-black relative bg-white mx-auto"><div class="text-center border-b border-dashed border-gray-400 pb-2"><img id="receipt-logo-img" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-height:45px;margin:0 auto"><h2 id="receipt-company" class="font-bold uppercase">İŞLETME ADI</h2><p id="receipt-address" class="text-xs whitespace-pre-line">ADRES</p><p id="receipt-tax" class="text-xs">VD: -</p></div><div class="flex justify-between text-xs"><span>Tarih: <span id="receipt-date"></span></span><span>Saat: <span id="receipt-time"></span></span></div><div class="flex justify-between text-xs border-b pb-1"><span>Fiş No: <span id="receipt-no"></span></span></div><table class="w-full text-left text-xs"><thead><tr class="border-b"><th>ÜRÜN</th><th class="text-center">AD</th><th class="text-right">TUTAR</th></tr></thead><tbody id="receipt-items-body"></tbody><table><div class="border-t pt-1 mt-1"><div class="flex justify-between font-bold"><span>TOPLAM:</span><span id="receipt-total"></span></div></div><div class="text-center text-xs border-t mt-2 pt-1"><p id="receipt-footer">Mali değeri yoktur - Bilgi içindir</p></div></div></div>
+<div id="print-area"><div id="receipt-preview-container" class="font-mono text-black relative bg-white mx-auto"><div class="text-center border-b border-dashed border-gray-400 pb-2"><img id="receipt-logo-img" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-height:45px;margin:0 auto"><h2 id="receipt-company" class="font-bold uppercase">SALBAŞ İLETİŞİM</h2><p id="receipt-address" class="text-xs whitespace-pre-line">SALBAŞ MAHALLESİ, ÇUKUROVA/ADANA</p><p id="receipt-tax" class="text-xs">VD: KARAİSALI V.D.</p></div><div class="flex justify-between text-xs"><span>Tarih: <span id="receipt-date"></span></span><span>Saat: <span id="receipt-time"></span></span></div><div class="flex justify-between text-xs border-b pb-1"><span>Fiş No: <span id="receipt-no"></span></span></div><table class="w-full text-left text-xs"><thead><tr class="border-b"><th>ÜRÜN</th><th class="text-center">AD</th><th class="text-right">TUTAR</th></tr></thead><tbody id="receipt-items-body"></tbody></table><div class="border-t pt-1 mt-1"><div class="flex justify-between font-bold"><span>TOPLAM:</span><span id="receipt-total"></span></div></div><div class="text-center text-xs border-t mt-2 pt-1"><p id="receipt-footer">Bizi tercih ettiğiniz için teşekkürler.</p></div></div></div>
 <div id="label-print-area"><div id="label-title" class="text-center font-bold text-xs">Salbaş İletişim</div><svg id="label-barcode"></svg><div id="label-price" class="text-center font-bold text-xl">₺0</div></div>
 <div id="contract-print-area"><div class="text-center border-b pb-4"><img id="contract-logo-img" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-height:60px;margin:0 auto"><h1 class="text-xl font-bold">2. EL CİHAZ SÖZLEŞMESİ</h1></div><p class="text-sm">Tarih: <span id="print-date"></span></p><p>Satıcı: <span id="print-seller-name"></span></p><p>Tutar: <span id="print-price"></span> TL</p><div><p id="print-seller"></p><p id="print-tc"></p><p id="print-phone"></p></div><div><p id="print-model"></p><p id="print-imei"></p></div><div class="flex justify-between mt-8"><div class="text-center"><h4>SATICI</h4><p id="print-seller-sign"></p></div><div class="text-center"><h4>ALICI</h4><p>Kaşe & İmza</p></div></div></div>
 <div id="repair-print-area"></div>
@@ -85,7 +95,7 @@
             <li><a href="#" onclick="simulateNavigation('Telefon Değerleme', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-emerald-400 hover:bg-gray-700 rounded-lg"><i class="fas fa-robot w-5"></i><span>Telefon Değerleme</span></a></li>
             <li><a href="#" onclick="simulateNavigation('Veri Aktarım', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-cyan-400 hover:bg-gray-700 rounded-lg"><i class="fas fa-exchange-alt w-5"></i><span>Veri Aktarım</span></a></li>
             <li class="border-t border-gray-700 my-2 pt-2"></li>
-            <li><a href="#" onclick="simulateNavigation('Ayarlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:bg-gray-700 rounded-lg"><i class="fas fa-cog w-5"></i><span>Ayarlar</span></a></li>
+            <li><a href="#" onclick="simulateNavigation('Ayarlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:bg-gray-700 rounded-lg"><i class="fas fa-cog w-5"></i><span>Ayarlar & Yedek</span></a></li>
         </ul>
     </nav>
 </aside>
@@ -122,27 +132,53 @@
             </div>
             <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 hidden" id="dash-stok-uyari"><p class="text-sm font-bold text-red-600"><i class="fas fa-exclamation-triangle"></i> Kritik Stok Uyarısı</p><div id="dash-stok-listesi" class="flex flex-wrap gap-2 mt-2"></div></div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-gray-600 mb-4">30 Günlük Satış</h4><div id="chart-30-days" class="h-[250px]"></div></div>
-                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-gray-600 mb-4">6 Aylık Satış</h4><div id="chart-6-months" class="h-[250px]"></div></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="text-sm font-bold text-gray-600 mb-4">30 Günlük Satış</h4><div id="chart-30-days" class="h-[250px]"></div></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="text-sm font-bold text-gray-600 mb-4">6 Aylık Satış</h4><div id="chart-6-months" class="h-[250px]"></div></div>
+            </div>
+            <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold mb-3">Son Satışlar</h4><div id="son-satislar" class="space-y-2"></div></div>
+                <div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold mb-3">Popüler Ürünler</h4><div id="populer-urunler" class="space-y-2"></div></div>
             </div>
         </div>
 
-        <!-- DİĞER SAYFALAR -->
-        <div id="page-satis-yap" class="page-content hidden flex flex-col h-full"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-shopping-cart text-4xl text-gray-400 mb-2"></i><p>Satış sayfası - Demo modda</p><button onclick="showToast('Demo satış eklendi', 'success')" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg">Demo Satış</button></div></div>
-        <div id="page-urunler" class="page-content hidden"><div class="bg-white p-4 rounded-lg"><div class="flex justify-between mb-4"><h3 class="font-bold">Ürünler</h3><button onclick="openNewProductModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">+ Yeni</button></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th>Barkod</th><th>Ürün Adı</th><th>Stok</th><th>Fiyat</th><th>İşlem</th></tr></thead><tbody id="prod-table"></tbody></table></div></div></div>
-        <div id="page-musteriler" class="page-content hidden"><div class="bg-white p-4 rounded-lg"><div class="flex justify-between mb-4"><h3 class="font-bold">Müşteriler</h3><button onclick="openNewCustomerModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">+ Yeni</button></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th>Ad</th><th>Telefon</th><th>Borç</th><th>İşlem</th></tr></thead><tbody id="cust-table"></tbody></table></div></div></div>
-        <div id="page-raporlar" class="page-content hidden"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-chart-line text-4xl text-gray-400 mb-2"></i><p>Raporlar sayfası</p></div></div>
-        <div id="page-teknik-servis" class="page-content hidden"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-tools text-4xl text-gray-400 mb-2"></i><p>Teknik Servis Modülü</p></div></div>
-        <div id="page-telefon-degerleme" class="page-content hidden"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-robot text-4xl text-gray-400 mb-2"></i><p>Telefon Değerleme Modülü</p></div></div>
-        <div id="page-veri-aktarim" class="page-content hidden"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-exchange-alt text-4xl text-gray-400 mb-2"></i><p>Veri Aktarım Modülü</p></div></div>
-        <div id="page-ayarlar" class="page-content hidden"><div class="bg-white p-6 rounded-lg"><h3 class="font-bold mb-4">Ayarlar</h3><div class="mb-4"><label class="block text-sm font-bold">Logo</label><input type="file" id="logo-upload" accept="image/*" onchange="uploadLogo(this)"><button onclick="resetLogo()" class="mt-2 bg-gray-200 px-4 py-2 rounded text-sm">Varsayılana Dön</button></div><div class="mb-4"><label class="block text-sm font-bold">Firma Adı</label><input type="text" id="set-company" class="w-full border p-2 rounded"></div><div class="mb-4"><label class="block text-sm font-bold">Adres</label><textarea id="set-address" rows="2" class="w-full border p-2 rounded"></textarea></div><button onclick="saveSettings()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Kaydet</button></div></div>
+        <!-- SATIŞ YAP SAYFASI -->
+        <div id="page-satis-yap" class="page-content hidden flex flex-col h-full">
+            <div class="flex gap-2 mb-4"><button onclick="switchPosTab(1)" id="btn-pos-tab-1" class="flex-1 bg-blue-600 text-white font-bold py-2 rounded-lg shadow-md">POS Satış</button><button onclick="switchPosTab(2)" id="btn-pos-tab-2" class="flex-1 bg-white text-gray-600 border font-bold py-2 rounded-lg">Manuel Fiş</button></div>
+            <div id="pos-tab-1" class="flex flex-col lg:flex-row gap-4 flex-1">
+                <div class="flex-1 bg-white rounded-lg p-4"><div class="flex gap-2 mb-4"><input type="text" id="pos-barcode" placeholder="Barkod veya ürün adı" class="flex-1 border rounded-lg p-2"><button onclick="triggerBarcode()" class="bg-blue-600 text-white px-4 rounded-lg">Ekle</button></div><div class="flex gap-2 mb-4"><input type="text" id="muh-name" placeholder="Muhtelif Ad" class="flex-1 border rounded-lg p-2"><input type="number" id="muh-price" placeholder="Tutar" class="w-24 border rounded-lg p-2"><button onclick="addMuhtelif()" class="bg-emerald-500 text-white px-3 rounded-lg">Ekle</button></div><div class="overflow-y-auto h-80"><table class="w-full"><tbody id="cart-list"></tbody>}</div></div>
+                <div class="w-full lg:w-80 bg-white rounded-lg p-4"><div class="mb-4"><select id="pos-customer" class="w-full border rounded-lg p-2"><option value="">Müşteri Seç</option></select><button onclick="openNewCustomerModal()" class="w-full mt-2 bg-blue-100 text-blue-600 p-2 rounded-lg text-sm">+ Yeni Müşteri</button></div><div class="text-2xl font-bold mb-4" id="pos-toplam">₺0</div><div class="grid grid-cols-2 gap-2"><button onclick="completeSale('Nakit')" class="bg-emerald-500 text-white p-3 rounded-lg font-bold">Nakit</button><button onclick="completeSale('Kart')" class="bg-blue-500 text-white p-3 rounded-lg font-bold">Kart</button><button onclick="completeSale('Veresiye')" class="bg-amber-500 text-white p-3 rounded-lg font-bold col-span-2">Veresiye</button></div><button onclick="clearCart()" class="w-full text-red-500 text-sm mt-2">Sepeti Temizle</button></div>
+            </div>
+            <div id="pos-tab-2" class="hidden"><div class="bg-white rounded-lg p-4"><h3 class="font-bold mb-4">Serbest Fiş</h3><div class="grid grid-cols-3 gap-2 mb-4"><input type="text" id="mf-name" placeholder="Ürün adı" class="border rounded-lg p-2"><input type="number" id="mf-qty" placeholder="Adet" value="1" class="border rounded-lg p-2"><input type="number" id="mf-price" placeholder="Fiyat" class="border rounded-lg p-2"><button onclick="addManuelItem()" class="bg-teal-500 text-white p-2 rounded-lg">Ekle</button></div><div class="overflow-y-auto h-64"><table class="w-full"><tbody id="mf-list-body"></tbody>}</div><button onclick="printManuelFis()" class="w-full bg-gray-800 text-white p-3 rounded-lg font-bold mt-4">Fiş Yazdır</button></div></div>
+        </div>
+
+        <!-- ÜRÜNLER SAYFASI -->
+        <div id="page-urunler" class="page-content hidden"><div class="bg-white rounded-lg p-4"><div class="flex justify-between mb-4"><h3 class="font-bold">Ürünler</h3><button onclick="openNewProductModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">+ Yeni</button></div><input type="text" id="prod-search" placeholder="Ürün ara..." class="w-full border rounded-lg p-2 mb-4"><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th>Barkod</th><th>Ürün Adı</th><th>Stok</th><th>Fiyat</th><th>İşlem</th></tr></thead><tbody id="prod-table"></tbody>}</div></div></div>
+
+        <!-- MÜŞTERİLER SAYFASI -->
+        <div id="page-musteriler" class="page-content hidden"><div class="bg-white rounded-lg p-4"><div class="flex justify-between mb-4"><h3 class="font-bold">Müşteriler</h3><button onclick="openNewCustomerModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">+ Yeni</button></div><div class="overflow-x-auto"><table class="w-full text-sm"><thead class="bg-gray-100"><tr><th>Ad</th><th>Telefon</th><th>Borç</th><th>İşlem</th></tr></thead><tbody id="cust-table"></tbody>}</div></div></div>
+
+        <!-- RAPORLAR SAYFASI -->
+        <div id="page-raporlar" class="page-content hidden"><div class="bg-white p-8 rounded-lg text-center"><i class="fas fa-chart-line text-4xl text-gray-400 mb-2"></i><p>Detaylı raporlar için lütfen ilgili modülü seçin</p></div></div>
+
+        <!-- TEKNİK SERVİS SAYFASI -->
+        <div id="page-teknik-servis" class="page-content hidden"><div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 mb-6 text-white"><h2 class="text-2xl font-black">🔧 Teknik Servis Yönetimi</h2><p>Yedek parça ve servis işlemleri</p></div><div class="bg-white rounded-lg p-6"><p class="text-gray-500 text-center">Teknik servis modülü yükleniyor...</p></div></div>
+
+        <!-- TELEFON DEĞERLEME SAYFASI -->
+        <div id="page-telefon-degerleme" class="page-content hidden"><div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 mb-6 text-white"><h2 class="text-2xl font-black">🤖 Telefon Değerleme Robotu</h2><p>Eski telefonunuzu getirin, değerini öğrenin</p></div><div class="bg-white rounded-lg p-6"><div class="grid grid-cols-2 md:grid-cols-4 gap-4"><select id="deger-marka" class="border rounded-lg p-3"><option value="">Marka</option><option>iPhone</option><option>Samsung</option><option>Xiaomi</option></select><input type="text" id="deger-model" placeholder="Model" class="border rounded-lg p-3"><select id="deger-durum" class="border rounded-lg p-3"><option value="1.0">Mükemmel</option><option value="0.9">İyi</option><option value="0.8">Orta</option><option value="0.6">Kötü</option></select><input type="tel" id="deger-tel" placeholder="Müşteri Tel" class="border rounded-lg p-3"><button onclick="hesaplaDeger()" class="bg-emerald-500 text-white p-3 rounded-lg font-bold col-span-2 md:col-span-4">Değer Hesapla</button></div><div id="deger-sonuc" class="hidden mt-6 text-center p-6 bg-emerald-50 rounded-xl"><div class="text-4xl font-black text-emerald-600" id="deger-fiyat">₺0</div><div class="flex gap-3 mt-4"><button onclick="degerWhatsAppGonder()" class="flex-1 bg-green-500 text-white p-2 rounded-lg"><i class="fab fa-whatsapp"></i> WhatsApp Gönder</button></div></div></div></div>
+
+        <!-- VERİ AKTARIM SAYFASI -->
+        <div id="page-veri-aktarim" class="page-content hidden"><div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 mb-6 text-white"><h2 class="text-2xl font-black">🔄 Veri Aktarım Servisi</h2><p>Eski telefondan yeni telefona veri aktarımı</p></div><div class="bg-white rounded-lg p-6"><div class="grid grid-cols-2 gap-4"><input type="text" id="aktarim-musteri" placeholder="Müşteri Adı" class="border rounded-lg p-3"><input type="tel" id="aktarim-tel" placeholder="Telefon" class="border rounded-lg p-3"><input type="text" id="aktarim-kaynak" placeholder="Kaynak Cihaz" class="border rounded-lg p-3"><input type="text" id="aktarim-hedef" placeholder="Hedef Cihaz" class="border rounded-lg p-3"><select id="aktarim-tip" class="border rounded-lg p-3"><option value="350">Tam Aktarım (₺350)</option><option value="200">Kısmi Aktarım (₺200)</option><option value="150">WhatsApp Aktarım (₺150)</option></select><button onclick="kaydetAktarim()" class="bg-blue-500 text-white p-3 rounded-lg font-bold">Aktarımı Başlat</button></div></div></div>
+
+        <!-- AYARLAR SAYFASI -->
+        <div id="page-ayarlar" class="page-content hidden"><div class="bg-white rounded-lg p-6"><h3 class="font-bold mb-4">Ayarlar</h3><div class="mb-4"><label class="block text-sm font-bold">Logo</label><input type="file" id="logo-upload" accept="image/*" onchange="uploadLogo(this)"><button onclick="resetLogo()" class="mt-2 bg-gray-200 px-4 py-2 rounded text-sm">Varsayılana Dön</button></div><div class="mb-4"><label class="block text-sm font-bold">Firma Adı</label><input type="text" id="set-company" class="w-full border p-2 rounded" placeholder="SALBAŞ İLETİŞİM"></div><div class="mb-4"><label class="block text-sm font-bold">Adres</label><textarea id="set-address" rows="2" class="w-full border p-2 rounded" placeholder="SALBAŞ MAHALLESİ, ÇUKUROVA/ADANA"></textarea></div><div class="mb-4"><label class="block text-sm font-bold">Vergi Dairesi</label><input type="text" id="set-tax" class="w-full border p-2 rounded" placeholder="KARAİSALI V.D."></div><div class="mb-4"><label class="block text-sm font-bold">Fiş Alt Bilgisi</label><textarea id="set-footer" rows="2" class="w-full border p-2 rounded" placeholder="Bizi tercih ettiğiniz için teşekkürler."></textarea></div><button onclick="saveSettings()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold">Kaydet</button><hr class="my-4"><button onclick="exportData()" class="w-full bg-emerald-600 text-white p-3 rounded-lg font-bold mb-2">Verileri Yedekle</button><input type="file" id="import-file" accept=".json" onchange="importData(event)" class="w-full border p-2 rounded"></div></div>
     </main>
 </div>
 
 <!-- MODALLAR -->
 <div id="modal-bg" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
-    <div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6"><h3 class="font-bold text-xl mb-4">Ürün Ekle</h3><input type="hidden" id="m-p-edit-idx" value="-1"><input type="text" id="m-p-barcode" placeholder="Barkod" class="w-full border p-2 rounded mb-2"><input type="text" id="m-p-name" placeholder="Ürün Adı" class="w-full border p-2 rounded mb-2"><input type="number" id="m-p-stock" placeholder="Stok" value="1" class="w-full border p-2 rounded mb-2"><input type="number" id="m-p-price" placeholder="Fiyat" class="w-full border p-2 rounded mb-4"><div class="flex gap-2"><button onclick="saveProduct()" class="flex-1 bg-emerald-600 text-white py-2 rounded font-bold">Kaydet</button><button onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded font-bold">İptal</button></div></div>
-    <div id="cust-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6"><h3 class="font-bold text-xl mb-4">Müşteri Ekle</h3><input type="hidden" id="m-c-edit-idx" value="-1"><input type="text" id="m-c-name" placeholder="Ad Soyad" class="w-full border p-2 rounded mb-2"><input type="text" id="m-c-tel" placeholder="Telefon" class="w-full border p-2 rounded mb-2"><input type="number" id="m-c-debt" placeholder="Borç" value="0" class="w-full border p-2 rounded mb-4"><div class="flex gap-2"><button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold">Kaydet</button><button onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded font-bold">İptal</button></div></div>
+    <div id="calc-modal" class="hidden bg-gray-900 w-full max-w-xs rounded-3xl p-6"><div class="flex justify-between mb-4"><h3 class="font-black text-xl text-white"><i class="fas fa-calculator mr-2 text-blue-400"></i>Hesap Makinesi</h3><button onclick="closeModal()" class="text-gray-400 text-2xl"><i class="fas fa-times"></i></button></div><div id="calc-display" class="bg-gray-950 text-white text-right p-4 rounded-xl text-3xl font-mono mb-4">0</div><div class="grid grid-cols-4 gap-2"><button onclick="calcInput('7')" class="calc-btn bg-gray-700 text-white">7</button><button onclick="calcInput('8')" class="calc-btn bg-gray-700 text-white">8</button><button onclick="calcInput('9')" class="calc-btn bg-gray-700 text-white">9</button><button onclick="calcInput('+')" class="calc-btn bg-amber-500 text-white">+</button><button onclick="calcInput('4')" class="calc-btn bg-gray-700 text-white">4</button><button onclick="calcInput('5')" class="calc-btn bg-gray-700 text-white">5</button><button onclick="calcInput('6')" class="calc-btn bg-gray-700 text-white">6</button><button onclick="calcInput('-')" class="calc-btn bg-amber-500 text-white">-</button><button onclick="calcInput('1')" class="calc-btn bg-gray-700 text-white">1</button><button onclick="calcInput('2')" class="calc-btn bg-gray-700 text-white">2</button><button onclick="calcInput('3')" class="calc-btn bg-gray-700 text-white">3</button><button onclick="calcInput('*')" class="calc-btn bg-amber-500 text-white">×</button><button onclick="calcInput('C')" class="calc-btn bg-red-600 text-white col-span-2">AC</button><button onclick="calcInput('0')" class="calc-btn bg-gray-700 text-white">0</button><button onclick="calcInput('=')" class="calc-btn bg-blue-600 text-white">=</button></div><button onclick="closeModal()" class="w-full bg-gray-700 text-white py-2 rounded-lg mt-4">Kapat</button></div>
+    <div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6"><h3 class="font-bold text-xl mb-4">Ürün Ekle</h3><input type="hidden" id="m-p-edit-idx" value="-1"><input type="text" id="m-p-barcode" placeholder="Barkod" class="w-full border p-2 rounded mb-2"><input type="text" id="m-p-name" placeholder="Ürün Adı" class="w-full border p-2 rounded mb-2"><input type="number" id="m-p-stock" placeholder="Stok" value="1" class="w-full border p-2 rounded mb-2"><input type="number" id="m-p-buy" placeholder="Alış Fiyatı" value="0" class="w-full border p-2 rounded mb-2"><input type="number" id="m-p-sell1" placeholder="Satış Fiyatı" class="w-full border p-2 rounded mb-4"><div class="flex gap-2"><button onclick="saveProduct()" class="flex-1 bg-emerald-600 text-white py-2 rounded font-bold">Kaydet</button><button onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded font-bold">İptal</button></div></div>
+    <div id="cust-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6"><h3 class="font-bold text-xl mb-4">Müşteri Ekle</h3><input type="hidden" id="m-c-edit-idx" value="-1"><input type="text" id="m-c-name" placeholder="Ad Soyad" class="w-full border p-2 rounded mb-2"><input type="text" id="m-c-tel" placeholder="Telefon" class="w-full border p-2 rounded mb-2"><input type="text" id="m-c-note" placeholder="Not" class="w-full border p-2 rounded mb-2"><input type="number" id="m-c-debt" placeholder="Borç" value="0" class="w-full border p-2 rounded mb-4"><div class="flex gap-2"><button onclick="saveCustomer()" class="flex-1 bg-blue-600 text-white py-2 rounded font-bold">Kaydet</button><button onclick="closeModal()" class="flex-1 bg-gray-200 py-2 rounded font-bold">İptal</button></div></div>
 </div>
 
 <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
@@ -161,26 +197,43 @@ const firebaseConfig = {
 };
 
 // Firebase'i başlat
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const dbCloud = firebase.firestore();
+let auth, dbCloud;
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    dbCloud = firebase.firestore();
+    console.log("Firebase başlatıldı");
+} catch(e) {
+    console.error("Firebase hatası:", e);
+}
 
-// Demo veritabanı (Firebase offline iken çalışır)
+// ========================================================
+// GLOBAL VERİLER
+// ========================================================
 let db = {
     products: [
-        { id: 1, barcode: "8699999999999", name: "iPhone 14 Pro", stock: 5, price: 34999 },
-        { id: 2, barcode: "8699999999998", name: "Samsung S23 Ultra", stock: 3, price: 29999 }
+        { id: 1, barcode: "8699999999999", name: "iPhone 14 Pro", stock: 5, buy: 28000, sell1: 34999 },
+        { id: 2, barcode: "8699999999998", name: "Samsung S23 Ultra", stock: 3, buy: 25000, sell1: 29999 },
+        { id: 3, barcode: "8699999999997", name: "Şarj Aleti 20W", stock: 15, buy: 150, sell1: 299 },
+        { id: 4, barcode: "8699999999996", name: "USB Kablo", stock: 20, buy: 30, sell1: 89 }
     ],
     customers: [
-        { id: 1, name: "Ahmet Demir", tel: "5551234567", debt: 0 },
-        { id: 2, name: "Mehmet Yılmaz", tel: "5552345678", debt: 1500 }
+        { id: 1, name: "Ahmet Demir", tel: "5551234567", note: "", debt: 0 },
+        { id: 2, name: "Mehmet Yılmaz", tel: "5552345678", note: "", debt: 1500 },
+        { id: 3, name: "Ayşe Kaya", tel: "5553456789", note: "", debt: 0 }
     ],
     sales: [],
-    finances: []
+    finances: [],
+    yedekParcalar: [],
+    servisKayitlari: [],
+    aktarimlar: [],
+    degerlemeler: []
 };
 
+let cart = [];
 let currentUserUid = null;
 let chart30 = null, chart6 = null;
+let manuelFisItems = [];
 
 // ========================================================
 // YARDIMCI FONKSİYONLAR
@@ -189,9 +242,10 @@ function showToast(msg, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
     const toast = document.createElement('div');
-    const colors = { success: 'border-emerald-500', error: 'border-red-500', info: 'border-blue-500' };
+    const colors = { success: 'border-emerald-500 bg-emerald-50', error: 'border-red-500 bg-red-50', info: 'border-blue-500 bg-blue-50' };
+    const icons = { success: 'fa-check-circle text-emerald-500', error: 'fa-exclamation-circle text-red-500', info: 'fa-info-circle text-blue-500' };
     toast.className = `bg-white text-gray-800 px-4 py-3 rounded-lg shadow-lg border-l-4 ${colors[type]} flex items-center gap-2 animate-fade-in-up`;
-    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle text-emerald-500' : type === 'error' ? 'fa-exclamation-circle text-red-500' : 'fa-info-circle text-blue-500'}"></i><span class="text-sm font-medium">${msg}</span>`;
+    toast.innerHTML = `<i class="fas ${icons[type]}"></i><span class="text-sm font-medium">${msg}</span>`;
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
@@ -204,15 +258,61 @@ function getLogoSrc() { return localStorage.getItem('customLogo') || 'https://cd
 function applyLogo(src) { ['sidebar-logo', 'login-logo', 'receipt-logo-img', 'contract-logo-img'].forEach(id => { const el = document.getElementById(id); if (el) el.src = src; }); }
 function uploadLogo(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = e => { localStorage.setItem('customLogo', e.target.result); applyLogo(e.target.result); showToast('Logo güncellendi', 'success'); }; reader.readAsDataURL(file); }
 function resetLogo() { localStorage.removeItem('customLogo'); applyLogo(getLogoSrc()); showToast('Varsayılan logo', 'info'); }
-function saveSettings() { const settings = { companyName: document.getElementById('set-company')?.value || '', address: document.getElementById('set-address')?.value || '' }; localStorage.setItem('receiptSettings', JSON.stringify(settings)); showToast('Ayarlar kaydedildi', 'success'); }
+
+function saveSettings() {
+    const settings = { 
+        companyName: document.getElementById('set-company')?.value || 'SALBAŞ İLETİŞİM',
+        address: document.getElementById('set-address')?.value || '',
+        taxInfo: document.getElementById('set-tax')?.value || '',
+        footer: document.getElementById('set-footer')?.value || ''
+    };
+    localStorage.setItem('receiptSettings', JSON.stringify(settings));
+    showToast('Ayarlar kaydedildi', 'success');
+}
+
+function exportData() {
+    const dataStr = JSON.stringify(db);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `salbas_yedek_${new Date().toISOString().slice(0,19)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Yedek alındı', 'success');
+}
+
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            db = { ...db, ...imported };
+            syncData();
+            renderAll();
+            showToast('Veriler yüklendi', 'success');
+        } catch(err) { showToast('Hatalı dosya', 'error'); }
+    };
+    reader.readAsText(file);
+}
+
+function syncData() {
+    localStorage.setItem('salbas_data', JSON.stringify(db));
+    if (currentUserUid && dbCloud) {
+        dbCloud.collection('users').doc(currentUserUid).set(db).catch(console.error);
+    }
+}
 
 // ========================================================
-// DEMO GİRİŞ (KESİN ÇALIŞIR - FİREBASE OLMADAN)
+// GİRİŞ/ÇIKIŞ
 // ========================================================
 function demoGiris() {
     // Login ekranını gizle
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('login-screen').classList.add('hidden');
+    const loginScreen = document.getElementById('login-screen');
+    loginScreen.style.display = 'none';
+    loginScreen.classList.add('hidden');
     
     // Kullanıcı bilgilerini göster
     document.getElementById('user-email-display').innerText = 'Demo Kullanıcı';
@@ -220,21 +320,20 @@ function demoGiris() {
     
     // Verileri yükle
     loadLocalData();
-    
     showToast('Demo hesap ile giriş yapıldı', 'success');
 }
 
-// ========================================================
-// FIREBASE GİRİŞ
-// ========================================================
 function loginApp() {
     const email = document.getElementById('login-email')?.value.trim();
     const pass = document.getElementById('login-pass')?.value;
     if (!email || !pass) { showToast('E-posta ve şifre giriniz', 'error'); return; }
     
+    if (!auth) { showToast('Firebase bağlantısı yok. Demo giriş kullanın.', 'error'); return; }
+    
     auth.signInWithEmailAndPassword(email, pass)
         .then(userCredential => {
             currentUserUid = userCredential.user.uid;
+            document.getElementById('login-screen').style.display = 'none';
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('user-email-display').innerText = userCredential.user.email;
             loadCloudData();
@@ -246,10 +345,13 @@ function loginApp() {
 }
 
 function loginWithGoogle() {
+    if (!auth) { showToast('Firebase bağlantısı yok. Demo giriş kullanın.', 'error'); return; }
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then(result => {
             currentUserUid = result.user.uid;
+            document.getElementById('login-screen').style.display = 'none';
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('user-email-display').innerText = result.user.email;
             if (result.user.photoURL) document.getElementById('user-photo').src = result.user.photoURL;
@@ -257,25 +359,20 @@ function loginWithGoogle() {
             showToast('Google ile giriş başarılı', 'success');
         })
         .catch(err => {
+            console.error('Google giriş hatası:', err);
             showToast('Google giriş hatası: ' + err.message, 'error');
         });
 }
 
 function logoutApp() {
     if (confirm('Çıkış yapmak istediğinize emin misiniz?')) {
-        auth.signOut().then(() => {
-            location.reload();
-        }).catch(() => {
-            location.reload();
-        });
+        if (auth) auth.signOut().catch(() => {});
+        location.reload();
     }
 }
 
-// ========================================================
-// VERİ YÜKLEME
-// ========================================================
 function loadCloudData() {
-    if (!currentUserUid) return;
+    if (!currentUserUid || !dbCloud) { renderAll(); return; }
     dbCloud.collection('users').doc(currentUserUid).get()
         .then(doc => {
             if (doc.exists) {
@@ -283,17 +380,15 @@ function loadCloudData() {
                 db.products = data.products || db.products;
                 db.customers = data.customers || db.customers;
                 db.sales = data.sales || [];
+                db.finances = data.finances || [];
             }
             renderAll();
         })
-        .catch(err => {
-            console.log('Cloud hatası, yerel veri kullanılıyor', err);
-            renderAll();
-        });
+        .catch(err => { console.log('Cloud hatası', err); renderAll(); });
 }
 
 function loadLocalData() {
-    const saved = localStorage.getItem('salbas_demo_data');
+    const saved = localStorage.getItem('salbas_data');
     if (saved) {
         try {
             const data = JSON.parse(saved);
@@ -303,21 +398,19 @@ function loadLocalData() {
     renderAll();
 }
 
-function syncData() {
-    if (currentUserUid) {
-        dbCloud.collection('users').doc(currentUserUid).set(db).catch(console.error);
-    }
-    localStorage.setItem('salbas_demo_data', JSON.stringify(db));
-}
-
 // ========================================================
 // RENDER FONKSİYONLARI
 // ========================================================
 function renderDashboard() {
     const today = new Date().toISOString().split('T')[0];
     const todaySales = db.sales.filter(s => s.date?.startsWith(today)).reduce((a, b) => a + (b.total || 0), 0);
-    const stockValue = db.products.reduce((a, b) => a + (b.price * b.stock), 0);
+    const weekSales = db.sales.filter(s => { const d = new Date(s.date); const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7); return d >= weekAgo; }).reduce((a, b) => a + (b.total || 0), 0);
+    const monthSales = db.sales.filter(s => { const d = new Date(s.date); const monthAgo = new Date(); monthAgo.setDate(monthAgo.getDate() - 30); return d >= monthAgo; }).reduce((a, b) => a + (b.total || 0), 0);
+    const stockValue = db.products.reduce((a, b) => a + ((b.buy || 0) * (b.stock || 0)), 0);
+    
     document.getElementById('dash-ciro-bugun').innerText = `₺${todaySales.toFixed(2)}`;
+    document.getElementById('dash-ciro-hafta').innerText = `₺${weekSales.toFixed(2)}`;
+    document.getElementById('dash-ciro-ay').innerText = `₺${monthSales.toFixed(2)}`;
     document.getElementById('dash-stok-deger').innerText = `₺${stockValue.toFixed(2)}`;
     
     const lowStock = db.products.filter(p => p.stock <= 5);
@@ -326,32 +419,58 @@ function renderDashboard() {
     if (uyari && liste) {
         if (lowStock.length) {
             uyari.classList.remove('hidden');
-            liste.innerHTML = lowStock.map(p => `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs">${p.name} (${p.stock})</span>`).join('');
+            liste.innerHTML = lowStock.map(p => `<span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">${p.name} (${p.stock})</span>`).join('');
         } else {
             uyari.classList.add('hidden');
         }
+    }
+    
+    // Son satışlar
+    const sonSatislar = document.getElementById('son-satislar');
+    if (sonSatislar) {
+        const recentSales = db.sales.slice(-5).reverse();
+        sonSatislar.innerHTML = recentSales.length ? recentSales.map(s => `<div class="flex justify-between text-sm border-b pb-2"><span>${new Date(s.date).toLocaleTimeString()}</span><span>₺${s.total}</span></div>`).join('') : '<p class="text-gray-400 text-sm">Henüz satış yok</p>';
+    }
+    
+    // Popüler ürünler
+    const populer = document.getElementById('populer-urunler');
+    if (populer) {
+        populer.innerHTML = db.products.slice(0, 5).map(p => `<div class="flex justify-between text-sm border-b pb-2"><span>${p.name}</span><span>₺${p.sell1}</span></div>`).join('');
     }
 }
 
 function renderProducts() {
     const table = document.getElementById('prod-table');
     if (!table) return;
-    table.innerHTML = db.products.map((p, i) => `
+    const search = document.getElementById('prod-search')?.value.toLowerCase() || '';
+    const filtered = db.products.filter(p => p.name.toLowerCase().includes(search) || p.barcode.includes(search));
+    table.innerHTML = filtered.map((p, i) => `
         <tr class="border-b">
             <td class="p-2 text-xs">${p.barcode}</td>
             <td class="p-2 font-bold">${p.name}</td>
             <td class="p-2 text-center ${p.stock <= 5 ? 'text-red-600 font-bold' : ''}">${p.stock}</td>
-            <td class="p-2 text-right text-emerald-600">₺${p.price}</td>
-            <td class="p-2 text-center"><button onclick="deleteProduct(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
-        </tr>
+            <td class="p-2 text-right text-emerald-600 font-bold">₺${p.sell1}</td>
+            <td class="p-2 text-center">
+                <button onclick="editProduct(${i})" class="text-amber-500 mr-1"><i class="fas fa-edit"></i></button>
+                <button onclick="deleteProduct(${i})" class="text-red-500"><i class="fas fa-trash"></i></button>
+            </td>
+        </table>
     `).join('');
 }
 
 function deleteProduct(i) { if (confirm('Sil?')) { db.products.splice(i, 1); syncData(); renderProducts(); showToast('Ürün silindi', 'success'); } }
-function openNewProductModal() { document.getElementById('m-p-edit-idx').value = '-1'; document.getElementById('m-p-name').value = ''; openModal('prod-modal'); }
+function editProduct(i) { const p = db.products[i]; if (!p) return; document.getElementById('m-p-edit-idx').value = i; document.getElementById('m-p-barcode').value = p.barcode; document.getElementById('m-p-name').value = p.name; document.getElementById('m-p-stock').value = p.stock; document.getElementById('m-p-buy').value = p.buy; document.getElementById('m-p-sell1').value = p.sell1; openModal('prod-modal'); }
+function openNewProductModal() { document.getElementById('m-p-edit-idx').value = '-1'; document.getElementById('m-p-name').value = ''; document.getElementById('m-p-sell1').value = ''; openModal('prod-modal'); }
 function saveProduct() {
     const idx = parseInt(document.getElementById('m-p-edit-idx').value);
-    const p = { id: Date.now(), barcode: document.getElementById('m-p-barcode').value || Date.now().toString(), name: document.getElementById('m-p-name').value, stock: Number(document.getElementById('m-p-stock').value) || 0, price: Number(document.getElementById('m-p-price').value) || 0 };
+    const p = { 
+        id: Date.now(), 
+        barcode: document.getElementById('m-p-barcode').value || Date.now().toString(), 
+        name: document.getElementById('m-p-name').value, 
+        stock: Number(document.getElementById('m-p-stock').value) || 0, 
+        buy: Number(document.getElementById('m-p-buy').value) || 0, 
+        sell1: Number(document.getElementById('m-p-sell1').value) || 0 
+    };
     if (!p.name) { showToast('Ürün adı girin', 'error'); return; }
     if (idx >= 0 && idx < db.products.length) db.products[idx] = p;
     else db.products.push(p);
@@ -360,27 +479,217 @@ function saveProduct() {
 
 function renderCustomers() {
     const table = document.getElementById('cust-table');
+    const posCustomer = document.getElementById('pos-customer');
     if (!table) return;
     table.innerHTML = db.customers.map((c, i) => `
         <tr class="border-b">
             <td class="p-2 font-bold">${c.name}</td>
             <td class="p-2">${c.tel || '-'}</td>
-            <td class="p-2 text-right text-red-600">₺${c.debt.toFixed(2)}</td>
-            <td class="p-2 text-center"><button onclick="deleteCustomer(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+            <td class="p-2 text-right text-red-600 font-bold">₺${c.debt.toFixed(2)}</td>
+            <td class="p-2 text-center">
+                <button onclick="editCustomer(${i})" class="text-amber-500 mr-1"><i class="fas fa-edit"></i></button>
+                <button onclick="payDebt(${i})" class="text-emerald-500 mr-1"><i class="fas fa-hand-holding-usd"></i></button>
+                <button onclick="deleteCustomer(${i})" class="text-red-500"><i class="fas fa-trash"></i></button>
+            </td>
         </tr>
     `).join('');
+    if (posCustomer) {
+        posCustomer.innerHTML = '<option value="">Müşteri Seç</option>' + db.customers.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+    }
 }
+
 function deleteCustomer(i) { if (confirm('Sil?')) { db.customers.splice(i, 1); syncData(); renderCustomers(); showToast('Müşteri silindi', 'success'); } }
+function editCustomer(i) { const c = db.customers[i]; if (!c) return; document.getElementById('m-c-edit-idx').value = i; document.getElementById('m-c-name').value = c.name; document.getElementById('m-c-tel').value = c.tel; document.getElementById('m-c-note').value = c.note; document.getElementById('m-c-debt').value = c.debt; openModal('cust-modal'); }
 function openNewCustomerModal() { document.getElementById('m-c-edit-idx').value = '-1'; document.getElementById('m-c-name').value = ''; openModal('cust-modal'); }
 function saveCustomer() {
     const idx = parseInt(document.getElementById('m-c-edit-idx').value);
-    const c = { id: Date.now(), name: document.getElementById('m-c-name').value, tel: document.getElementById('m-c-tel').value || '', debt: Number(document.getElementById('m-c-debt').value) || 0 };
+    const c = { id: Date.now(), name: document.getElementById('m-c-name').value, tel: document.getElementById('m-c-tel').value || '', note: document.getElementById('m-c-note').value || '', debt: Number(document.getElementById('m-c-debt').value) || 0 };
     if (!c.name) { showToast('Müşteri adı girin', 'error'); return; }
     if (idx >= 0 && idx < db.customers.length) db.customers[idx] = c;
     else db.customers.push(c);
     syncData(); closeModal(); renderCustomers(); showToast('Müşteri kaydedildi', 'success');
 }
 
+function payDebt(i) {
+    const c = db.customers[i];
+    if (!c) return;
+    const amount = prompt(`Müşteri: ${c.name}\nGüncel Borç: ₺${c.debt.toFixed(2)}\nTahsilat Tutarı:`);
+    if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
+        const payment = parseFloat(amount);
+        c.debt = Math.max(0, c.debt - payment);
+        db.finances.push({ id: Date.now(), type: 'Gelir', amount: payment, desc: `Tahsilat (${c.name})`, date: new Date().toISOString() });
+        syncData(); renderCustomers(); showToast(`₺${payment} tahsil edildi`, 'success');
+    }
+}
+
+// ========================================================
+// SATIŞ FONKSİYONLARI
+// ========================================================
+function triggerBarcode() {
+    const val = document.getElementById('pos-barcode').value.trim().toLowerCase();
+    if (!val) return;
+    document.getElementById('pos-barcode').value = '';
+    const product = db.products.find(p => p.barcode === val || p.name.toLowerCase() === val);
+    if (product) {
+        const existing = cart.find(c => c.id === product.id);
+        if (existing) existing.qty++;
+        else cart.push({ ...product, qty: 1 });
+        renderCart();
+        showToast(`${product.name} sepete eklendi`, 'success');
+    } else {
+        showToast('Ürün bulunamadı', 'error');
+    }
+}
+
+function addMuhtelif() {
+    const name = document.getElementById('muh-name').value || 'Muhtelif';
+    const price = parseFloat(document.getElementById('muh-price').value);
+    if (!price || isNaN(price)) { showToast('Geçerli fiyat girin', 'error'); return; }
+    cart.push({ id: Date.now(), name, sell1: price, qty: 1, isMuhtelif: true });
+    renderCart();
+    document.getElementById('muh-name').value = '';
+    document.getElementById('muh-price').value = '';
+    showToast('Muhtelif eklendi', 'success');
+}
+
+function renderCart() {
+    const tbody = document.getElementById('cart-list');
+    if (!tbody) return;
+    let total = 0;
+    tbody.innerHTML = cart.map((c, i) => {
+        total += c.sell1 * c.qty;
+        return `<tr class="border-b"><td class="p-2">${c.name} x${c.qty}</td><td class="p-2 text-right">₺${(c.sell1 * c.qty).toFixed(2)}</td><td class="p-2"><button onclick="removeFromCart(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+    }).join('');
+    document.getElementById('pos-toplam').innerHTML = `₺${total.toFixed(2)}`;
+}
+
+function removeFromCart(i) { cart.splice(i, 1); renderCart(); }
+function clearCart() { cart = []; renderCart(); }
+
+function completeSale(type) {
+    if (cart.length === 0) { showToast('Sepet boş', 'error'); return; }
+    const total = cart.reduce((a, b) => a + (b.sell1 * b.qty), 0);
+    const profit = cart.reduce((a, b) => a + ((b.sell1 - (b.buy || 0)) * b.qty), 0);
+    const customerName = document.getElementById('pos-customer').value;
+    
+    const sale = { id: Date.now(), total, profit, type, customer: customerName || null, date: new Date().toISOString(), items: [...cart] };
+    db.sales.push(sale);
+    
+    if (type === 'Veresiye' && customerName) {
+        const customer = db.customers.find(c => c.name === customerName);
+        if (customer) customer.debt += total;
+    } else {
+        db.finances.push({ id: Date.now(), type: 'Gelir', amount: total, desc: `Satış (${type})`, date: new Date().toISOString() });
+    }
+    
+    // Stok düş
+    cart.forEach(item => {
+        const product = db.products.find(p => p.id === item.id);
+        if (product && !item.isMuhtelif) product.stock -= item.qty;
+    });
+    
+    cart = [];
+    syncData();
+    renderCart();
+    renderDashboard();
+    renderProducts();
+    renderCustomers();
+    showToast(`Satış tamamlandı: ₺${total.toFixed(2)}`, 'success');
+}
+
+function switchPosTab(tab) {
+    const t1 = document.getElementById('pos-tab-1'), t2 = document.getElementById('pos-tab-2');
+    const b1 = document.getElementById('btn-pos-tab-1'), b2 = document.getElementById('btn-pos-tab-2');
+    if (tab === 1) { t1.classList.remove('hidden'); t2.classList.add('hidden'); b1.className = 'flex-1 bg-blue-600 text-white font-bold py-2 rounded-lg shadow-md'; b2.className = 'flex-1 bg-white text-gray-600 border font-bold py-2 rounded-lg'; }
+    else { t1.classList.add('hidden'); t2.classList.remove('hidden'); b2.className = 'flex-1 bg-blue-600 text-white font-bold py-2 rounded-lg shadow-md'; b1.className = 'flex-1 bg-white text-gray-600 border font-bold py-2 rounded-lg'; }
+}
+
+function addManuelItem() {
+    const name = document.getElementById('mf-name')?.value;
+    const qty = parseInt(document.getElementById('mf-qty')?.value);
+    const price = parseFloat(document.getElementById('mf-price')?.value);
+    if (!name || !qty || !price) { showToast('Tüm alanları doldurun', 'error'); return; }
+    manuelFisItems.push({ id: Date.now(), name, qty, price });
+    renderManuelFis();
+    document.getElementById('mf-name').value = '';
+    document.getElementById('mf-price').value = '';
+}
+
+function renderManuelFis() {
+    const tbody = document.getElementById('mf-list-body');
+    if (!tbody) return;
+    tbody.innerHTML = manuelFisItems.map((i, idx) => `<tr class="border-b"><td class="p-2">${i.name} x${i.qty}</td><td class="p-2 text-right">₺${i.qty * i.price}</td><td class="p-2"><button onclick="manuelFisItems.splice(${idx},1);renderManuelFis()" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+}
+
+function printManuelFis() {
+    if (manuelFisItems.length === 0) { showToast('Fiş boş', 'error'); return; }
+    const total = manuelFisItems.reduce((a, b) => a + (b.qty * b.price), 0);
+    showToast(`Fiş yazdırılıyor... Toplam: ₺${total}`, 'success');
+}
+
+// ========================================================
+// TELEFON DEĞERLEME
+// ========================================================
+function hesaplaDeger() {
+    const marka = document.getElementById('deger-marka')?.value;
+    const model = document.getElementById('deger-model')?.value;
+    const durum = parseFloat(document.getElementById('deger-durum')?.value || 1);
+    if (!marka || !model) { showToast('Marka ve model girin', 'error'); return; }
+    let bazFiyat = marka === 'iPhone' ? 35000 : marka === 'Samsung' ? 28000 : 15000;
+    const sonuc = Math.round(bazFiyat * durum);
+    document.getElementById('deger-sonuc').classList.remove('hidden');
+    document.getElementById('deger-fiyat').innerText = `₺${sonuc.toLocaleString()}`;
+    window.currentDeger = { marka, model, deger: sonuc, tel: document.getElementById('deger-tel')?.value || '' };
+}
+
+function degerWhatsAppGonder() {
+    if (!window.currentDeger) { showToast('Önce değer hesaplayın', 'error'); return; }
+    const tel = window.currentDeger.tel;
+    if (!tel) { showToast('Müşteri telefonu girin', 'error'); return; }
+    const msg = `Merhaba, telefonunuz ${window.currentDeger.marka} ${window.currentDeger.model} için değerleme sonucumuz: ${window.currentDeger.deger.toLocaleString()} TL. Salbaş İletişim`;
+    const cleanTel = tel.replace(/\D/g, '').replace(/^0/, '');
+    window.open(`https://wa.me/90${cleanTel}?text=${encodeURIComponent(msg)}`, '_blank');
+    db.degerlemeler.unshift({ ...window.currentDeger, tarih: new Date().toLocaleString() });
+    syncData();
+    showToast('Mesaj gönderildi', 'success');
+}
+
+// ========================================================
+// VERİ AKTARIM
+// ========================================================
+function kaydetAktarim() {
+    const musteri = document.getElementById('aktarim-musteri')?.value;
+    const tel = document.getElementById('aktarim-tel')?.value;
+    const kaynak = document.getElementById('aktarim-kaynak')?.value;
+    const hedef = document.getElementById('aktarim-hedef')?.value;
+    const ucret = parseInt(document.getElementById('aktarim-tip')?.value);
+    if (!musteri || !tel || !kaynak || !hedef) { showToast('Tüm alanları doldurun', 'error'); return; }
+    db.aktarimlar.unshift({ id: Date.now(), musteri, tel, kaynak, hedef, ucret, tarih: new Date().toLocaleString() });
+    syncData();
+    showToast(`Veri aktarım kaydedildi - Ücret: ₺${ucret}`, 'success');
+    
+    if (confirm('Ücreti kasaya eklemek ister misiniz?')) {
+        db.finances.push({ id: Date.now(), type: 'Gelir', amount: ucret, desc: `Veri Aktarım - ${musteri}`, date: new Date().toISOString() });
+        syncData();
+        showToast('Ücret kasaya eklendi', 'success');
+    }
+}
+
+// ========================================================
+// HESAP MAKİNESİ
+// ========================================================
+let calcExpr = '';
+function openCalcModal() { calcExpr = ''; document.getElementById('calc-display').innerText = '0'; openModal('calc-modal'); }
+function calcInput(v) {
+    const d = document.getElementById('calc-display');
+    if (v === 'C') { calcExpr = ''; d.innerText = '0'; return; }
+    if (v === '=') { try { calcExpr = eval(calcExpr.replace(/×/g, '*').replace(/÷/g, '/')).toString(); d.innerText = calcExpr; } catch(e) { d.innerText = 'Hata'; calcExpr = ''; } return; }
+    calcExpr += v; d.innerText = calcExpr;
+}
+
+// ========================================================
+// NAVİGASYON
+// ========================================================
 function simulateNavigation(pageName, el) {
     document.querySelectorAll('.menu-item').forEach(item => { item.classList.remove('bg-blue-600', 'text-white'); item.classList.add('text-gray-300'); });
     if (el) { el.classList.remove('text-gray-300'); el.classList.add('bg-blue-600', 'text-white'); }
@@ -398,23 +707,27 @@ function renderAll() {
     renderCustomers();
 }
 
-// Sayfa yüklendiğinde Firebase durumunu kontrol et
+// Sayfa yüklendiğinde
 document.addEventListener('DOMContentLoaded', function() {
     // Firebase auth durumunu dinle
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUserUid = user.uid;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('user-email-display').innerText = user.email;
-            if (user.photoURL) document.getElementById('user-photo').src = user.photoURL;
-            loadCloudData();
-        } else {
-            // Login ekranını göster
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('login-screen').classList.remove('hidden');
-        }
-    });
+    if (auth) {
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserUid = user.uid;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('user-email-display').innerText = user.email;
+                if (user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+                loadCloudData();
+            } else {
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('login-screen').classList.remove('hidden');
+                loadLocalData();
+            }
+        });
+    } else {
+        loadLocalData();
+    }
     
     // Saat güncelleme
     setInterval(() => {
@@ -431,6 +744,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const s = JSON.parse(savedSettings);
         if (document.getElementById('set-company')) document.getElementById('set-company').value = s.companyName || '';
         if (document.getElementById('set-address')) document.getElementById('set-address').value = s.address || '';
+        if (document.getElementById('set-tax')) document.getElementById('set-tax').value = s.taxInfo || '';
+        if (document.getElementById('set-footer')) document.getElementById('set-footer').value = s.footer || '';
     }
 });
 
@@ -441,7 +756,7 @@ document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
     sidebar.classList.toggle('flex');
 });
 
-console.log('Sistem başarıyla başlatıldı. Demo giriş butonuna tıklayarak giriş yapabilirsiniz.');
+console.log('Sistem başarıyla başlatıldı. "Demo Hesap ile Giriş" butonuna tıklayarak giriş yapabilirsiniz.');
 </script>
 </body>
-</html>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             </html>
