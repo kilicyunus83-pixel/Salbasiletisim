@@ -207,8 +207,8 @@
                 <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm"><h4 class="text-sm font-bold text-gray-600 mb-4">6 Aylık Satış Grafiği</h4><div id="chart-6-months" class="w-full h-[250px]"></div></div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Açık Hesap Alacakları (Top 5)</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Müşteri</th><th class="p-3 text-right">Borç Tutarı</th></tr></thead><tbody id="dash-alacak-list" class="divide-y divide-gray-100"></tbody>}</div>
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Son 5 Satış İşlemi</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Zaman</th><th class="p-3">Tür</th><th class="p-3">Ürünler</th><th class="p-3 text-right">Tutar</th></tr></thead><tbody id="dash-son-satislar" class="divide-y divide-gray-100"></tbody>}</div>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Açık Hesap Alacakları (Top 5)</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Müşteri</th><th class="p-3 text-right">Borç Tutarı</th></tr></thead><tbody id="dash-alacak-list" class="divide-y divide-gray-100"></tbody></table></div>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Son 5 Satış İşlemi</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Zaman</th><th class="p-3">Tür</th><th class="p-3">Ürünler</th><th class="p-3 text-right">Tutar</th></tr></thead><tbody id="dash-son-satislar" class="divide-y divide-gray-100"></tbody></table></div>
             </div>
         </div>
 
@@ -324,7 +324,7 @@
 
         <div id="page-musteriler" class="page-content hidden">
             <div class="bg-white p-4 border border-gray-200 rounded-t-lg shadow-sm flex justify-between items-center"><h3 class="font-bold text-gray-700">Kayıtlı Müşteriler <span id="cust-count" class="text-xs font-normal text-gray-400 ml-2">0 kişi</span></h3><div class="flex space-x-2"><button class="bg-red-50 text-red-600 px-3 py-1.5 rounded text-sm font-bold border border-red-100">Alacak: <span id="total-debt-badge">₺0.00</span></button><button onclick="openNewCustomerModal()" class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-blue-700"><i class="fas fa-plus"></i> Yeni</button></div></div>
-            <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-gray-600 font-bold text-xs uppercase"><tr><th class="p-3">Müşteri</th><th class="p-3">Telefon</th><th class="p-3 text-right text-red-600">Kalan Borcu</th><th class="p-3 text-center">Tahsilat / İşlem</th></tr></thead><tbody id="cust-table" class="divide-y divide-gray-100"></tbody>}</div>
+            <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-gray-600 font-bold text-xs uppercase"><tr><th class="p-3">Müşteri</th><th class="p-3">Telefon</th><th class="p-3 text-right text-red-600">Kalan Borcu</th><th class="p-3 text-center">Tahsilat / İşlem</th></tr></thead><tbody id="cust-table" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
 
         <div id="page-musteri-detay" class="page-content hidden">
@@ -339,7 +339,7 @@
                 <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm col-span-1 md:col-span-2"><h4 class="text-xs font-bold text-gray-400 uppercase mb-4 border-b pb-2">Bilgiler</h4><div class="grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-500 mb-1">Telefon:</p><p class="font-bold text-gray-800" id="cd-tel">-</p></div><div class="col-span-2"><p class="text-gray-500 mb-1">Özel Not:</p><p class="font-bold text-amber-600 italic" id="cd-note">-</p></div></div></div>
                 <div class="bg-gray-900 text-white p-6 border border-gray-800 rounded-lg shadow-xl flex flex-col justify-center items-center text-center"><p class="text-sm font-bold text-gray-400 uppercase mb-2">Güncel Kalan Borç</p><h2 class="text-4xl md:text-5xl font-black text-red-400 mb-4" id="cd-debt">₺0.00</h2></div>
             </div>
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Müşteri İşlem Geçmişi</div><table class="w-full text-left text-sm"><thead class="bg-white border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih</th><th class="p-3">İşlem Türü</th><th class="p-3">Detay</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">Durum</th></tr></thead><tbody id="cd-history-table" class="divide-y divide-gray-100"></tbody>}</div>
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Müşteri İşlem Geçmişi</div><table class="w-full text-left text-sm"><thead class="bg-white border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih</th><th class="p-3">İşlem Türü</th><th class="p-3">Detay</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">Durum</th></tr></thead><tbody id="cd-history-table" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
 
         <div id="page-urunler" class="page-content hidden">
@@ -348,7 +348,8 @@
                 <button onclick="openNewProductModal()" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 shadow-sm w-full md:w-auto"><i class="fas fa-plus mr-1"></i> Yeni Ürün</button>
             </div>
             <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto">
-                <table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Stok</th><th class="p-3 text-center">Kategori</th><th class="p-3 text-right">Alış ₺</th><th class="p-3 text-right">Satış ₺</th><th class="p-3 text-center">İşlemler</th></tr></thead><tbody id="prod-table" class="divide-y divide-gray-200"></tbody>}</div>
+                <table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Stok</th><th class="p-3 text-center">Kategori</th><th class="p-3 text-right">Alış ₺</th><th class="p-3 text-right">Satış ₺</th><th class="p-3 text-center">İşlemler</th></tr></thead><tbody id="prod-table" class="divide-y divide-gray-200"></tbody></table>
+            </div>
         </div>
 
         <div id="page-raporlar" class="page-content hidden">
@@ -368,7 +369,8 @@
             </div>
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
                 <div class="bg-gray-50 p-4 border-b font-bold text-gray-700">Satış Geçmişi & Eski Fişler</div>
-                <table class="w-full text-left text-sm"><thead class="border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih/Saat</th><th class="p-3">Tür</th><th class="p-3 text-right">Tutar</th><th class="p-3">Satılan Ürünler</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody id="rp-satis-table" class="divide-y divide-gray-100"></tbody>}</div>
+                <table class="w-full text-left text-sm"><thead class="border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih/Saat</th><th class="p-3">Tür</th><th class="p-3 text-right">Tutar</th><th class="p-3">Satılan Ürünler</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody id="rp-satis-table" class="divide-y divide-gray-100"></tbody></table>
+            </div>
         </div>
 
         <div id="page-finans" class="page-content hidden">
@@ -384,7 +386,7 @@
                         <button id="btn-fin-cancel" onclick="cancelFinanceEdit()" class="w-full bg-gray-200 text-gray-600 py-2 rounded font-bold hidden">İptal</button>
                     </div>
                 </div>
-                <div class="md:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Kasa Hareketleri</div><table class="w-full text-left text-sm"><thead class="border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody id="fin-table" class="divide-y"></tbody>}</div>
+                <div class="md:col-span-2 bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Kasa Hareketleri</div><table class="w-full text-left text-sm"><thead class="border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody id="fin-table" class="divide-y"></tbody></table></div>
             </div>
         </div>
 
@@ -594,7 +596,7 @@
                 <div class="bg-white p-6 border rounded-lg shadow-sm"><h3 class="mb-4 font-bold text-purple-600 text-lg border-b pb-2"><i class="fas fa-bullhorn"></i> Mesaj Şablonu</h3><textarea id="reklam-text" rows="5" class="w-full border p-3 rounded-lg text-sm mb-3" placeholder="Mesaj yazın..."></textarea></div>
                 <div class="md:col-span-2 bg-white border rounded-lg shadow-sm overflow-hidden">
                     <div class="p-3 bg-gray-50 border-b font-bold text-gray-700 flex justify-between items-center"><span>Müşteri Listesi</span></div>
-                    <div class="overflow-y-auto h-[400px]"><table class="w-full text-left text-sm"><tbody id="reklam-list" class="divide-y divide-gray-100"></tbody>}</div>
+                    <div class="overflow-y-auto h-[400px]"><table class="w-full text-left text-sm"><tbody id="reklam-list" class="divide-y divide-gray-100"></tbody></table></div>
                 </div>
             </div>
         </div>
@@ -608,7 +610,7 @@
                 <div class="relative flex-1"><i class="fas fa-barcode absolute left-3 top-3 text-gray-400 text-xl"></i><input type="text" id="sayim-barkod-okut" placeholder="BARKOD OKUTUN..." class="w-full border-2 border-blue-400 bg-blue-50 rounded pl-10 pr-3 py-3 text-lg font-black outline-none focus:border-blue-600 transition shadow-inner"></div>
                 <div class="relative flex-1"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xl"></i><input type="text" id="sayim-search" onkeyup="renderStokSayimi()" placeholder="Tabloda Ara..." class="w-full border border-gray-300 rounded pl-10 pr-3 py-3 text-lg outline-none focus:border-gray-500"></div>
             </div>
-            <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Sistem Stok</th><th class="p-3 text-right text-amber-300">Toplam Maliyet</th><th class="p-3 text-center bg-blue-700">Yeni Sayılan</th></tr></thead><tbody id="sayim-table" class="divide-y divide-gray-200"></tbody>}</div>
+            <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Sistem Stok</th><th class="p-3 text-right text-amber-300">Toplam Maliyet</th><th class="p-3 text-center bg-blue-700">Yeni Sayılan</th></tr></thead><tbody id="sayim-table" class="divide-y divide-gray-200"></tbody></table></div>
         </div>
 
         <div id="page-faturasiz" class="page-content hidden">
@@ -619,7 +621,7 @@
                 <button id="btn-fu-save" onclick="addFaturasiz()" class="w-full md:w-auto bg-red-600 text-white px-6 md:px-10 py-3 rounded-lg font-black shadow-lg text-sm">EKLE</button>
                 <button id="btn-fu-cancel" onclick="cancelFaturasizEdit()" class="w-full md:w-auto bg-gray-200 text-gray-600 px-6 py-3 rounded-lg font-black text-sm hidden">İptal</button>
             </div>
-            <div class="bg-white border rounded-xl overflow-x-auto shadow-sm"><table class="w-full text-left"><thead class="bg-gray-800 text-white uppercase text-[10px] font-bold"><tr><th class="p-3 md:p-4">Ürün Adı</th><th class="p-3 md:p-4 text-right">Fiyat</th><th class="p-3 md:p-4 text-center">İşlem</th></tr></thead><tbody id="fu-table" class="divide-y font-bold text-xs md:text-sm"></tbody>}</div>
+            <div class="bg-white border rounded-xl overflow-x-auto shadow-sm"><table class="w-full text-left"><thead class="bg-gray-800 text-white uppercase text-[10px] font-bold"><tr><th class="p-3 md:p-4">Ürün Adı</th><th class="p-3 md:p-4 text-right">Fiyat</th><th class="p-3 md:p-4 text-center">İşlem</th></tr></thead><tbody id="fu-table" class="divide-y font-bold text-xs md:text-sm"></tbody></table></div>
         </div>
 
         <div id="page-tarifeler" class="page-content hidden">
@@ -667,7 +669,7 @@
                 <button id="btn-oplog-save" onclick="saveOpLog()" class="w-full md:w-auto bg-gray-800 text-white px-6 md:px-10 py-3 rounded-lg font-black shadow-lg text-sm">NOTU KAYDET</button>
                 <button id="btn-oplog-cancel" onclick="cancelOpLogEdit()" class="w-full md:w-auto bg-gray-200 text-gray-600 px-6 py-3 rounded-lg font-black text-sm hidden">İptal</button>
             </div>
-            <div class="bg-white border rounded-xl shadow-sm overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500"><tr><th class="p-3 md:p-4 w-16 md:w-24">Saat</th><th class="p-3 md:p-4">İşlem Özeti</th><th class="p-3 md:p-4 text-center w-24">İşlemler</th></tr></thead><tbody id="op-log-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody>}</div>
+            <div class="bg-white border rounded-xl shadow-sm overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500"><tr><th class="p-3 md:p-4 w-16 md:w-24">Saat</th><th class="p-3 md:p-4">İşlem Özeti</th><th class="p-3 md:p-4 text-center w-24">İşlemler</th></tr></thead><tbody id="op-log-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody></table></div>
         </div>
 
         <div id="page-ayarlar" class="page-content hidden">
@@ -1013,10 +1015,12 @@ function loadCloudData(uid) {
             db.finances = d.finances||[]; db.faturasiz = d.faturasiz||[]; db.tasks = d.tasks||[]; 
             db.opLogs = d.opLogs||[]; db.operatorPacks = d.operatorPacks||[]; db.purchases = d.purchases||[];
             db.islemKayitlari = d.islemKayitlari||[]; db.yeniServis = d.yeniServis||[]; db.yeniNotlar = d.yeniNotlar||[];
+            renderAll();
         } else {
             loadLocalData(uid);
+            // İlk defa giriş yapılıyor: localStorage varsa onu buluta kaydet
+            sync();
         }
-        renderAll();
         showToast('Dükkan veritabanı bağlandı.', 'success');
     }).catch(err => {
         alert('Bulut bağlantı hatası! Çevrimdışı veriler yükleniyor.\n' + err.message);
@@ -1585,7 +1589,7 @@ function renderCart() {
     if(!cartList || !posToplam) return;
     
     if(cart.length===0) {
-        cartList.innerHTML=`<tr><td colspan="4" class="text-center text-gray-400 py-10"><i class="fas fa-shopping-basket text-4xl mb-2 opacity-50"></i><p>Sepet Boş</p></td></tr>`;
+        cartList.innerHTML=`<tr><td colspan="4" class="text-center text-gray-400 py-10"><i class="fas fa-shopping-basket text-4xl mb-2 opacity-50"></i><p>Sepet Boş</p></td><tr>`;
     } else {
         cartList.innerHTML=cart.map((c,i)=>{ t+=c.sell1*c.qty; return `<tr class="border-b"><td class="p-3 text-center text-red-400 cursor-pointer" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash"></i></td><td class="p-3 font-bold text-xs md:text-sm">${c.name}</td><td class="p-3 text-center"><div class="flex items-center justify-center border rounded bg-white"><button class="px-2 bg-gray-100" onclick="updateCartQty(${i},-1)">-</button><span class="px-2 font-bold w-6 text-center">${c.qty}</span><button class="px-2 bg-gray-100" onclick="updateCartQty(${i},1)">+</button></div></td><td class="p-3 text-right font-black text-emerald-600">₺${(c.sell1*c.qty).toFixed(2)}</td></tr>`; }).join('');
     }
@@ -1862,7 +1866,7 @@ function renderDashboard() {
     }
     
     const alacakList = document.getElementById('dash-alacak-list');
-    if(alacakList) alacakList.innerHTML=db.customers.filter(c=>c.debt>0).sort((a,b)=>b.debt-a.debt).slice(0,5).map(c=>`<tr><td class="p-3 text-xs font-bold uppercase">${c.name}</td><td class="p-3 text-right text-red-500 font-black">₺${c.debt.toFixed(2)}</td></tr>`).join('');
+    if(alacakList) alacakList.innerHTML=db.customers.filter(c=>c.debt>0).sort((a,b)=>b.debt-a.debt).slice(0,5).map(c=>`<td><td class="p-3 text-xs font-bold uppercase">${c.name}</td><td class="p-3 text-right text-red-500 font-black">₺${c.debt.toFixed(2)}</td></tr>`).join('');
     
     const sonSatislar = document.getElementById('dash-son-satislar');
     if(sonSatislar) sonSatislar.innerHTML=db.sales.filter(s=>!s.isRefunded).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5).map(s=>`<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</td><td class="p-3 text-[10px] font-bold">${s.type}</td><td class="p-3 text-xs truncate max-w-[120px]">${s.items.map(i=>i.name).join(', ')}</td><td class="p-3 text-right font-black text-blue-600">₺${s.total.toFixed(2)}</td></tr>`).join('');
@@ -2683,13 +2687,19 @@ function editOpLog(id) {
 }
 
 function renderOpLogs() {
-    const p=db.opLogs.filter(x=>x.op===activeOperator);
-    const table = document.getElementById('op-log-table');
-    function renderOpLogs() {
-    const p=db.opLogs.filter(x=>x.op===activeOperator);
+    const p = db.opLogs.filter(x => x.op === activeOperator);
     const table = document.getElementById('op-log-table');
     if(!table) return;
-    table.innerHTML=p.map(t=>`<tr><td class="p-3 text-xs text-gray-500">${new Date(t.date).toLocaleTimeString('tr-TR')}</td><td class="p-3 text-sm font-bold text-gray-700">${t.text}</td><td class="p-3 text-center"><button onclick="editOpLog(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+    table.innerHTML = p.map(t => `
+        <tr>
+            <td class="p-3 text-xs text-gray-500">${new Date(t.date).toLocaleTimeString('tr-TR')}</td>
+            <td class="p-3 text-sm font-bold text-gray-700">${t.text}</td>
+            <td class="p-3 text-center">
+                <button onclick="editOpLog(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button>
+                <button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${t.id});sync();renderOpLogs();}" class="text-red-500"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
 }
 
 /* ========================================================
@@ -2884,10 +2894,7 @@ function printManuelFis() {
     if(tax) tax.innerText=settings.taxInfo;
     const footer = document.getElementById('receipt-footer');
     if(footer) footer.innerText=settings.footerMessage;
-    const customNote
-    if(!table) return;
-    table.innerHTML=p.map(t=>`<tr><td class="p-3 text-xs text-gray-500">${new Date(t.date).toLocaleTimeString('tr-TR')}</td><td class="p-3 text-sm font-bold text-gray-700">${t.text}</td><td class="p-3 text-center"><button onclick="editOpLog(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button>
-        const customNote = document.getElementById('receipt-custom-note');
+    const customNote = document.getElementById('receipt-custom-note');
     const mfNote = document.getElementById('mf-note');
     if(customNote && mfNote) customNote.innerText = mfNote.value;
     
