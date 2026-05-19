@@ -829,9 +829,22 @@ function loadLogo() {
 }
 
 /* ========================================================
-   GİRİŞ / ÇIKIŞ (Test Modu)
+   GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
 window.onload = () => {
+    // Firebase Oturum Kontrolü
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            currentUserUid = user.uid;
+            document.getElementById('user-email-display').innerText = user.email || user.displayName || 'Dükkan Sahibi';
+            if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+            loadCloudData(user.uid);
+        } else {
+            currentUserUid = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+    });
+
     loadReceiptSettings();
     loadLogo();
     const today = new Date().toISOString().split('T')[0];
@@ -844,9 +857,6 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
-    
-    // Şifre ekranını göster (Test modunda devre dışı kalacak)
-    document.getElementById('login-screen').classList.remove('hidden');
 };
 
 function msg(text, isErr=true) {
@@ -856,80 +866,49 @@ function msg(text, isErr=true) {
 }
 
 function loginApp() {
-    document.getElementById('login-screen').classList.add('hidden');
-    currentUserUid = "test-user-123"; 
-    loadLocalData(currentUserUid);
-    renderAll();
-    showToast('Sisteme test modunda giriş yapıldı.', 'success');
+    const e = document.getElementById('login-email').value;
+    const p = document.getElementById('login-pass').value;
+    if(!e || !p) return msg('Lütfen e-posta ve şifre girin.');
+    auth.signInWithEmailAndPassword(e, p)
+        .then(() => msg('Giriş başarılı...', false))
+        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
 }
 
 function loginWithGoogle() {
-    msg('Google paneli şu an test modunda kapalı.', true);
+    msg('Google paneli açılıyor...', false);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(() => msg('Giriş başarılı!', false))
+        .catch(err => msg('Giriş hatası: ' + err.message));
 }
 
 function logoutApp() {
     if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
-        window.location.reload();
+        auth.signOut().then(() => window.location.reload());
     }
 }
 
-function loadCloudData(uid) {
-    dbCloud.collection('sistem_kullanicilari').doc(uid).get().then(doc => {
-        if(doc.exists) {
-            const d = doc.data();
-            db.products = d.products||[]; db.customers = d.customers||[]; db.sales = d.sales||[];
-            db.finances = d.finances||[]; db.logs = d.logs||[]; db.faturasiz = d.faturasiz||[];
-            db.notes = d.notes||[]; db.tasks = d.tasks||[]; db.opLogs = d.opLogs||[];
-            db.operatorPacks = d.operatorPacks||[]; db.purchases = d.purchases||[]; db.repairs = d.repairs||[];
-        }
-        renderAll();
-        document.getElementById('login-screen').classList.add('hidden');
-        showToast('Dükkan veritabanı bağlandı.', 'success');
-    }).catch(err => {
-        alert('Bulut bağlantı hatası! Çevrimdışı veriler yükleniyor.\n' + err.message);
-        loadLocalData(uid);
-        document.getElementById('login-screen').classList.add('hidden');
-    });
-}
-
-function loadLocalData(uid) {
-    if(!uid) return;
-    db.products = JSON.parse(localStorage.getItem('bp_prods_'+uid))||[];
-    db.customers = JSON.parse(localStorage.getItem('bp_custs_'+uid))||[];
-    db.sales = JSON.parse(localStorage.getItem('bp_sales_'+uid))||[];
-    db.finances = JSON.parse(localStorage.getItem('bp_fin_'+uid))||[];
-    db.logs = JSON.parse(localStorage.getItem('bp_logs_'+uid))||[];
-    db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_'+uid))||[];
-    db.notes = JSON.parse(localStorage.getItem('bp_notes_'+uid))||[];
-    db.tasks = JSON.parse(localStorage.getItem('bp_tasks_'+uid))||[];
-    db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_'+uid))||[];
-    db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_'+uid))||[];
-    db.purchases = JSON.parse(localStorage.getItem('bp_purchases_'+uid))||[];
-    db.repairs = JSON.parse(localStorage.getItem('bp_repairs_'+uid))||[];
-    renderAll();
-}
-
+// sync fonksiyonunu da eski haline alalım (Sadece giriş yapmış kullanıcılar veritabanına yazabilsin)
 function sync() {
-    const uid = auth.currentUser ? auth.currentUser.uid : "test-user-123";
     if(auth.currentUser) {
+        const uid = auth.currentUser.uid;
         dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
+        
+        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
+        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
+        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
+        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
+        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
+        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
+        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
+        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
+        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
+        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
+        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
+        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     }
-    localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
-    localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
-    localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
-    localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
-    localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
-    localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
-    localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
-    localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
-    localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
-    localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
-    localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
-    localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     renderAll();
-}
-
-/* ========================================================
+}/* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
