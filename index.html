@@ -68,7 +68,7 @@
 </div>
 
 <!-- YAZDIRILACAK ALANLAR -->
-<div id="print-area">
+<div id="print-area" class="hidden">
     <div id="receipt-preview-container" class="font-mono text-black relative thickness-normal bg-white mx-auto">
         <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
             <img id="receipt-logo-img" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width:100%;max-height:45px;margin:0 auto 5px;display:block;filter:grayscale(100%) contrast(1.2);">
@@ -93,12 +93,12 @@
         </div>
     </div>
 </div>
-<div id="label-print-area">
+<div id="label-print-area" class="hidden">
     <div style="font-size:11px;font-weight:bold;text-align:center;margin-bottom:2px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="label-title">Salbaş İletişim</div>
     <svg id="label-barcode"></svg>
     <div style="font-size:20px;font-weight:900;text-align:center;margin-top:2px;" id="label-price">₺0.00</div>
 </div>
-<div id="contract-print-area">
+<div id="contract-print-area" class="hidden">
     <div class="text-center mb-8 border-b-2 border-black pb-4">
         <img id="contract-logo-img" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" style="max-width:100%;max-height:80px;margin:0 auto 10px;display:block;">
         <h1 class="text-2xl font-black uppercase tracking-wide">İkinci El Cihaz Alım-Satım Sözleşmesi</h1>
@@ -115,7 +115,7 @@
     </div>
     <div id="print-image-container" class="mt-8 border-t-2 border-gray-300 pt-6 text-center hidden"><h3 class="font-bold mb-4 text-gray-600">EKLER: Satıcı Kimlik Belgesi</h3><img id="print-image" src="" alt="Kimlik Belgesi" class="max-w-md mx-auto border-2 border-gray-400 p-1 rounded"></div>
 </div>
-<div id="repair-print-area" class="mx-auto"></div>
+<div id="repair-print-area" class="hidden mx-auto"></div>
 
 <!-- SIDEBAR -->
 <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
