@@ -286,7 +286,6 @@
     <i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i>
     <input type="text" id="pos-barcode" oninput="showPosSuggestions()" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkod veya ürün adı yazın..." class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner" autocomplete="off">
     <div id="pos-suggestions" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg shadow-2xl max-h-60 overflow-y-auto top-full left-0 divide-y divide-gray-100"></div>
-</div> id="pos-barcode" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkodu okutun veya isim yazın (Enter'a basın)" class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner"></div>
                         <button onclick="triggerBarcode()" class="bg-blue-600 text-white px-5 py-2 rounded text-sm font-bold hover:bg-blue-700 shadow-sm">Ekle</button>
                         <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
                     </div>
@@ -962,8 +961,7 @@ window.addEventListener('click', function(e) {
         if(sugg) sugg.classList.add('hidden');
     }
 });
-    }
-});
+    
 
 function showToast(message, type='info') {
     const container = document.getElementById('toastContainer');
