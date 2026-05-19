@@ -278,17 +278,18 @@
         </div>
 
         <!-- SATIŞ YAP -->
-        <div id="page-satis-yap" class="page-content hidden h-full">
-            <div class="flex flex-col lg:flex-row gap-4 h-[calc(100vh-120px)]">
-                <div class="flex-1 flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px]">
-                    <div class="p-4 border-b border-gray-200 bg-gray-50 flex gap-2 items-center flex-wrap">
-                        <div class="flex-1 relative min-w-[150px]">
-    <i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i>
-    <input type="text" id="pos-barcode" oninput="showPosSuggestions()" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkod veya ürün adı yazın..." class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner" autocomplete="off">
-    <div id="pos-suggestions" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg shadow-2xl max-h-60 overflow-y-auto top-full left-0 divide-y divide-gray-100"></div>
-                        <button onclick="triggerBarcode()" class="bg-blue-600 text-white px-5 py-2 rounded text-sm font-bold hover:bg-blue-700 shadow-sm">Ekle</button>
-                        <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
-                    </div>
+        <div id="page-satis-yap" class="page-content hidden">
+    <div class="flex flex-col lg:flex-row gap-4">
+        <div class="flex-1 flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px]">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex gap-2 items-center flex-wrap">
+                <div class="flex-1 relative min-w-[150px]">
+                    <i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i>
+                    <input type="text" id="pos-barcode" oninput="showPosSuggestions()" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkod veya ürün adı yazın..." class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner" autocomplete="off">
+                    <div id="pos-suggestions" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg shadow-2xl max-h-60 overflow-y-auto top-full left-0 divide-y divide-gray-100"></div>
+                </div>
+                <button onclick="triggerBarcode()" class="bg-blue-600 text-white px-5 py-2 rounded text-sm font-bold hover:bg-blue-700 shadow-sm">Ekle</button>
+                <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
+            </div>
                     <div class="p-3 border-b border-gray-200 bg-emerald-50 flex flex-wrap gap-2 items-center text-sm">
                         <span class="font-bold text-emerald-700 mr-1 text-xs"><i class="fas fa-bolt"></i> Muhtelif İşlem:</span>
                         <input type="text" id="muh-name" placeholder="Ürün/Hizmet Adı" class="flex-1 min-w-[120px] border border-emerald-200 rounded p-1.5 outline-none focus:border-emerald-500 font-bold text-gray-700">
@@ -918,25 +919,29 @@ function loadLocalData(uid) {
 }
 
 function sync() {
+    // ÇÖZÜM: Kullanıcı giriş yapmamışsa bile test verisi olarak kaydetmesine izin veriyoruz
+    const uid = auth.currentUser ? auth.currentUser.uid : "test-user-123";
+    
     if(auth.currentUser) {
-        const uid = auth.currentUser.uid;
         dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
-        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
-        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
-        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
-        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
-        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
-        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
-        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
-        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
-        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
-        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
-        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
-        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     }
+    
+    // Her halükarda tarayıcının yerel hafızasına (Local Storage) kaydet
+    localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
+    localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
+    localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
+    localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
+    localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
+    localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
+    localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
+    localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
+    localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
+    localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
+    localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
+    localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
+    
     renderAll();
 }
-
 /* ========================================================
    NAVİGASYON
 ======================================================== */
@@ -1395,11 +1400,17 @@ function renderDashboard() {
 
 function renderCharts() {
     if(!window.ApexCharts) return;
+    const chartContainer = document.querySelector('#chart-30-days');
+    
+    // ÇÖZÜM: Grafik ekranı şu an aktif/görünür değilse çizimi iptal et ki sistemi dondurmasın.
+    if(!chartContainer || chartContainer.offsetParent === null) return; 
+
     const last30=Array.from({length:30},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); return d.toLocaleDateString('tr-TR'); }).reverse();
     const sales30=last30.map(dStr=>db.sales.filter(s=>!s.isRefunded&&new Date(s.date).toLocaleDateString('tr-TR')===dStr).reduce((a,b)=>a+b.total,0));
     const opts30={series:[{name:'Ciro',data:sales30}],chart:{type:'area',height:250,toolbar:{show:false}},stroke:{curve:'smooth',width:2},fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:0.7,opacityTo:0.1}},xaxis:{categories:last30,labels:{show:false}},dataLabels:{enabled:false},colors:['#3b82f6']};
     if(chart30) chart30.destroy();
-    chart30=new ApexCharts(document.querySelector('#chart-30-days'),opts30); chart30.render();
+    chart30=new ApexCharts(chartContainer,opts30); chart30.render();
+    
     const mNames=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
     const mData=[]; const mCat=[];
     for(let i=5;i>=0;i--) { const d=new Date(); d.setMonth(d.getMonth()-i); mCat.push(mNames[d.getMonth()]); mData.push(db.sales.filter(s=>!s.isRefunded&&new Date(s.date).getMonth()===d.getMonth()&&new Date(s.date).getFullYear()===d.getFullYear()).reduce((a,b)=>a+b.total,0)); }
@@ -1412,12 +1423,32 @@ function renderCharts() {
    ÜRÜNLER
 ======================================================== */
 function saveProduct() {
-    const idx=parseInt(document.getElementById('m-p-edit-idx').value);
-    const p={barcode:document.getElementById('m-p-barcode').value||Date.now().toString(),name:document.getElementById('m-p-name').value,stock:Number(document.getElementById('m-p-stock').value),buy:Number(document.getElementById('m-p-buy').value),sell1:Number(document.getElementById('m-p-sell1').value),category:document.getElementById('m-p-category').value};
-    if(!p.name) return;
-    if(idx>-1) db.products[idx]=p; else db.products.push(p);
-    sync(); closeModal(); showToast('Ürün kaydedildi','success');
-    document.getElementById('m-p-edit-idx').value='-1';
+    const idx = parseInt(document.getElementById('m-p-edit-idx').value);
+    const p = {
+        barcode: document.getElementById('m-p-barcode').value || Date.now().toString(),
+        name: document.getElementById('m-p-name').value,
+        stock: Number(document.getElementById('m-p-stock').value),
+        buy: Number(document.getElementById('m-p-buy').value),
+        sell1: Number(document.getElementById('m-p-sell1').value),
+        category: document.getElementById('m-p-category').value
+    };
+    
+    if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
+    
+    if(idx > -1) db.products[idx] = p; 
+    else db.products.push(p);
+    
+    // ÇÖZÜM: Kayıt sonrası ürün ekleme formunu temizle
+    document.getElementById('m-p-barcode').value = '';
+    document.getElementById('m-p-name').value = '';
+    document.getElementById('m-p-stock').value = '1';
+    document.getElementById('m-p-buy').value = '0';
+    document.getElementById('m-p-sell1').value = '';
+    document.getElementById('m-p-edit-idx').value = '-1';
+    
+    sync(); 
+    closeModal(); 
+    showToast('Ürün başarıyla kaydedildi!', 'success');
 }
 
 function editProd(i) {
