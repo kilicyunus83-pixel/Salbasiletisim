@@ -1102,7 +1102,6 @@ function renderQuickSell() {
         const items=db.products.filter(p=>p.category===activeQuickTab);
         document.getElementById('quick-items').innerHTML=items.length===0?`<div class="col-span-4 text-center text-xs text-gray-400 py-6">Ürün yok.</div>`:items.map(p=>`<button onclick="addQuickItem('${p.barcode}')" class="bg-white border border-gray-200 rounded-lg p-2 flex flex-col items-center justify-center text-center shadow-sm hover:bg-blue-50 transition h-16"><span class="text-xs font-bold text-gray-700 truncate w-full mb-1">${p.name}</span><span class="text-[10px] font-black text-emerald-600">₺${p.sell1}</span></button>`).join('');
     }
-}
 
 function addQuickItem(barcode) {
     const p=db.products.find(x=>x.barcode===barcode);
