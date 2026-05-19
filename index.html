@@ -1092,7 +1092,8 @@ function addMuhtelif() {
     cart.push({ barcode:'MUHTELİF-'+Date.now(), name:nInput, sell1:pInput, buy:bPrice, qty:1, isCustom:true });
     renderCart();
     document.getElementById('muh-name').value=''; document.getElementById('muh-price').value=''; document.getElementById('muh-margin').value='';
-}function setQuickTab(tab) { activeQuickTab=tab; renderQuickSell(); }
+}
+function setQuickTab(tab) { activeQuickTab=tab; renderQuickSell(); }
 
 function renderQuickSell() {
     const tabs=['Liste 1','Liste 2','Liste 3','Liste 4'];
