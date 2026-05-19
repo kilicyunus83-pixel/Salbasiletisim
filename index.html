@@ -1926,7 +1926,38 @@ function exportData() {
 function importData(e) {
     const file=e.target.files[0]; if(!file) return;
     const reader=new FileReader();
-    reader.onload=function(e) { try { const importedData=JSON.parse(e.target.result); if(confirm('Mevcut veriler silinip yedek yüklenecek. Emin misiniz?')) { db=Object.assign(db,importedData); sync(); showToast('Yedek başarıyla yüklendi!','success'); } } catch(err) { showToast('Geçersiz yedek dosyası!','error'); } };
+    reader.onload=function(e) { try { const importedData=JSON.parse(e.target.result); if(confirm('Mevcut veriler silinip yedek yüklenecek. Emin misiniz?')) { db=Object.assign(db,importedData); sync(); 
+/* ========================================================
+   VERİLERİ BULUTTAN ÇEKME (Eksik olan fonksiyon)
+======================================================== */
+function loadCloudData(uid) {
+    // Firebase Firestore'dan kullanıcı verilerini çek
+    dbCloud.collection('sistem_kullanicilari').doc(uid).get()
+        .then((doc) => {
+            if (doc.exists) {
+                // Eğer bulutta veri varsa, sistemin 'db' değişkenine aktar
+                db = Object.assign(db, doc.data());
+            } else {
+                // Yeni kullanıcıysa, boş veritabanını buluta kaydet
+                sync();
+            }
+            
+            // Veriler yüklendikten sonra GİRİŞ EKRANINI GİZLE
+            document.getElementById('login-screen').classList.add('hidden');
+            
+            // Tüm paneli ve grafikleri ekrana yansıt
+            renderAll();
+            
+        })
+        .catch((error) => {
+            console.error("Veri çekme hatası:", error);
+            
+            // Hata olursa (örn. internet koparsa) paneli yine de aç (Çevrimdışı mod)
+            document.getElementById('login-screen').classList.add('hidden');
+            renderAll();
+            showToast('Bulut verisi alınamadı, çevrimdışı çalışılıyor.', 'error');
+        });
+}showToast('Yedek başarıyla yüklendi!','success'); } } catch(err) { showToast('Geçersiz yedek dosyası!','error'); } };
     reader.readAsText(file);
 }
 
