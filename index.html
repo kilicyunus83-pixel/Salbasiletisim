@@ -282,7 +282,11 @@
             <div class="flex flex-col lg:flex-row gap-4 h-[calc(100vh-120px)]">
                 <div class="flex-1 flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px]">
                     <div class="p-4 border-b border-gray-200 bg-gray-50 flex gap-2 items-center flex-wrap">
-                        <div class="flex-1 relative min-w-[150px]"><i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i><input type="text" id="pos-barcode" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkodu okutun veya isim yazın (Enter'a basın)" class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner"></div>
+                        <div class="flex-1 relative min-w-[150px]">
+    <i class="fas fa-barcode absolute left-3 top-3 text-gray-400"></i>
+    <input type="text" id="pos-barcode" oninput="showPosSuggestions()" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkod veya ürün adı yazın..." class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner" autocomplete="off">
+    <div id="pos-suggestions" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg shadow-2xl max-h-60 overflow-y-auto top-full left-0 divide-y divide-gray-100"></div>
+</div> id="pos-barcode" onkeypress="if(event.key==='Enter') triggerBarcode()" placeholder="Barkodu okutun veya isim yazın (Enter'a basın)" class="w-full border border-gray-300 rounded p-2 pl-10 text-sm font-bold outline-none focus:border-blue-500 shadow-inner"></div>
                         <button onclick="triggerBarcode()" class="bg-blue-600 text-white px-5 py-2 rounded text-sm font-bold hover:bg-blue-700 shadow-sm">Ekle</button>
                         <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
                     </div>
@@ -952,6 +956,13 @@ window.addEventListener('click', function(e) {
     if(!e.target.closest('.relative') && !e.target.closest('button') && !e.target.closest('.menu-item')) {
         document.querySelectorAll('[id$="Dropdown"]').forEach(drop => drop.classList.add('hidden'));
     }
+    // ARAMA KUTUSUNU DIŞARI TIKLANINCA KAPAT
+    if(!e.target.closest('#pos-barcode') && !e.target.closest('#pos-suggestions')) {
+        const sugg = document.getElementById('pos-suggestions');
+        if(sugg) sugg.classList.add('hidden');
+    }
+});
+    }
 });
 
 function showToast(message, type='info') {
@@ -1026,20 +1037,47 @@ function togglePriceCheck() {
 function triggerBarcode() {
     const val = document.getElementById('pos-barcode').value.trim().toLowerCase();
     document.getElementById('pos-barcode').value = '';
-    const p = db.products.find(x => x.barcode===val || x.name.toLowerCase()===val);
+    const suggBox = document.getElementById('pos-suggestions');
+    if(suggBox) suggBox.classList.add('hidden'); // Aramayı kapat
+    if(!val) return;
+
+    const p = db.products.find(x => x.barcode.toLowerCase()===val || x.name.toLowerCase()===val);
     if(!p) return showToast('Ürün bulunamadı!', 'error');
+
     if(isPriceCheckMode) {
         document.getElementById('pc-name').innerText = p.name;
         document.getElementById('pc-price').innerText = `₺${p.sell1}`;
         document.getElementById('pc-stock').innerText = p.stock;
         openModal('price-check-modal');
     } else {
+        // STOK 0 KONTROLÜ
+        if (p.stock <= 0) {
+            if(!confirm(`DİKKAT! "${p.name}" stokta kalmadı (0 adet). Yine de sepete eklemek istiyor musunuz?`)) {
+                return; // Kullanıcı iptal etti
+            }
+        }
+
         const inC = cart.find(c => c.barcode===p.barcode);
         if(inC) inC.qty++; else cart.push({...p, qty:1});
         renderCart();
     }
 }
 
+function updateCartQty(i, v) { 
+    // MİKTAR ARTIRIRKEN STOK KONTROLÜ
+    if (v > 0) {
+        const item = cart[i];
+        const dbItem = db.products.find(x => x.barcode === item.barcode);
+        if (dbItem && (item.qty + v > dbItem.stock)) {
+            if(!confirm(`DİKKAT! Stokta sadece ${dbItem.stock} adet var. Fazla ürün eklemeye devam edilsin mi?`)) {
+                return;
+            }
+        }
+    }
+    cart[i].qty+=v; 
+    if(cart[i].qty<=0) cart.splice(i,1); 
+    renderCart(); 
+}
 function addMuhtelif() {
     const nInput = document.getElementById('muh-name').value || 'Muhtelif İşlem';
     const pInput = parseFloat(document.getElementById('muh-price').value);
@@ -1068,7 +1106,50 @@ function addQuickItem(barcode) {
     if(p) { const i=cart.find(c=>c.barcode===p.barcode); if(i) i.qty++; else cart.push({...p,qty:1}); renderCart(); }
 }
 
-function updateCartQty(i, v) { cart[i].qty+=v; if(cart[i].qty<=0) cart.splice(i,1); renderCart(); }
+function triggerBarcode() {
+    const val = document.getElementById('pos-barcode').value.trim().toLowerCase();
+    document.getElementById('pos-barcode').value = '';
+    const suggBox = document.getElementById('pos-suggestions');
+    if(suggBox) suggBox.classList.add('hidden'); // Aramayı kapat
+    if(!val) return;
+
+    const p = db.products.find(x => x.barcode.toLowerCase()===val || x.name.toLowerCase()===val);
+    if(!p) return showToast('Ürün bulunamadı!', 'error');
+
+    if(isPriceCheckMode) {
+        document.getElementById('pc-name').innerText = p.name;
+        document.getElementById('pc-price').innerText = `₺${p.sell1}`;
+        document.getElementById('pc-stock').innerText = p.stock;
+        openModal('price-check-modal');
+    } else {
+        // STOK 0 KONTROLÜ
+        if (p.stock <= 0) {
+            if(!confirm(`DİKKAT! "${p.name}" stokta kalmadı (0 adet). Yine de sepete eklemek istiyor musunuz?`)) {
+                return; // Kullanıcı iptal etti
+            }
+        }
+
+        const inC = cart.find(c => c.barcode===p.barcode);
+        if(inC) inC.qty++; else cart.push({...p, qty:1});
+        renderCart();
+    }
+}
+
+function updateCartQty(i, v) { 
+    // MİKTAR ARTIRIRKEN STOK KONTROLÜ
+    if (v > 0) {
+        const item = cart[i];
+        const dbItem = db.products.find(x => x.barcode === item.barcode);
+        if (dbItem && (item.qty + v > dbItem.stock)) {
+            if(!confirm(`DİKKAT! Stokta sadece ${dbItem.stock} adet var. Fazla ürün eklemeye devam edilsin mi?`)) {
+                return;
+            }
+        }
+    }
+    cart[i].qty+=v; 
+    if(cart[i].qty<=0) cart.splice(i,1); 
+    renderCart(); 
+}
 
 function renderCart() {
     let t=0;
@@ -1097,7 +1178,13 @@ function completeSale(type) {
     } else {
         db.finances.push({id:Date.now(), type:'Gelir', amount:total, desc:`Satış (${type})`, date:new Date().toISOString(), customer:cId});
     }
-    cart.forEach(it=>{ const p=db.products.find(x=>x.barcode===it.barcode); if(p&&!p.category) p.stock-=it.qty; });
+// Sepetteki ürünlerin stoktan düşülmesi ("isCustom" olan Muhtelif ürünler hariç)
+cart.forEach(it => { 
+    if(!it.isCustom) {
+        const p = db.products.find(x => x.barcode === it.barcode); 
+        if(p) p.stock -= it.qty; 
+    }
+});
     clearCart(); lastSaleId=newId; sync(); showToast('Satış Tamamlandı!','success');
 }
 
@@ -1160,6 +1247,38 @@ function printZRaporu() {
     document.getElementById('print-area').innerHTML=html;
     document.getElementById('print-area').classList.add('active-print');
     window.print(); setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'),500);
+}
+function showPosSuggestions() {
+    const val = document.getElementById('pos-barcode').value.toLowerCase().trim();
+    const box = document.getElementById('pos-suggestions');
+    if(!val) { box.classList.add('hidden'); return; }
+
+    const matches = db.products.filter(p => 
+        p.name.toLowerCase().includes(val) || 
+        p.barcode.includes(val)
+    ).slice(0, 8); // En fazla 8 sonuç göster
+
+    if(matches.length === 0) { box.classList.add('hidden'); return; }
+
+    box.innerHTML = matches.map(p => `
+        <div onclick="selectPosSuggestion('${p.barcode}')" class="p-3 hover:bg-blue-50 cursor-pointer flex justify-between items-center transition">
+            <div>
+                <div class="font-bold text-sm text-gray-800">${p.name}</div>
+                <div class="text-[10px] text-gray-400">${p.barcode}</div>
+            </div>
+            <div class="text-right">
+                <div class="font-black text-emerald-600">₺${p.sell1}</div>
+                <div class="text-[10px] ${p.stock <= 0 ? 'text-red-500 font-black' : 'text-blue-500 font-bold'}">Stok: ${p.stock}</div>
+            </div>
+        </div>
+    `).join('');
+    box.classList.remove('hidden');
+}
+
+function selectPosSuggestion(barcode) {
+    document.getElementById('pos-barcode').value = barcode;
+    document.getElementById('pos-suggestions').classList.add('hidden');
+    triggerBarcode(); // Sepete ekle
 }
 
 /* ========================================================
