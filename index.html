@@ -1107,28 +1107,28 @@ function renderCart() {
             let profit = c.sell1 - (c.buy || 0); // Kâr = Satış - Alış
             
             return `<tr class="border-b hover:bg-gray-50 transition">
-                <td class="p-3 text-center text-red-400 cursor-pointer" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash"></i></td>
-                <td class="p-3">
-                    <div class="font-bold text-xs md:text-sm">${c.name}</div>
+                <td class="p-3 text-center text-red-400 cursor-pointer align-middle" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash text-lg hover:text-red-600"></i></td>
+                <td class="p-3 align-middle">
+                    <div class="font-bold text-sm text-gray-800 mb-1">${c.name}</div>
                     
-                    <div class="flex items-center gap-1 mt-1 text-[10px] text-gray-500">
-                        Birim Kâr: ₺<input type="number" value="${profit}" onchange="updateCartItem(${i}, 'profit', this.value)" class="w-12 border-b border-gray-300 outline-none text-emerald-600 bg-transparent text-center font-bold" title="Kârı Düzenle">
+                    <div class="flex items-center gap-2 mt-1 text-xs font-bold text-gray-500">
+                        Kâr: ₺<input type="number" value="${profit}" onchange="updateCartItem(${i}, 'profit', this.value)" class="w-16 p-1.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-black text-center outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-sm transition-all" title="Kârı Düzenle">
                     </div>
                 </td>
-                <td class="p-3 text-center">
-                    <div class="flex items-center justify-center border rounded bg-white">
-                        <button class="px-2 bg-gray-100" onclick="updateCartQty(${i},-1)">-</button>
-                        <span class="px-2 font-bold w-6 text-center">${c.qty}</span>
-                        <button class="px-2 bg-gray-100" onclick="updateCartQty(${i},1)">+</button>
+                <td class="p-3 text-center align-middle">
+                    <div class="flex items-center justify-center border border-gray-300 rounded-lg bg-white shadow-sm w-24 mx-auto overflow-hidden">
+                        <button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-black transition" onclick="updateCartQty(${i},-1)">-</button>
+                        <span class="px-2 font-black w-8 text-center text-sm text-blue-700">${c.qty}</span>
+                        <button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-black transition" onclick="updateCartQty(${i},1)">+</button>
                     </div>
                 </td>
-                <td class="p-3 text-right">
+                <td class="p-3 text-right align-middle">
                     
-                    <div class="text-[10px] text-gray-400 flex justify-end items-center gap-1">
-                        Birim: ₺<input type="number" value="${c.sell1}" onchange="updateCartItem(${i}, 'sell1', this.value)" class="w-12 border-b border-gray-300 outline-none font-black text-gray-700 bg-transparent text-right" title="Fiyatı Düzenle">
+                    <div class="text-xs font-bold text-gray-500 flex justify-end items-center gap-2 mb-2">
+                        Birim: ₺<input type="number" value="${c.sell1}" onchange="updateCartItem(${i}, 'sell1', this.value)" class="w-20 p-1.5 rounded border border-blue-300 bg-blue-50 text-blue-700 font-black text-right outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all" title="Fiyatı Düzenle">
                     </div>
                     
-                    <div class="font-black text-emerald-600 mt-1" title="Toplam Tutar">₺${(c.sell1 * c.qty).toFixed(2)}</div>
+                    <div class="font-black text-emerald-600 text-lg" title="Toplam Tutar">₺${(c.sell1 * c.qty).toFixed(2)}</div>
                 </td>
             </tr>`; 
         }).join('');
