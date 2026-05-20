@@ -2665,6 +2665,14 @@ function renderAll() {
         safeRender(renderTarifeler);
     }
 }
+// ========================================================
+// TARİFE RESMİNİ TEMİZLEME FONKSİYONU (EKSİK OLAN KISIM)
+// ========================================================
+function clearTarifeImage() {
+    document.getElementById('tarife-image-data').value = '';
+    const preview = document.getElementById('tarife-image-preview');
+    if (preview) preview.classList.add('hidden');
+}
 </script>
 </body>
 </html>
