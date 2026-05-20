@@ -1848,12 +1848,15 @@ function saveCustomer() {
     closeModal();
     document.getElementById('m-c-name').value = ''; 
     document.getElementById('m-c-tel').value = ''; 
-    document.getElementById('m-c-note').value = ''; 
-    document.getElementById('m-c-debt').value = ''; 
-    document.getElementById('m-c-edit-idx').value = '-1';
-function openCustomerDetail(idx) {
-    currentCustomerIdx=idx; const c=db.customers[idx];
-    document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
+   document.getElementById('m-c-note').value = ''; 
+    document.getElementById('m-c-debt').value = ''; 
+    document.getElementById('m-c-edit-idx').value = '-1';
+    
+    // SONRA SENKRONİZASYON YAP
+    sync();
+}
+
+function openCustomerDetail(idx) {    document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
     const cSales=db.sales.filter(s=>s.customer===c.name).map(s=>({id:s.id,type:s.type,date:s.date,total:s.total,desc:s.items&&s.items.length?s.items.map(i=>`${i.qty}x ${i.name}`).join(', '):'',isRefunded:s.isRefunded,isPayment:false}));
     const cFinances=db.finances.filter(f=>f.desc.includes(`(${c.name})`)||f.customer===c.name).map(f=>({type:f.type==='Gelir'?'Tahsilat':'Gider',date:f.date,total:f.amount,desc:f.desc,isRefunded:false,isPayment:true}));
     const history=[...cSales,...cFinances].sort((a,b)=>new Date(b.date)-new Date(a.date));
