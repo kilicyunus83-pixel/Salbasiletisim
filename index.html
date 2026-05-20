@@ -1154,30 +1154,22 @@ function fetchFinanceRates() {
 /* ========================================================
    MODÜLER VERİ EŞİTLEME SİSTEMİ (PERFORMANS ODAKLI)
 ======================================================== */
+/* ========================================================
+   MODÜLER VERİ EŞİTLEME SİSTEMİ (DÜZELTİLMİŞ)
+======================================================== */
 function sync() {
     if(auth.currentUser) {
         const uid = auth.currentUser.uid;
         
-        // Her bir ana başlığı (Ürünler, Satışlar vb.) bulutta ayrı bir dökümana yazarak yükü böleriz
         Object.keys(db).forEach(key => {
+            // Bulut senkronizasyonu
             dbCloud.collection('sistem_kullanicilari').doc(uid)
                    .collection('moduller').doc(key).set({ data: db[key] || [] })
                    .catch(e => console.log(key + ' Bulut Senkronizasyon Hatası:', e));
+            
+            // Yerel hafıza (LocalStorage) isim hatası düzeltildi!
+            localStorage.setItem('bp_' + key + '_' + uid, JSON.stringify(db[key] || []));
         });
-        
-        // Cihaz hafızasındaki (LocalStorage) yedekleme sistemini koruyoruz
-        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
-        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
-        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
-        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
-        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
-        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
-        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
-        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
-        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
-        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
-        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
-        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     }
     renderAll();
 }/* ========================================================
@@ -2312,36 +2304,37 @@ document.addEventListener('paste', function(e) {
 });
 
 // Resmi al, sıkıştır ve önizlemeye koy
+function compressTarifeImage(file, callback) {
+    const reader = new FileReader(); 
+    reader.readAsDataURL(file);
+    reader.onload = event => { 
+        const img = new Image(); 
+        img.src = event.target.result; 
+        img.onload = () => { 
+            const canvas = document.createElement('canvas'); 
+            const MAX_WIDTH = 150; // Resim genişliğini tarife logoları için 150px'e düşürür
+            const scaleSize = MAX_WIDTH / img.width; 
+            canvas.width = MAX_WIDTH; 
+            canvas.height = img.height * scaleSize; 
+            const ctx = canvas.getContext('2d'); 
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
+            callback(canvas.toDataURL('image/jpeg', 0.4)); // %40 kalite ile KB boyutuna indirir
+        }; 
+    };
+}
+
+// Resmi al, mikro sıkıştır ve önizlemeye koy
 function handleTarifeImage(file) {
     if (!file) return;
-    // Sistemdeki mevcut compressImage fonksiyonunu kullanıyoruz (bulutta hızlı senkronize olması için)
-    compressImage(file, function(compressedDataUrl) {
+    compressTarifeImage(file, function(compressedDataUrl) {
         document.getElementById('tarife-image-data').value = compressedDataUrl;
         const preview = document.getElementById('tarife-image-preview');
         preview.src = compressedDataUrl;
         preview.classList.remove('hidden');
-        showToast('Görsel eklendi! Kaydetmeyi unutmayın.', 'success');
+        showToast('Görsel başarıyla optimize edildi!', 'success');
     });
-    // Aynı dosyayı tekrar seçebilmek için inputu sıfırla
     document.getElementById('tarife-image-upload').value = ''; 
 }
-
-// Önizlemedeki resmi sil
-function clearTarifeImage() {
-    document.getElementById('tarife-image-preview').src = '';
-    document.getElementById('tarife-image-preview').classList.add('hidden');
-    document.getElementById('tarife-image-data').value = '';
-}
-
-function cancelTarifeEdit() {
-    document.getElementById('tarife-edit-id').value = ''; 
-    document.getElementById('tarife-name').value = ''; 
-    document.getElementById('tarife-price').value = '';
-    clearTarifeImage();
-    document.getElementById('btn-tarife-save').innerText = 'KAYDET'; 
-    document.getElementById('btn-tarife-cancel').classList.add('hidden');
-}
-
 function saveTarife() {
     const id = document.getElementById('tarife-edit-id').value; 
     const n = document.getElementById('tarife-name').value; 
