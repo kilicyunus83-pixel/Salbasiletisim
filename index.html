@@ -312,8 +312,8 @@
                     <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4 grid grid-cols-2 gap-4">
                         <div class="col-span-2"><p class="text-xs font-bold text-gray-500 uppercase mb-1">Müşteri Seç / Tahsilat</p>
                             <div class="flex gap-2">
-                                <select id="pos-customer" class="flex-1 border border-gray-300 rounded p-2 text-sm font-bold outline-none focus:border-blue-500"></select>
-                                <button onclick="openModal('cust-modal')" class="bg-blue-100 text-blue-600 px-3 rounded font-bold border border-blue-200" title="Yeni Müşteri Ekle"><i class="fas fa-plus"></i></button>
+                               <input type="text" id="pos-customer" list="pos-customer-list" placeholder="-- Müşteri Ara / Seç --" class="flex-1 border border-gray-300 rounded p-2 text-sm font-bold outline-none focus:border-blue-500" autocomplete="off">
+<datalist id="pos-customer-list"></datalist>                                <button onclick="openModal('cust-modal')" class="bg-blue-100 text-blue-600 px-3 rounded font-bold border border-blue-200" title="Yeni Müşteri Ekle"><i class="fas fa-plus"></i></button>
                                 <button onclick="satisEkranindanTahsilat()" class="bg-emerald-100 text-emerald-700 px-3 rounded font-bold border border-emerald-200" title="Tahsilat Al"><i class="fas fa-hand-holding-usd"></i></button>
                             </div>
                         </div>
@@ -1361,7 +1361,18 @@ function editProd(i) {
     const p=db.products[i];
     document.getElementById('m-p-edit-idx').value=i; document.getElementById('m-p-barcode').value=p.barcode; document.getElementById('m-p-name').value=p.name; document.getElementById('m-p-stock').value=p.stock; document.getElementById('m-p-buy').value=p.buy; document.getElementById('m-p-sell1').value=p.sell1; document.getElementById('m-p-category').value=p.category||''; openModal('prod-modal');
 }
-
+JavaScript
+function updateProductInline(idx, field, value) {
+    let val = Number(value);
+    if(isNaN(val)) return showToast('Lütfen geçerli bir rakam girin.', 'error');
+    
+    // Veriyi günceller
+    db.products[idx][field] = val;
+    
+    // Veritabanına kaydeder ve ekranı yeniler
+    sync(); 
+    showToast('Ürün başarıyla güncellendi!', 'success');
+}
 function renderProducts() {
     const s = document.getElementById('prod-search').value.toLowerCase();
     
@@ -1437,7 +1448,9 @@ function renderCustomers() {
 
     document.getElementById('cust-table').innerHTML = html || '<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">Aranan müşteri bulunamadı.</td></tr>';
     
-    document.getElementById('pos-customer').innerHTML='<option value="">-- Müşteri --</option>'+db.customers.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  if(document.getElementById('pos-customer-list')) { 
+    document.getElementById('pos-customer-list').innerHTML=db.customers.map(c=>`<option value="${c.name}"></option>`).join(''); 
+}
     document.getElementById('cust-count').innerText=`${db.customers.length} kişi`;
     document.getElementById('total-debt-badge').innerText=`₺${db.customers.reduce((a,b)=>a+b.debt,0).toFixed(2)}`;
 }
@@ -1925,10 +1938,17 @@ function renderFaturasiz() {
    TAKSİT
 ======================================================== */
 function openTaksitModal() {
-    const t=Number(document.getElementById('pos-toplam').value); if(t<=0) return showToast('Sepete ürün ekleyin!','error');
-    document.getElementById('taksit-tutar').value=t; document.getElementById('taksit-ay').value='2'; updateTaksitOran(); document.getElementById('taksit-sonuc').classList.add('hidden'); openModal('taksit-modal');
+    const t = Number(document.getElementById('pos-toplam').value);
+    
+    // Sepet boş olsa bile ekranın açılması için hata veren kısıtlamayı kaldırdık.
+    // Eğer sepette ürün varsa o tutarı yazar, yoksa senin fiyat girmen için kutuyu boş bırakır.
+    document.getElementById('taksit-tutar').value = t > 0 ? t : ''; 
+    
+    document.getElementById('taksit-ay').value = '2'; 
+    updateTaksitOran(); 
+    document.getElementById('taksit-sonuc').classList.add('hidden'); 
+    openModal('taksit-modal');
 }
-
 function updateTaksitOran() { const ay=document.getElementById('taksit-ay').value; document.getElementById('taksit-oran').value=oranlar[ay]||0; }
 
 function hesaplaTaksit() {
