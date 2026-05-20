@@ -1310,51 +1310,101 @@ function loadReceiptSettings() {
    RAPORLAMA
 ======================================================== */
 function getDateRangeBounds() {
-    const customDateEl = document.getElementById('rep-custom-date');
-    const baseDate = customDateEl && customDateEl.value ? new Date(customDateEl.value + 'T00:00:00') : new Date();
-    const base = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    let start = new Date();
+    start.setHours(0, 0, 0, 0);
+    
+    let end = new Date();
+    end.setHours(23, 59, 59, 999);
 
-    if(currentReportPeriod === 'gunluk') {
-        const start = new Date(base);
-        const end = new Date(base); end.setDate(end.getDate()+1);
-        return {start, end};
-    } else if(currentReportPeriod === 'haftalik') {
-        const day = base.getDay();
-        const diff = (day===0) ? -6 : 1-day;
-        const start = new Date(base); start.setDate(base.getDate()+diff);
-        const end = new Date(start); end.setDate(start.getDate()+7);
-        return {start, end};
-    } else if(currentReportPeriod === 'aylik') {
-        const start = new Date(base.getFullYear(), base.getMonth(), 1);
-        const end = new Date(base.getFullYear(), base.getMonth()+1, 1);
-        return {start, end};
+    if (currentReportPeriod === 'aralik') {
+        const sVal = document.getElementById('rep-start-date').value;
+        const eVal = document.getElementById('rep-end-date').value;
+        
+        if (sVal) {
+            start = new Date(sVal);
+            start.setHours(0, 0, 0, 0);
+        } else {
+            start = new Date(0); // Tarih seçilmediyse en eskiye git
+        }
+        
+        if (eVal) {
+            end = new Date(eVal);
+            end.setHours(23, 59, 59, 999);
+        }
+        return { start, end };
     }
-    return {start: new Date(0), end: new Date()};
-}
 
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+
+    if (currentReportPeriod === 'gunluk') {
+        return { start: base, end };
+    } else if (currentReportPeriod === 'haftalik') {
+        const day = base.getDay();
+        const diff = (day === 0) ? -6 : 1 - day;
+        start = new Date(base);
+        start.setDate(base.getDate() + diff);
+        return { start, end };
+    } else if (currentReportPeriod === 'aylik') {
+        start = new Date(base.getFullYear(), base.getMonth(), 1);
+        return { start, end };
+    }
+    
+    return { start, end };
+}
+JavaScript
 function setReportPeriod(period) {
-    currentReportPeriod=period;
-    document.querySelectorAll('.btn-rep').forEach(b=>{ b.classList.remove('bg-blue-600','text-white'); b.classList.add('bg-white','text-gray-600','border','border-gray-300'); });
-    document.getElementById('btn-rep-'+period).classList.add('bg-blue-600','text-white');
-    document.getElementById('btn-rep-'+period).classList.remove('bg-white','text-gray-600','border','border-gray-300');
+    currentReportPeriod = period;
+    
+    // Buton renklerini sıfırla
+    document.querySelectorAll('.btn-rep').forEach(b => { 
+        b.classList.remove('bg-blue-600', 'text-white'); 
+        b.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-300'); 
+    });
+    
+    // Sadece Günlük, Haftalık, Aylık butonlarına basıldıysa onları renklendir
+    const activeBtn = document.getElementById('btn-rep-' + period);
+    if(activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+        activeBtn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-300');
+    }
+    
+    // Filtrelemeyi çalıştır ve ekrana yansıt
     renderRaporlar();
 }
-
 function renderRaporlar() {
     const {start, end} = getDateRangeBounds();
-    const inRange = (dStr) => { const d=new Date(dStr); return d>=start && d<end; };
+    // İşlem tarihinin seçilen aralıkta olup olmadığını kontrol eder
+    const inRange = (dStr) => { 
+        const d = new Date(dStr); 
+        return d >= start && d <= end; 
+    };
 
     const sales = db.sales.filter(s => inRange(s.date));
     const fins = db.finances.filter(f => inRange(f.date));
-    const totalSatis = sales.filter(s=>!s.isRefunded).reduce((a,b)=>a+b.total,0);
-    const totalKar = sales.filter(s=>!s.isRefunded).reduce((a,b)=>a+(b.profit||0),0);
-    const totalGider = fins.filter(f=>f.type==='Gider').reduce((a,b)=>a+b.amount,0);
-    document.getElementById('rp-toplam-satis').innerText=`₺${totalSatis.toFixed(2)}`;
-    document.getElementById('rp-net-kar').innerText=`₺${totalKar.toFixed(2)}`;
-    document.getElementById('rp-toplam-gider').innerText=`₺${totalGider.toFixed(2)}`;
-    document.getElementById('rp-satis-table').innerHTML=sales.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s=>`<tr><td class="p-3 text-xs">${new Date(s.date).toLocaleString('tr-TR')}</td><td class="p-3 font-bold text-xs uppercase">${s.type}</td><td class="p-3 font-black text-right ${s.isRefunded?'line-through text-gray-400':'text-blue-600'}">₺${s.total.toFixed(2)}</td><td class="p-3 text-xs">${s.items.map(i=>i.qty+'x '+i.name).join(', ')}</td><td class="p-3 text-center"><button onclick="printSpecificSale(${s.id})" class="text-blue-500 mr-2"><i class="fas fa-print"></i></button><button onclick="wpOldSale(${s.id})" class="text-green-500 mr-2"><i class="fab fa-whatsapp"></i></button><button onclick="if(confirm('İptal?')){const x=db.sales.find(z=>z.id===${s.id});if(x)x.isRefunded=true;sync()}" class="text-red-500"><i class="fas fa-ban"></i></button></td></tr>`).join('');
+    
+    const totalSatis = sales.filter(s => !s.isRefunded).reduce((a, b) => a + b.total, 0);
+    const totalKar = sales.filter(s => !s.isRefunded).reduce((a, b) => a + (b.profit || 0), 0);
+    const totalGider = fins.filter(f => f.type === 'Gider').reduce((a, b) => a + b.amount, 0);
+    
+    document.getElementById('rp-toplam-satis').innerText = `₺${totalSatis.toFixed(2)}`;
+    document.getElementById('rp-net-kar').innerText = `₺${totalKar.toFixed(2)}`;
+    document.getElementById('rp-toplam-gider').innerText = `₺${totalGider.toFixed(2)}`;
+    
+    document.getElementById('rp-satis-table').innerHTML = sales.length === 0 ? `<tr><td colspan="5" class="p-6 text-center text-gray-500 font-bold">Bu tarih aralığında kayıt bulunamadı.</td></tr>` : sales.sort((a, b) => new Date(b.date) - new Date(a.date)).map(s => `
+        <tr class="hover:bg-gray-50 transition">
+            <td class="p-3 text-xs">${new Date(s.date).toLocaleString('tr-TR')}</td>
+            <td class="p-3 font-bold text-xs uppercase ${s.type === 'Veresiye' ? 'text-amber-600' : 'text-gray-700'}">${s.type}</td>
+            <td class="p-3 font-black text-right ${s.isRefunded ? 'line-through text-gray-400' : 'text-blue-600'}">₺${s.total.toFixed(2)}</td>
+            <td class="p-3 text-xs text-gray-600">${s.items.map(i => `<span class="font-bold">${i.qty}x</span> ${i.name}`).join(', ')}</td>
+            <td class="p-3 text-center">
+                <button onclick="printSpecificSale(${s.id})" class="text-blue-500 hover:text-blue-700 mr-2" title="Fişi Yazdır"><i class="fas fa-print"></i></button>
+                <button onclick="wpOldSale(${s.id})" class="text-green-500 hover:text-green-700 mr-2" title="WP ile Gönder"><i class="fab fa-whatsapp"></i></button>
+                ${!s.isRefunded ? `<button onclick="if(confirm('Bu satışı iptal etmek istediğinize emin misiniz?')){const x=db.sales.find(z=>z.id===${s.id});if(x)x.isRefunded=true;sync()}" class="text-red-400 hover:text-red-600" title="İptal Et"><i class="fas fa-ban"></i></button>` : `<span class="text-[10px] text-red-500 font-black">İPTAL</span>`}
+            </td>
+        </tr>
+    `).join('');
 }
-
 /* ========================================================
    DASHBOARD
 ======================================================== */
