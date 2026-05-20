@@ -157,6 +157,14 @@
     <div id="print-image-container" class="mt-8 border-t-2 border-gray-300 pt-6 text-center hidden"><h3 class="font-bold mb-4 text-gray-600">EKLER: Satıcı Kimlik Belgesi</h3><img id="print-image" src="" alt="Kimlik Belgesi" class="max-w-md mx-auto border-2 border-gray-400 p-1 rounded"></div>
 </div>
 <div id="repair-print-area" class="hidden mx-auto"></div>
+function printLabel(idx) {
+    const p = db.products[idx];
+    if (!p) return;
+    document.getElementById('cl-name').value = p.name;
+    document.getElementById('cl-price').value = p.sell1;
+    document.getElementById('cl-barcode').value = p.barcode;
+    openModal('custom-label-modal');
+}
 
 <!-- SIDEBAR -->
 <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
@@ -696,7 +704,13 @@
         </div>
 
         <!-- TARİFELER -->
-       <div id="page-tarifeler" class="page-content hidden">
+function clearTarifeImage() {
+    document.getElementById('tarife-image-data').value = '';
+    const preview = document.getElementById('tarife-image-preview');
+    preview.src = '';
+    preview.classList.add('hidden');
+}       
+<div id="page-tarifeler" class="page-content hidden">
             <div id="tarife-header" class="p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg bg-blue-600">
                 <h3 class="text-2xl md:text-3xl font-black tracking-tighter uppercase" id="tarife-title-text">Tarifeler</h3>
             </div>
@@ -934,7 +948,27 @@
     </button>
     <img id="viewer-modal-img" src="" class="max-w-[95%] max-h-[90vh] object-contain rounded-xl shadow-2xl border-2 border-white/20 cursor-default" onclick="event.stopPropagation()">
 </div>
+function updateProductInline(idx, field, value) {
+    let val = (field === 'stock') ? parseInt(value) : parseFloat(value);
+    if (isNaN(val)) return showToast('Lütfen geçerli bir sayı girin!', 'error');
+    db.products[idx][field] = val;
+    sync();
+    showToast('Ürün bilgisi güncellendi', 'success');
+}
 
+// Ürün düzenleme butonuna basıldığında modalı verilerle doldurur
+function editProd(idx) {
+    const p = db.products[idx];
+    if (!p) return;
+    document.getElementById('m-p-edit-idx').value = idx;
+    document.getElementById('m-p-barcode').value = p.barcode;
+    document.getElementById('m-p-name').value = p.name;
+    document.getElementById('m-p-stock').value = p.stock;
+    document.getElementById('m-p-buy').value = p.buy;
+    document.getElementById('m-p-sell1').value = p.sell1;
+    document.getElementById('m-p-category').value = p.category || '';
+    openModal('prod-modal');
+}
 <script>
 /* ========================================================
    FİREBASE
@@ -2664,14 +2698,6 @@ function renderAll() {
     if (!document.getElementById('page-tarifeler').classList.contains('hidden')) {
         safeRender(renderTarifeler);
     }
-}
-// ========================================================
-// TARİFE RESMİNİ TEMİZLEME FONKSİYONU (EKSİK OLAN KISIM)
-// ========================================================
-function clearTarifeImage() {
-    document.getElementById('tarife-image-data').value = '';
-    const preview = document.getElementById('tarife-image-preview');
-    if (preview) preview.classList.add('hidden');
 }
 </script>
 </body>
