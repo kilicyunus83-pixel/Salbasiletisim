@@ -383,30 +383,54 @@
         </div>
 
         <!-- RAPORLAR -->
-        <div id="page-raporlar" class="page-content hidden">
-            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 space-x-0 md:space-x-2 mb-4 items-center">
-                <button onclick="setReportPeriod('gunluk')" id="btn-rep-gunluk" class="btn-rep px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-sm transition">Günlük</button>
-                <button onclick="setReportPeriod('haftalik')" id="btn-rep-haftalik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Haftalık</button>
-                <button onclick="setReportPeriod('aylik')" id="btn-rep-aylik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Aylık</button>
-               <div class="flex flex-wrap items-center gap-2 ml-auto">
-    <div class="flex items-center bg-white border border-gray-300 rounded overflow-hidden shadow-sm">
-        <input type="date" id="rep-start-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Başlangıç Tarihi">
-        <span class="text-gray-400 font-black px-1">-</span>
-        <input type="date" id="rep-end-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Bitiş Tarihi">
-    </div>
-    <button onclick="printZRaporu()" class="px-6 py-2 bg-gray-800 text-white rounded-lg font-bold shadow-sm"><i class="fas fa-print"></i> Z Raporu Al</button>
-</div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg shadow-sm text-center"><p class="text-sm font-bold text-blue-600 uppercase mb-2">Net Satış</p><h2 id="rp-toplam-satis" class="text-3xl font-black text-blue-800">₺0.00</h2></div>
-                <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-lg shadow-sm text-center"><p class="text-sm font-bold text-emerald-600 uppercase mb-2">Net Kâr</p><h2 id="rp-net-kar" class="text-3xl font-black text-emerald-800">₺0.00</h2></div>
-                <div class="bg-red-50 border border-red-200 p-6 rounded-lg shadow-sm text-center"><p class="text-sm font-bold text-red-600 uppercase mb-2">Giderler</p><h2 id="rp-toplam-gider" class="text-3xl font-black text-red-800">₺0.00</h2></div>
+      <div id="page-raporlar" class="page-content hidden">
+            <div class="flex flex-col lg:flex-row gap-4 mb-6 items-center justify-between">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="setReportPeriod('gunluk')" id="btn-rep-gunluk" class="btn-rep px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-sm transition">Günlük</button>
+                    <button onclick="setReportPeriod('haftalik')" id="btn-rep-haftalik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Haftalık</button>
+                    <button onclick="setReportPeriod('aylik')" id="btn-rep-aylik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Aylık</button>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                        <input type="date" id="rep-start-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Başlangıç Tarihi">
+                        <span class="text-gray-400 font-black px-1">-</span>
+                        <input type="date" id="rep-end-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Bitiş Tarihi">
+                    </div>
+                    <button onclick="printZRaporu()" class="px-6 py-2 bg-gray-800 text-white rounded-lg font-bold shadow-sm"><i class="fas fa-print"></i> Z Raporu Al</button>
+                </div>
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg shadow-sm text-center">
+                    <p class="text-sm font-bold text-blue-600 uppercase mb-2">Net Satış</p>
+                    <h2 id="rp-toplam-satis" class="text-3xl font-black text-blue-800">₺0.00</h2>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 p-6 rounded-lg shadow-sm text-center">
+                    <p class="text-sm font-bold text-emerald-600 uppercase mb-2">Net Kâr</p>
+                    <h2 id="rp-net-kar" class="text-3xl font-black text-emerald-800">₺0.00</h2>
+                </div>
+                <div class="bg-red-50 border border-red-200 p-6 rounded-lg shadow-sm text-center">
+                    <p class="text-sm font-bold text-red-600 uppercase mb-2">Giderler</p>
+                    <h2 id="rp-toplam-gider" class="text-3xl font-black text-red-800">₺0.00</h2>
+                </div>
+            </div>
+
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
                 <div class="bg-gray-50 p-4 border-b font-bold text-gray-700">Satış Geçmişi & Eski Fişler</div>
-                <table class="w-full text-left text-sm"><thead class="border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih/Saat</th><th class="p-3">Tür</th><th class="p-3 text-right">Tutar</th><th class="p-3">Satılan Ürünler</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody id="rp-satis-table" class="divide-y divide-gray-100"></tbody></table>
+                <table class="w-full text-left text-sm">
+                    <thead class="border-b text-xs uppercase text-gray-500">
+                        <tr>
+                            <th class="p-3">Tarih/Saat</th>
+                            <th class="p-3">Tür</th>
+                            <th class="p-3 text-right">Tutar</th>
+                            <th class="p-3">Satılan Ürünler</th>
+                            <th class="p-3 text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rp-satis-table" class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
         </div>
-
         <!-- GELİR GİDER -->
         <div id="page-finans" class="page-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
