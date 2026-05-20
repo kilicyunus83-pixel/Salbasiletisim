@@ -682,16 +682,46 @@
         </div>
 
         <!-- TARİFELER -->
-        <div id="page-tarifeler" class="page-content hidden">
-            <div id="tarife-header" class="p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg bg-blue-600"><h3 class="text-2xl md:text-3xl font-black tracking-tighter uppercase" id="tarife-title-text">Tarifeler</h3></div>
+       <div id="page-tarifeler" class="page-content hidden">
+            <div id="tarife-header" class="p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg bg-blue-600">
+                <h3 class="text-2xl md:text-3xl font-black tracking-tighter uppercase" id="tarife-title-text">Tarifeler</h3>
+            </div>
             <div class="bg-white p-4 md:p-6 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end mb-6">
                 <input type="hidden" id="tarife-edit-id" value="">
-                <div class="flex-1 w-full"><label class="text-[10px] md:text-xs font-black uppercase mb-1 block text-gray-500">Paket Adı</label><input type="text" id="tarife-name" class="w-full border p-2 md:p-3 rounded-lg font-bold shadow-inner"></div>
-                <div class="w-full md:w-32"><label class="text-[10px] md:text-xs font-black uppercase mb-1 block text-gray-500">Satış Fiyatı ₺</label><input type="number" id="tarife-price" class="w-full border p-2 md:p-3 rounded-lg font-black text-emerald-600 shadow-inner bg-emerald-50"></div>
+                <input type="hidden" id="tarife-image-data" value=""> <div class="flex-1 w-full">
+                    <label class="text-[10px] md:text-xs font-black uppercase mb-1 block text-gray-500">Paket Adı</label>
+                    <input type="text" id="tarife-name" class="w-full border p-2 md:p-3 rounded-lg font-bold shadow-inner" placeholder="Tarife adı yazın veya ctrl+v ile resim yapıştırın">
+                </div>
+                
+                <div class="w-full md:w-auto flex items-center gap-2">
+                    <input type="file" id="tarife-image-upload" accept="image/*" class="hidden" onchange="handleTarifeImage(this.files[0])">
+                    <button type="button" onclick="document.getElementById('tarife-image-upload').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 h-[42px] md:h-[50px] px-4 rounded-lg font-bold border border-gray-300 transition flex items-center justify-center" title="Resim Seç veya Ctrl+V">
+                        <i class="fas fa-camera text-lg"></i>
+                    </button>
+                    <img id="tarife-image-preview" src="" class="hidden h-[42px] md:h-[50px] w-[42px] md:w-[50px] object-cover rounded-lg border border-gray-300 cursor-pointer shadow-sm hover:opacity-75 transition" onclick="clearTarifeImage()" title="Silmek için tıkla">
+                </div>
+
+                <div class="w-full md:w-32">
+                    <label class="text-[10px] md:text-xs font-black uppercase mb-1 block text-gray-500">Satış Fiyatı ₺</label>
+                    <input type="number" id="tarife-price" class="w-full border p-2 md:p-3 rounded-lg font-black text-emerald-600 shadow-inner bg-emerald-50">
+                </div>
                 <button id="btn-tarife-save" onclick="saveTarife()" class="w-full md:w-auto bg-emerald-600 text-white px-6 md:px-10 py-3 rounded-lg font-black shadow-lg text-sm hover:bg-emerald-700">KAYDET</button>
                 <button id="btn-tarife-cancel" onclick="cancelTarifeEdit()" class="w-full md:w-auto bg-gray-200 text-gray-600 px-6 py-3 rounded-lg font-black text-sm hidden">İptal</button>
             </div>
-            <div class="bg-white border rounded-xl shadow-sm overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500"><tr><th class="p-3 md:p-4">Tarife / Paket Adı</th><th class="p-3 md:p-4 text-right">Fiyat</th><th class="p-3 md:p-4 text-center">İşlem</th></tr></thead><tbody id="tarife-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody></table></div>
+            
+            <div class="bg-white border rounded-xl shadow-sm overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500">
+                        <tr>
+                            <th class="p-3 md:p-4 w-16 text-center">Görsel</th>
+                            <th class="p-3 md:p-4">Tarife / Paket Adı</th>
+                            <th class="p-3 md:p-4 text-right">Fiyat</th>
+                            <th class="p-3 md:p-4 text-center">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tarife-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- OPERATÖRLER -->
@@ -2205,54 +2235,126 @@ function renderTasks() {
 /* ========================================================
    TARİFELER / OPERATOR NOTLARI
 ======================================================== */
+
+// CTRL+V (Yapıştır) olayını dinle
+document.addEventListener('paste', function(e) {
+    // Sadece "Tarifeler" sayfası açıkken çalışsın
+    if (document.getElementById('page-tarifeler').classList.contains('hidden')) return;
+    
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            handleTarifeImage(file);
+        }
+    }
+});
+
+// Resmi al, sıkıştır ve önizlemeye koy
+function handleTarifeImage(file) {
+    if (!file) return;
+    // Sistemdeki mevcut compressImage fonksiyonunu kullanıyoruz (bulutta hızlı senkronize olması için)
+    compressImage(file, function(compressedDataUrl) {
+        document.getElementById('tarife-image-data').value = compressedDataUrl;
+        const preview = document.getElementById('tarife-image-preview');
+        preview.src = compressedDataUrl;
+        preview.classList.remove('hidden');
+        showToast('Görsel eklendi! Kaydetmeyi unutmayın.', 'success');
+    });
+    // Aynı dosyayı tekrar seçebilmek için inputu sıfırla
+    document.getElementById('tarife-image-upload').value = ''; 
+}
+
+// Önizlemedeki resmi sil
+function clearTarifeImage() {
+    document.getElementById('tarife-image-preview').src = '';
+    document.getElementById('tarife-image-preview').classList.add('hidden');
+    document.getElementById('tarife-image-data').value = '';
+}
+
 function cancelTarifeEdit() {
-    document.getElementById('tarife-edit-id').value=''; document.getElementById('tarife-name').value=''; document.getElementById('tarife-price').value='';
-    document.getElementById('btn-tarife-save').innerText='KAYDET'; document.getElementById('btn-tarife-cancel').classList.add('hidden');
+    document.getElementById('tarife-edit-id').value = ''; 
+    document.getElementById('tarife-name').value = ''; 
+    document.getElementById('tarife-price').value = '';
+    clearTarifeImage();
+    document.getElementById('btn-tarife-save').innerText = 'KAYDET'; 
+    document.getElementById('btn-tarife-cancel').classList.add('hidden');
 }
 
 function saveTarife() {
-    const id=document.getElementById('tarife-edit-id').value; const n=document.getElementById('tarife-name').value; const p=document.getElementById('tarife-price').value; if(!n||!p) return;
-    if(id) { const t=db.operatorPacks.find(x=>x.id==id); if(t) { t.name=n; t.price=Number(p); } cancelTarifeEdit(); showToast('Tarife güncellendi','success'); }
-    else { db.operatorPacks.push({id:Date.now(),op:activeTarifeOp,name:n,price:Number(p)}); document.getElementById('tarife-name').value=''; document.getElementById('tarife-price').value=''; showToast('Tarife eklendi','success'); }
-    sync();
+    const id = document.getElementById('tarife-edit-id').value; 
+    const n = document.getElementById('tarife-name').value; 
+    const p = document.getElementById('tarife-price').value; 
+    const img = document.getElementById('tarife-image-data').value;
+    
+    if(!n || !p) return showToast('Lütfen tarife adı ve fiyatını girin.', 'error');
+    
+    if (id) { 
+        const t = db.operatorPacks.find(x => x.id == id); 
+        if (t) { 
+            t.name = n; 
+            t.price = Number(p); 
+            t.image = img; // Güncellenmiş resmi kaydet
+        } 
+        cancelTarifeEdit(); 
+        showToast('Tarife güncellendi', 'success'); 
+    } else { 
+        db.operatorPacks.push({
+            id: Date.now(), 
+            op: activeTarifeOp, 
+            name: n, 
+            price: Number(p),
+            image: img // Yeni resmi kaydet
+        }); 
+        cancelTarifeEdit();
+        showToast('Tarife eklendi', 'success'); 
+    }
+    sync(); // Buluta gönder ve arayüzü yenile
 }
 
 function editTarife(id) {
-    const t=db.operatorPacks.find(x=>x.id==id); if(!t) return;
-    document.getElementById('tarife-edit-id').value=id; document.getElementById('tarife-name').value=t.name; document.getElementById('tarife-price').value=t.price;
-    document.getElementById('btn-tarife-save').innerText='GÜNCELLE'; document.getElementById('btn-tarife-cancel').classList.remove('hidden');
+    const t = db.operatorPacks.find(x => x.id == id); 
+    if(!t) return;
+    
+    document.getElementById('tarife-edit-id').value = id; 
+    document.getElementById('tarife-name').value = t.name; 
+    document.getElementById('tarife-price').value = t.price;
+    
+    // Resmi varsa yükle, yoksa temizle
+    if (t.image) {
+        document.getElementById('tarife-image-data').value = t.image;
+        const preview = document.getElementById('tarife-image-preview');
+        preview.src = t.image;
+        preview.classList.remove('hidden');
+    } else {
+        clearTarifeImage();
+    }
+    
+    document.getElementById('btn-tarife-save').innerText = 'GÜNCELLE'; 
+    document.getElementById('btn-tarife-cancel').classList.remove('hidden');
     document.getElementById('tarife-name').focus();
 }
 
 function renderTarifeler() {
-    const p=db.operatorPacks.filter(x=>x.op===activeTarifeOp);
-    document.getElementById('tarife-table').innerHTML=p.map(t=>`<tr><td class="p-3">${t.name}</td><td class="p-3 text-right text-emerald-600 font-black">₺${t.price}</td><td class="p-3 text-center"><button onclick="editTarife(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){db.operatorPacks=db.operatorPacks.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-}
+    const p = db.operatorPacks.filter(x => x.op === activeTarifeOp);
+    document.getElementById('tarife-table').innerHTML = p.map(t => {
+        // Resim varsa göster, yoksa standart ikon göster. Resme tıklayınca büyük açılır.
+        const imageElement = t.image 
+            ? `<img src="${t.image}" class="w-10 h-10 object-cover rounded-lg border border-gray-200 cursor-pointer shadow-sm hover:scale-110 transition" onclick="window.open('${t.image}', '_blank')" title="Büyütmek için tıkla">` 
+            : `<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-300 border border-gray-200"><i class="fas fa-image"></i></div>`;
 
-function cancelOpLogEdit() {
-    document.getElementById('oplog-edit-id').value=''; document.getElementById('op-log-text').value='';
-    document.getElementById('btn-oplog-save').innerText='NOTU KAYDET'; document.getElementById('btn-oplog-cancel').classList.add('hidden');
+        return `<tr>
+            <td class="p-3 flex justify-center">${imageElement}</td>
+            <td class="p-3">${t.name}</td>
+            <td class="p-3 text-right text-emerald-600 font-black">₺${t.price}</td>
+            <td class="p-3 text-center whitespace-nowrap">
+                <button onclick="editTarife(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button>
+                <button onclick="if(confirm('Silinecek. Emin misiniz?')){db.operatorPacks=db.operatorPacks.filter(x=>x.id!==${t.id});sync()}" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
 }
-
-function saveOpLog() {
-    const id=document.getElementById('oplog-edit-id').value; const t=document.getElementById('op-log-text').value; if(!t) return;
-    if(id) { const l=db.opLogs.find(x=>x.id==id); if(l) l.text=t; cancelOpLogEdit(); showToast('Not güncellendi','success'); }
-    else { db.opLogs.unshift({id:Date.now(),op:activeOperator,text:t,date:new Date().toISOString()}); document.getElementById('op-log-text').value=''; showToast('Not eklendi','success'); }
-    sync();
-}
-
-function editOpLog(id) {
-    const l=db.opLogs.find(x=>x.id==id); if(!l) return;
-    document.getElementById('oplog-edit-id').value=id; document.getElementById('op-log-text').value=l.text;
-    document.getElementById('btn-oplog-save').innerText='GÜNCELLE'; document.getElementById('btn-oplog-cancel').classList.remove('hidden');
-    document.getElementById('op-log-text').focus();
-}
-
-function renderOpLogs() {
-    const p=db.opLogs.filter(x=>x.op===activeOperator);
-    document.getElementById('op-log-table').innerHTML=p.map(t=>`<tr><td class="p-3 text-xs text-gray-500">${new Date(t.date).toLocaleTimeString('tr-TR')}</td><td class="p-3 text-sm font-bold text-gray-700">${t.text}</td><td class="p-3 text-center"><button onclick="editOpLog(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${t.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`).join('');
-}
-
 /* ========================================================
    FATURASIZ ÜRÜNLER
 ======================================================== */
