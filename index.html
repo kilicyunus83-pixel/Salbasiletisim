@@ -919,15 +919,12 @@ window.onload = () => {
     loadReceiptSettings();
     loadLogo();
 /* ========================================================
-   GÜNCEL KURLAR (Truncgil API)
-GÜNCEL KURLAR (Korumalı ve Kalıcı Logo Sistemi)
+   GÜNCEL KURLAR (Korumalı ve Kalıcı Logo Sistemi)
 ======================================================== */
 function fetchFinanceRates() {
-    // Tarayıcı engelini (CORS) aşmak için güncel ve stabil çalışan 'cors-anywhere' alternatifini kullanıyoruz
     const targetUrl = 'https://finans.truncgil.com/today.json';
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
-    // Sayfa ilk açıldığında logolar gitmesin, kullanıcı bilgi beklediğini anlasın diye geçici yazı yazıyoruz
     if(document.getElementById('rate-usd').innerText === "...") {
         document.getElementById('rate-usd').innerText = "Bekliyor...";
         document.getElementById('rate-eur').innerText = "Bekliyor...";
@@ -941,16 +938,13 @@ function fetchFinanceRates() {
             return res.json();
         })
         .then(proxyData => {
-            // Gelen veriyi çözüyoruz
             const data = JSON.parse(proxyData.contents);
-            
             if(data) {
                 const usd = data["USD"] ? parseFloat(data["USD"].Selling.replace(',', '.')).toFixed(2) : '0.00';
                 const eur = data["EUR"] ? parseFloat(data["EUR"].Selling.replace(',', '.')).toFixed(2) : '0.00';
                 const gram = data["gram-altin"] ? parseFloat(data["gram-altin"].Selling.replace(',', '.')).toFixed(2) : '0.00';
                 const ceyrek = data["ceyrek-altin"] ? parseFloat(data["ceyrek-altin"].Selling.replace(',', '.')).toFixed(2) : '0.00';
 
-                // Ekrandaki değerleri güncelliyoruz
                 document.getElementById('rate-usd').innerText = usd;
                 document.getElementById('rate-eur').innerText = eur;
                 document.getElementById('rate-gram').innerText = gram;
@@ -959,16 +953,12 @@ function fetchFinanceRates() {
         })
         .catch(err => {
             console.warn('Kur verileri canlı çekilemedi, yedek sisteme geçiliyor:', err);
-            
-            // Sistem tamamen kilitlenmesin diye alternatif ücretsiz bir döviz servisine (Genel Döviz) bağlanmayı deniyoruz
             fetch('https://open.er-api.com/v6/latest/USD')
                 .then(res => res.json())
                 .then(altData => {
                     if(altData && altData.rates) {
-                        // Global oranlardan TL karşılığını hesaplama
                         const usdTry = (1 / altData.rates.TRY).toFixed(2);
-                        const eurTry = (usdTry * (altData.rates.TRY / altData.rates.EUR)).toFixed(2); // Yaklaşık parite hesabı
-                        
+                        const eurTry = (usdTry * (altData.rates.TRY / altData.rates.EUR)).toFixed(2);
                         document.getElementById('rate-usd').innerText = usdTry;
                         document.getElementById('rate-eur').innerText = eurTry;
                         document.getElementById('rate-gram').innerText = "Servis Dışı";
@@ -976,15 +966,37 @@ function fetchFinanceRates() {
                     }
                 })
                 .catch(() => {
-                    // Tüm hatlar çökerse logoları ASLA SİLMİYORUZ, sadece yanına bağlantı hatası yazıyoruz
                     document.getElementById('rate-usd').innerText = "Bağlantı Yok";
                     document.getElementById('rate-eur').innerText = "Bağlantı Yok";
                     document.getElementById('rate-gram').innerText = "Bağlantı Yok";
                     document.getElementById('rate-ceyrek').innerText = "Bağlantı Yok";
                 });
         });
-}/* ========================================================
-  
+}
+
+/* ========================================================
+   VERİ EŞİTLEME (YANLIŞLIKLA SİLİNEN FONKSİYON)
+======================================================== */
+function sync() {
+    if(auth.currentUser) {
+        const uid = auth.currentUser.uid;
+        dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
+        
+        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
+        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
+        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
+        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
+        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
+        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
+        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
+        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
+        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
+        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
+        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
+        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
+    }
+    renderAll();
+}  
 /* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
