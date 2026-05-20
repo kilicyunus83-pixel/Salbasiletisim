@@ -1671,125 +1671,38 @@ function yeniUrunEkleModal() {
     openModal('prod-modal');
 }
 function saveProduct() {
-    const idx = parseInt(document.getElementById('m-p-edit-idx').value);
-    const p = {
-        barcode: document.getElementById('m-p-barcode').value || Date.now().toString(),
-        name: document.getElementById('m-p-name').value,
-        stock: Number(document.getElementById('m-p-stock').value),
-        buy: Number(document.getElementById('m-p-buy').value),
-        sell1: Number(document.getElementById('m-p-sell1').value),
-        category: document.getElementById('m-p-category').value
-    };
-    
-    if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
-    if(idx > -1) db.products[idx] = p; else db.products.push(p);
-    
-    // ÖNCE MODALI KAPAT VE TEMİZLE
-    closeModal();
-    document.getElementById('m-p-barcode').value = '';
-    document.getElementById('m-p-name').value = '';
-    document.getElementById('m-p-stock').value = '1';
-    document.getElementById('m-p-buy').value = '0';
-    document.getElementById('m-p-sell1').value = '';
-    document.getElementById('m-p-edit-idx').value = '-1';
-    
-    // SONRA SENKRONİZASYON YAP
-    sync(); 
-    showToast('Ürün kaydedildi', 'success');
-}function editProd(i) {
-    const p = db.products[i];
-    if(!p) return;
-    document.getElementById('m-p-edit-idx').value = i; 
-    document.getElementById('m-p-barcode').value = p.barcode; 
-    document.getElementById('m-p-name').value = p.name; 
-    document.getElementById('m-p-stock').value = p.stock; 
-    document.getElementById('m-p-buy').value = p.buy; 
-    document.getElementById('m-p-sell1').value = p.sell1; 
-    document.getElementById('m-p-category').value = p.category || ''; 
-    openModal('prod-modal');
+    try {
+        const idx = parseInt(document.getElementById('m-p-edit-idx').value);
+        const p = {
+            barcode: document.getElementById('m-p-barcode').value || Date.now().toString(),
+            name: document.getElementById('m-p-name').value,
+            stock: Number(document.getElementById('m-p-stock').value),
+            buy: Number(document.getElementById('m-p-buy').value),
+            sell1: Number(document.getElementById('m-p-sell1').value),
+            category: document.getElementById('m-p-category').value
+        };
+        
+        if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
+        if(idx > -1) db.products[idx] = p; else db.products.push(p);
+        
+        // 1. ÖNCE ZORLA PENCEREYİ KAPAT
+        closeModal();
+        document.getElementById('m-p-barcode').value = '';
+        document.getElementById('m-p-name').value = '';
+        document.getElementById('m-p-stock').value = '1';
+        document.getElementById('m-p-buy').value = '0';
+        document.getElementById('m-p-sell1').value = '';
+        document.getElementById('m-p-edit-idx').value = '-1';
+        
+        // 2. SONRA BULUTA GÖNDER VE SAYFAYI GÜNCELLE
+        sync(); 
+        showToast('Ürün kaydedildi', 'success');
+
+    } catch (error) {
+        console.error("Ürün kayıt hatası:", error);
+        closeModal();
+    }
 }
-
-function updateProductInline(idx, field, value) {
-    let val = Number(value);
-    if(isNaN(val)) return showToast('Lütfen geçerli bir rakam girin.', 'error');
-    db.products[idx][field] = val;
-    sync(); 
-    showToast('Ürün başarıyla güncellendi!', 'success');
-}
-
-function renderProducts() {
-    const searchInput = document.getElementById('prod-search');
-    if(!searchInput) return;
-    const s = searchInput.value.toLowerCase();
-    
-    document.getElementById('prod-table').innerHTML = db.products
-        .filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s))
-        .map(p => {
-            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
-            const realIdx = db.products.findIndex(x => x.barcode === p.barcode);
-            
-            return `<tr class="${isLow} hover:bg-gray-50 transition-colors">
-                <td class="p-3 text-[10px] text-gray-400">${p.barcode}</td>
-                <td class="p-3 uppercase text-xs font-bold">${p.name}</td>
-                <td class="p-2 text-center">
-                    <input type="number" value="${p.stock}" onchange="updateProductInline(${realIdx}, 'stock', this.value)" class="w-12 md:w-16 text-center font-black text-blue-600 bg-transparent border-b-2 border-transparent hover:border-blue-300 focus:border-blue-500 outline-none transition-all" title="Stoğu Düzenle">
-                </td>
-                <td class="p-3 text-center text-[10px]">${p.category||'-'}</td>
-                <td class="p-2 text-right whitespace-nowrap">
-                    <span class="text-gray-400 text-[10px]">₺</span><input type="number" value="${p.buy}" onchange="updateProductInline(${realIdx}, 'buy', this.value)" class="w-12 md:w-16 text-right font-bold text-gray-500 bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-gray-500 outline-none transition-all" title="Alış Fiyatını Düzenle">
-                </td>
-                <td class="p-2 text-right whitespace-nowrap">
-                    <span class="text-emerald-600 font-bold text-[10px]">₺</span><input type="number" value="${p.sell1}" onchange="updateProductInline(${realIdx}, 'sell1', this.value)" class="w-14 md:w-20 text-right font-black text-emerald-600 bg-transparent border-b-2 border-transparent hover:border-emerald-300 focus:border-emerald-500 outline-none transition-all" title="Satış Fiyatını Düzenle">
-                </td>
-                <td class="p-3 text-center whitespace-nowrap">
-                    <button onclick="printLabel(${realIdx})" class="text-gray-500 mr-1 hover:text-gray-800" title="Etiket Yazdır"><i class="fas fa-tags"></i></button>
-                    <button onclick="editProd(${realIdx})" class="text-amber-500 mr-1 hover:text-amber-600" title="Tam Düzenleme"><i class="fas fa-edit"></i></button>
-                    <button onclick="if(confirm('Silinecek emin misiniz?')){db.products.splice(${realIdx},1);sync()}" class="text-red-300 hover:text-red-500" title="Sil"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
-}
-
-function printLabel(idx) {
-    const p = db.products[idx];
-    if(!p || !p.barcode || p.barcode.startsWith('MUH-')) return showToast('Geçerli barkod yok.', 'error');
-    
-    document.getElementById('label-logo').src = getLogoSrc();
-    document.getElementById('label-title').innerText = p.name;
-    document.getElementById('label-price').innerText = `₺${p.sell1.toFixed(2)}`;
-    JsBarcode('#label-barcode', p.barcode, {format:'CODE128', width:1.5, height:30, displayValue:true, fontSize:10, margin:0});
-    
-    document.getElementById('label-print-area').classList.add('active-print'); 
-    window.print(); 
-    setTimeout(() => document.getElementById('label-print-area').classList.remove('active-print'), 500);
-}
-
-function openCustomLabelModal() {
-    document.getElementById('cl-name').value = '';
-    document.getElementById('cl-price').value = '';
-    document.getElementById('cl-barcode').value = Math.floor(Math.random() * 90000000) + 10000000; 
-    openModal('custom-label-modal');
-}
-
-function printCustomLabel() {
-    const name = document.getElementById('cl-name').value;
-    const price = document.getElementById('cl-price').value;
-    const barcode = document.getElementById('cl-barcode').value;
-
-    if(!name || !price || !barcode) return showToast('Lütfen isim ve fiyat alanlarını doldurun.', 'error');
-
-    document.getElementById('label-logo').src = getLogoSrc();
-    document.getElementById('label-title').innerText = name;
-    document.getElementById('label-price').innerText = `₺${parseFloat(price).toFixed(2)}`;
-    
-    JsBarcode('#label-barcode', barcode, {format:'CODE128', width:1.5, height:30, displayValue:true, fontSize:10, margin:0});
-    
-    document.getElementById('label-print-area').classList.add('active-print'); 
-    window.print(); 
-    setTimeout(() => document.getElementById('label-print-area').classList.remove('active-print'), 500);
-    closeModal();
-}
-
 /* ========================================================
    MÜŞTERİLER
 ======================================================== */
@@ -1820,40 +1733,47 @@ function editCustomer(idx) {
     openModal('cust-modal');
 }
 
+// GÜVENLİ MÜŞTERİ KAYDETME FONKSİYONU
 function saveCustomer() {
-    const idx = parseInt(document.getElementById('m-c-edit-idx').value);
-    const n = document.getElementById('m-c-name').value;
-    const tel = document.getElementById('m-c-tel').value;
-    const note = document.getElementById('m-c-note').value;
-    let debtInput = document.getElementById('m-c-debt').value;
-    const debt = debtInput ? parseFloat(debtInput) : 0;
-    
-    if(!n) {
-        showToast('Lütfen müşteri adını girin!', 'error');
-        return;
-    }
+    try {
+        const idx = parseInt(document.getElementById('m-c-edit-idx').value);
+        const n = document.getElementById('m-c-name').value;
+        const tel = document.getElementById('m-c-tel').value;
+        const note = document.getElementById('m-c-note').value;
+        let debtInput = document.getElementById('m-c-debt').value;
+        const debt = debtInput ? parseFloat(debtInput) : 0;
+        
+        if(!n) {
+            showToast('Lütfen müşteri adını girin!', 'error');
+            return;
+        }
 
-    if(idx > -1) { 
-        db.customers[idx].name = n; 
-        db.customers[idx].tel = tel; 
-        db.customers[idx].note = note; 
-        if(debtInput !== '') db.customers[idx].debt = debt; 
-        showToast('Müşteri güncellendi', 'success'); 
-    } else { 
-        db.customers.push({name:n, tel:tel, note:note, debt:debt}); 
-        showToast('Müşteri Eklendi', 'success'); 
+        if(idx > -1) { 
+            db.customers[idx].name = n; 
+            db.customers[idx].tel = tel; 
+            db.customers[idx].note = note; 
+            if(debtInput !== '') db.customers[idx].debt = debt; 
+            showToast('Müşteri güncellendi', 'success'); 
+        } else { 
+            db.customers.push({name:n, tel:tel, note:note, debt:debt}); 
+            showToast('Müşteri Eklendi', 'success'); 
+        }
+        
+        // 1. ÖNCE ZORLA PENCEREYİ KAPAT VE KUTULARI SIFIRLA (Kilitlenmeyi kesin önler)
+        closeModal();
+        document.getElementById('m-c-name').value = ''; 
+        document.getElementById('m-c-tel').value = ''; 
+        document.getElementById('m-c-note').value = ''; 
+        document.getElementById('m-c-debt').value = ''; 
+        document.getElementById('m-c-edit-idx').value = '-1';
+        
+        // 2. SONRA BULUTA GÖNDER VE SAYFAYI GÜNCELLE
+        sync();
+
+    } catch (error) {
+        console.error("Kayıt sırasında kritik hata:", error);
+        closeModal(); // Hata olsa bile pencereyi zorla kapat
     }
-    
-    // ÖNCE MODALI KAPAT VE KUTULARI TEMİZLE (Kilitlenmeyi önler)
-    closeModal();
-    document.getElementById('m-c-name').value = ''; 
-    document.getElementById('m-c-tel').value = ''; 
-   document.getElementById('m-c-note').value = ''; 
-    document.getElementById('m-c-debt').value = ''; 
-    document.getElementById('m-c-edit-idx').value = '-1';
-    
-    // SONRA SENKRONİZASYON YAP
-    sync();
 }
 
 function openCustomerDetail(idx) {    document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
