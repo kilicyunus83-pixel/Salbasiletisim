@@ -21,13 +21,12 @@
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
         .rotate-90 { transform: rotate(90deg); }
-        /* Hesap makinesi */
-        .calc-btn { display:flex; align-items:center; justify-content:center; height:36px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.1s; user-select:none; }
+        /* Hesap makinesi buton stili */
+        .calc-btn { display:flex; align-items:center; justify-content:center; height:38px; border-radius:8px; font-weight:700; font-size:15px; cursor:pointer; transition:all 0.1s; user-select:none; }
         .calc-btn:active { transform: scale(0.93); }
-       /* Yazdırma */
+        /* Yazdırma */
         /* KESİN GİZLEME DÜZELTMESİ (Ekranda görünmeyi engeller) */
-        #print-area, #label-print-area, #contract-print-area, #repair-print-area { display: none !important; }
-        
+        #print-area, #label-print-area, #contract-print-area, #repair-print-area { display: none !important; }        
         @media print {
             @page { margin: 0; size: auto; }
             body { margin: 0; padding: 0; background: white; }
@@ -48,88 +47,41 @@
         }
 
         /* ========================================================
-           KORUMALI MOBİL GÖRÜNÜM VE EKSTRAMA TAŞMA ENGELLEYİCİ
+           SAĞA SOLA KAYMAYI ENGELLEYEN MOBİL SİHİRBAZ
         ======================================================== */
         @media (max-width: 768px) {
-            /* Tarayıcının dışa doğru zoom (küçülme) yapmasını tamamen kilitler */
             html, body {
                 max-width: 100vw !important;
                 overflow-x: hidden !important;
             }
-
-            body {
-                font-size: 13px;
-                -webkit-text-size-adjust: 100%;
-            }
+            main { padding: 0.5rem !important; }
+            .page-content { width: 100% !important; overflow-x: hidden !important; }
             
-            /* Üst barın (Header) taşmasını ve sayfayı genişletmesini önle */
-            header {
-                padding-left: 0.25rem !important;
-                padding-right: 0.25rem !important;
-                gap: 0.25rem;
-                overflow: hidden !important;
-            }
-            #header-title {
-                font-size: 11px !important;
-            }
-
-            /* Döviz kurlarının sayfayı esnetip "masaüstü görünümüne" zorlamasını engeller */
-            #live-finance-rates {
-                max-width: 110px !important;
-                overflow-x: auto !important;
-                white-space: nowrap !important;
-                display: flex !important;
-                gap: 0.4rem !important;
-                padding: 0.2rem 0.4rem !important;
-                scrollbar-width: none !important;
-            }
-            #live-finance-rates::-webkit-scrollbar {
-                display: none !important;
-            }
-            
-            /* Mobilde ekrana sığmayıp yapıyı bozan yan metinleri temizle */
-            #header-date, .sm\:block, .text-[10px], span[class*="Yönetim Paneli"] {
-                display: none !important;
-            }
-            
-            /* İçerik paddinglerini daraltarak ekrana yer kazandır */
-            main {
-                padding: 0.5rem !important;
-            }
-            
-            /* Tabloların yapıyı bozmasını engeller, kutu içinde yatay kaydırır */
-            .overflow-x-auto table, #page-urunler table, #page-garanti table {
-                min-width: 550px !important;
-            }
-            
-            /* POS (Satış) sepetindeki girdi kutularını daralt */
-            #cart-list input[type="number"] {
-                width: 50px !important;
-                padding: 0.2rem !important;
-            }
-            
-            /* Grafikleri mobil sınırlarına tam zorla */
-            #chart-30-days, #chart-6-months {
-                width: 100% !important;
+            /* Genişleyen tüm tabloları kendi kutusunda kaydırır, sayfayı patlatmaz */
+            .overflow-x-auto, .overflow-y-auto {
                 max-width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
             }
+            table { min-width: 500px !important; }
+
+            /* Üst bar döviz alanı kısıtlaması */
+            header { padding-left: 0.5rem !important; padding-right: 0.5rem !important; gap: 0.25rem; }
+            #header-title { font-size: 11px !important; }
+            #live-finance-rates {
+                max-width: 110px !important; display: flex !important; gap: 0.4rem !important;
+                overflow-x: auto !important; white-space: nowrap !important; scrollbar-width: none !important;
+            }
+            #live-finance-rates::-webkit-scrollbar { display: none !important; }
+            #user-email-display, .text-[10px], span[class*="Yönetim Paneli"] { display: none !important; }
+
+            /* POS Ekranındaki butonları alt alta veya sıkışık sığdırır */
+            .grid-cols-3 { grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)) !important; }
+            #cart-list input[type="number"] { width: 48px !important; padding: 2px !important; font-size: 12px !important; }
             
-            /* Açılır pencereleri (Modal) mobil ekran ortasına güvenle sabitle */
-            #modal-bg > div {
-                width: 94% !important;
-                max-width: 94% !important;
-                max-height: 85dvh;
-                overflow-y: auto !important;
-                padding: 1rem !important;
-                margin: auto !important;
-            }
-            
-            /* Tıklama alanlarını rahatlat */
-            button, input, select, textarea {
-                min-height: 36px;
-            }
-            .calc-btn { min-height: 36px; }
-        }   
+            /* Modalları mobile tam oturtma */
+            #modal-bg > div { width: 94% !important; max-width: 94% !important; margin: auto !important; padding: 12px !important; max-height: 85dvh; overflow-y: auto !important; }
+        }
     </style></head>
 <body class="bg-lightbg font-sans text-gray-800 h-screen flex overflow-hidden">
 
