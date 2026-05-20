@@ -240,8 +240,7 @@
             </div>
         </div>
         <div class="flex items-center gap-3 sm:gap-5 text-sm">
-    <div id="live-finance-rates" class="hidden lg:flex items-center gap-3 text-[11px] font-black bg-white border border-gray-200 px-3 py-1 rounded-full shadow-sm">
-        <span class="text-green-600" title="Dolar"><i class="fas fa-dollar-sign"></i> <span id="rate-usd">...</span></span>
+    <div id="live-finance-rates" class="flex lg:flex items-center gap-3 text-[11px] font-black bg-white border border-gray-200 px-3 py-1 rounded-full shadow-sm">        <span class="text-green-600" title="Dolar"><i class="fas fa-dollar-sign"></i> <span id="rate-usd">...</span></span>
         <span class="text-blue-600" title="Euro"><i class="fas fa-euro-sign"></i> <span id="rate-eur">...</span></span>
         <span class="text-amber-500" title="Gram Altın"><i class="fas fa-coins"></i> <span id="rate-gram">...</span></span>
         <span class="text-amber-600" title="Çeyrek Altın"><i class="fas fa-ring"></i> Çey: <span id="rate-ceyrek">...</span></span>
@@ -921,104 +920,37 @@ window.onload = () => {
     loadLogo();
 /* ========================================================
    GÜNCEL KURLAR (Truncgil API)
+GÜNCEL KURLAR (Korumalı ve Kalıcı Logo Sistemi)
 ======================================================== */
 function fetchFinanceRates() {
-    // Harem Altın ve aracı servis yerine doğrudan ve daha stabil bir API kullanıyoruz.
+    // Tarayıcı engelini (CORS) aşmak için güncel ve stabil çalışan 'cors-anywhere' alternatifini kullanıyoruz
     const targetUrl = 'https://finans.truncgil.com/today.json';
-
-    fetch(targetUrl)
-        .then(res => res.json())
-        .then(data => {
-            if(data) {
-                // API'den gelen verileri alıp 2 küsuratlı hale getiriyoruz
-                const usd = data["USD"] ? parseFloat(data["USD"].Selling).toFixed(2) : '0.00';
-                const eur = data["EUR"] ? parseFloat(data["EUR"].Selling).toFixed(2) : '0.00';
-                const gram = data["gram-altin"] ? parseFloat(data["gram-altin"].Selling).toFixed(2) : '0.00';
-                const ceyrek = data["ceyrek-altin"] ? parseFloat(data["ceyrek-altin"].Selling).toFixed(2) : '0.00';
-
-                // HTML'deki ilgili alanlara yazdırıyoruz
-                document.getElementById('rate-usd').innerText = usd;
-                document.getElementById('rate-eur').innerText = eur;
-                document.getElementById('rate-gram').innerText = gram;
-                document.getElementById('rate-ceyrek').innerText = ceyrek;
-
-                // Kutu daha önce gizlendiyse tekrar görünür yapıyoruz
-                const rateContainer = document.getElementById('live-finance-rates');
-                if(rateContainer) rateContainer.style.display = 'flex';
-            }
-        })
-        .catch(err => {
-            console.warn('Kur verileri çekilirken hata oluştu:', err);
-            // Hata olursa kutuyu ve logoları (ikonları) GİZLEMİYORUZ.
-            // Sadece sayıların yerine "Hata" yazdırıyoruz.
-            document.getElementById('rate-usd').innerText = "Hata";
-            document.getElementById('rate-eur').innerText = "Hata";
-            document.getElementById('rate-gram').innerText = "Hata";
-            document.getElementById('rate-ceyrek').innerText = "Hata";
-        });
-}    
-    setInterval(() => { 
-        const d = document.getElementById('header-date'); 
-        if(d) d.innerText = new Date().toLocaleString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}); 
-    }, 1000);
-    
-    document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
-};
-
-function msg(text, isErr=true) {
-    const el = document.getElementById('login-msg');
-    el.innerText = text;
-    el.className = isErr ? 'text-xs font-bold text-red-500 mt-4 h-4' : 'text-xs font-bold text-emerald-500 mt-4 h-4';
-}
-
-function loginApp() {
-    const e = document.getElementById('login-email').value;
-    const p = document.getElementById('login-pass').value;
-    if(!e || !p) return msg('Lütfen e-posta ve şifre girin.');
-    auth.signInWithEmailAndPassword(e, p)
-        .then(() => msg('Giriş başarılı...', false))
-        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
-}
-
-function loginWithGoogle() {
-    msg('Google paneli açılıyor...', false);
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(() => msg('Giriş başarılı!', false))
-        .catch(err => msg('Giriş hatası: ' + err.message));
-}
-
-function logoutApp() {
-    if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
-        auth.signOut().then(() => window.location.reload());
-    }
-}
-/* ========================================================
-   GÜNCEL KURLAR (Harem Altın)
-======================================================== */
-function fetchFinanceRates() {
-    // Harem Altın'ın anlık veri adresi
-    const targetUrl = 'https://www.haremaltin.com/dashboard/ajax/doviz';
-    // CORS hatasını aşmak için köprü (proxy) servisi kullanıyoruz
     const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
+    // Sayfa ilk açıldığında logolar gitmesin, kullanıcı bilgi beklediğini anlasın diye geçici yazı yazıyoruz
+    if(document.getElementById('rate-usd').innerText === "...") {
+        document.getElementById('rate-usd').innerText = "Bekliyor...";
+        document.getElementById('rate-eur').innerText = "Bekliyor...";
+        document.getElementById('rate-gram').innerText = "Bekliyor...";
+        document.getElementById('rate-ceyrek').innerText = "Bekliyor...";
+    }
+
     fetch(proxyUrl)
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error('Ağ yanıtı düzgün değil.');
+            return res.json();
+        })
         .then(proxyData => {
-            // Allorigins, veriyi 'contents' adında bir string olarak döndürür, bunu JSON'a çeviriyoruz
+            // Gelen veriyi çözüyoruz
             const data = JSON.parse(proxyData.contents);
             
-            if(data && data.data) {
-                const kurlar = data.data;
-                
-                // Harem Altın veri isimlendirmeleri (ALTIN = Gram, CEYREK_YENI = Yeni Çeyrek)
-                // Veriler 4 küsuratlı gelebilir, toFixed(2) ile 2 küsurata yuvarlıyoruz
-                const usd = kurlar.USDTRY ? parseFloat(kurlar.USDTRY.satis).toFixed(2) : '0.00';
-                const eur = kurlar.EURTRY ? parseFloat(kurlar.EURTRY.satis).toFixed(2) : '0.00';
-                const gram = kurlar.ALTIN ? parseFloat(kurlar.ALTIN.satis).toFixed(2) : '0.00';
-                const ceyrek = kurlar.CEYREK_YENI ? parseFloat(kurlar.CEYREK_YENI.satis).toFixed(2) : '0.00';
+            if(data) {
+                const usd = data["USD"] ? parseFloat(data["USD"].Selling.replace(',', '.')).toFixed(2) : '0.00';
+                const eur = data["EUR"] ? parseFloat(data["EUR"].Selling.replace(',', '.')).toFixed(2) : '0.00';
+                const gram = data["gram-altin"] ? parseFloat(data["gram-altin"].Selling.replace(',', '.')).toFixed(2) : '0.00';
+                const ceyrek = data["ceyrek-altin"] ? parseFloat(data["ceyrek-altin"].Selling.replace(',', '.')).toFixed(2) : '0.00';
 
-                // HTML'deki ilgili alanlara yazdırıyoruz
+                // Ekrandaki değerleri güncelliyoruz
                 document.getElementById('rate-usd').innerText = usd;
                 document.getElementById('rate-eur').innerText = eur;
                 document.getElementById('rate-gram').innerText = gram;
@@ -1026,32 +958,33 @@ function fetchFinanceRates() {
             }
         })
         .catch(err => {
-            console.warn('Harem Altın verileri çekilirken hata oluştu:', err);
-            // Hata olursa (örn: internet kesintisi) üst barı gizle
-            const rateContainer = document.getElementById('live-finance-rates');
-            if(rateContainer) rateContainer.style.display = 'none';
+            console.warn('Kur verileri canlı çekilemedi, yedek sisteme geçiliyor:', err);
+            
+            // Sistem tamamen kilitlenmesin diye alternatif ücretsiz bir döviz servisine (Genel Döviz) bağlanmayı deniyoruz
+            fetch('https://open.er-api.com/v6/latest/USD')
+                .then(res => res.json())
+                .then(altData => {
+                    if(altData && altData.rates) {
+                        // Global oranlardan TL karşılığını hesaplama
+                        const usdTry = (1 / altData.rates.TRY).toFixed(2);
+                        const eurTry = (usdTry * (altData.rates.TRY / altData.rates.EUR)).toFixed(2); // Yaklaşık parite hesabı
+                        
+                        document.getElementById('rate-usd').innerText = usdTry;
+                        document.getElementById('rate-eur').innerText = eurTry;
+                        document.getElementById('rate-gram').innerText = "Servis Dışı";
+                        document.getElementById('rate-ceyrek').innerText = "Servis Dışı";
+                    }
+                })
+                .catch(() => {
+                    // Tüm hatlar çökerse logoları ASLA SİLMİYORUZ, sadece yanına bağlantı hatası yazıyoruz
+                    document.getElementById('rate-usd').innerText = "Bağlantı Yok";
+                    document.getElementById('rate-eur').innerText = "Bağlantı Yok";
+                    document.getElementById('rate-gram').innerText = "Bağlantı Yok";
+                    document.getElementById('rate-ceyrek').innerText = "Bağlantı Yok";
+                });
         });
-}function sync() {
-    if(auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
-        
-        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
-        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
-        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
-        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
-        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
-        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
-        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
-        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
-        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
-        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
-        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
-        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
-    }
-    renderAll();
-}
-
+}/* ========================================================
+  
 /* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
