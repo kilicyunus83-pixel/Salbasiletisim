@@ -2315,17 +2315,16 @@ function compressTarifeImage(file, callback) {
         img.src = event.target.result; 
         img.onload = () => { 
             const canvas = document.createElement('canvas'); 
-            const MAX_WIDTH = 150; // Resim genişliğini tarife logoları için 150px'e düşürür
+            const MAX_WIDTH = 1000; // Yazıların okunması için genişliği 1000px yaptık
             const scaleSize = MAX_WIDTH / img.width; 
             canvas.width = MAX_WIDTH; 
             canvas.height = img.height * scaleSize; 
             const ctx = canvas.getContext('2d'); 
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
-            callback(canvas.toDataURL('image/jpeg', 0.4)); // %40 kalite ile KB boyutuna indirir
+            callback(canvas.toDataURL('image/jpeg', 0.7)); // %70 kalite ile detaylar korunur
         }; 
     };
 }
-
 // Resmi al, mikro sıkıştır ve önizlemeye koy
 function handleTarifeImage(file) {
     if (!file) return;
@@ -2410,22 +2409,23 @@ function renderTarifeler() {
     const p = db.operatorPacks.filter(x => x.op === activeTarifeOp);
     document.getElementById('tarife-table').innerHTML = p.map(t => {
         
-        // Base64 kodunu inline fonksiyona direkt yazmak yerine ID'yi yolluyoruz
+        // Thumbnail boyutları okunaklı olması için w-24 h-16 (veya mobil için w-20) yapıldı
         const imageElement = t.image 
-            ? `<img src="${t.image}" class="w-10 h-10 object-cover rounded-lg border border-gray-200 cursor-pointer shadow-sm hover:scale-110 transition" onclick="openTarifeImageViewer(${t.id})" title="Büyütmek için tıkla">` 
-            : `<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-300 border border-gray-200"><i class="fas fa-image"></i></div>`;
+            ? `<img src="${t.image}" class="w-20 h-14 md:w-24 md:h-16 object-contain rounded-lg border border-gray-200 cursor-pointer shadow-sm hover:scale-105 transition" onclick="openTarifeImageViewer(${t.id})" title="Büyütmek için tıkla">` 
+            : `<div class="w-20 h-14 md:w-24 md:h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-300 border border-gray-200"><i class="fas fa-image text-lg"></i></div>`;
 
-        return `<tr>
-            <td class="p-3 flex justify-center">${imageElement}</td>
-            <td class="p-3">${t.name}</td>
-            <td class="p-3 text-right text-emerald-600 font-black">₺${t.price}</td>
-            <td class="p-3 text-center whitespace-nowrap">
-                <button onclick="editTarife(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600"><i class="fas fa-edit"></i></button>
-                <button onclick="if(confirm('Silinecek. Emin misiniz?')){db.operatorPacks=db.operatorPacks.filter(x=>x.id!==${t.id});sync()}" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+        return `<tr class="hover:bg-gray-50 transition border-b">
+            <td class="p-2 text-center align-middle w-28"><div class="flex justify-center">${imageElement}</div></td>
+            <td class="p-3 align-middle text-xs md:text-sm font-bold text-gray-800 uppercase">${t.name}</td>
+            <td class="p-3 text-right align-middle text-emerald-600 font-black text-sm md:text-base whitespace-nowrap">₺${t.price}</td>
+            <td class="p-3 text-center align-middle whitespace-nowrap w-24">
+                <button onclick="editTarife(${t.id})" class="text-amber-500 mr-2 hover:text-amber-600 p-1 text-sm" title="Düzenle"><i class="fas fa-edit"></i></button>
+                <button onclick="if(confirm('Silinecek. Emin misiniz?')){db.operatorPacks=db.operatorPacks.filter(x=>x.id!==${t.id});sync()}" class="text-red-400 hover:text-red-600 p-1 text-sm" title="Sil"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`;
     }).join('');
-}/* ========================================================
+}
+/* ========================================================
    FATURASIZ ÜRÜNLER
 ======================================================== */
 function cancelFaturasizEdit() {
@@ -2614,7 +2614,9 @@ function safeRender(fn) {
     }
 }
 
-// Unutulan renderAll fonksiyon tanımı eklendi ve hata düzeltildi
+// ========================================================
+// TÜM ARAYÜZÜN GÜNCELLENMESİ (SYNTAX HATASI DÜZELTİLDİ)
+// ========================================================
 function renderAll() {
     safeRender(loadLogo);
 
@@ -2651,8 +2653,8 @@ function renderAll() {
     }
     if (!document.getElementById('page-garanti').classList.contains('hidden')) {
         safeRender(renderRepairs);
-        safeRender(renderTechNotes); // Bu satırı ekledik!
-    }    }
+        safeRender(renderTechNotes); 
+    }
     if (!document.getElementById('page-notlar').classList.contains('hidden')) {
         safeRender(renderNotes);
     }
