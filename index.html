@@ -386,19 +386,16 @@
       <div id="page-raporlar" class="page-content hidden">
             <div class="flex flex-col lg:flex-row gap-4 mb-6 items-center justify-between">
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="setReportPeriod('gunluk')" id="btn-rep-gunluk" class="btn-rep px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-sm transition">Günlük</button>
-                    <button onclick="setReportPeriod('haftalik')" id="btn-rep-haftalik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Haftalık</button>
-                    <button onclick="setReportPeriod('aylik')" id="btn-rep-aylik" class="btn-rep px-6 py-2 bg-white text-gray-600 border border-gray-300 rounded-lg font-bold shadow-sm transition">Aylık</button>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
                     <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
-                        <input type="date" id="rep-start-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Başlangıç Tarihi">
+                        <input type="date" id="rep-start-date" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Başlangıç Tarihi">
                         <span class="text-gray-400 font-black px-1">-</span>
-                        <input type="date" id="rep-end-date" onchange="setReportPeriod('aralik')" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Bitiş Tarihi">
+                        <input type="date" id="rep-end-date" class="border-none p-2 text-sm font-bold outline-none text-gray-700 bg-transparent" title="Bitiş Tarihi">
+                        <button onclick="setReportPeriod('aralik')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-sm font-bold transition flex items-center gap-1 border-l border-indigo-700">
+                            <i class="fas fa-search"></i> Getir
+                        </button>
                     </div>
                     <button onclick="printZRaporu()" class="px-6 py-2 bg-gray-800 text-white rounded-lg font-bold shadow-sm"><i class="fas fa-print"></i> Z Raporu Al</button>
-                </div>
-            </div>
+                </div>            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div class="bg-blue-50 border border-blue-200 p-6 rounded-lg shadow-sm text-center">
