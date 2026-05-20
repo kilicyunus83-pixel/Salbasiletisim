@@ -755,21 +755,28 @@
         </div>
         <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-700 py-3 rounded-xl mt-4 font-black text-sm hover:bg-gray-300">Kapat</button>
     </div>
-
-    <div id="prod-modal" class="hidden bg-white w-full max-w-xl rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
-        <h3 class="font-black text-2xl mb-6 border-b pb-3 uppercase tracking-tighter">Ürün Kaydı</h3>
-        <input type="hidden" id="m-p-edit-idx" value="-1">
-        <div class="grid grid-cols-2 gap-4">
-            <div class="col-span-2"><label class="text-[10px] font-black uppercase text-gray-400">Barkod</label><input type="text" id="m-p-barcode" class="w-full border p-2 rounded font-bold bg-gray-50"></div>
-            <div class="col-span-2"><label class="text-[10px] font-black uppercase text-gray-400">Ürün Adı</label><input type="text" id="m-p-name" class="w-full border p-2 rounded font-bold bg-gray-50"></div>
-            <div><label class="text-[10px] font-black uppercase text-gray-400">Stok</label><input type="number" id="m-p-stock" value="1" class="w-full border p-2 rounded font-bold bg-gray-50 text-blue-600"></div>
-            <div><label class="text-[10px] font-black uppercase text-gray-400">Alış Maliyeti ₺</label><input type="number" id="m-p-buy" value="0" class="w-full border p-2 rounded font-bold bg-gray-50"></div>
-            <div class="col-span-2"><label class="text-[10px] font-black uppercase text-emerald-600">Satış Fiyatı ₺</label><input type="number" id="m-p-sell1" class="w-full border p-3 rounded-xl text-3xl font-black text-emerald-700 bg-emerald-50"></div>
-   <div class="col-span-2 mt-2"><label class="text-[10px] font-black uppercase text-blue-600">Hızlı Satış Kategorisi</label><select id="m-p-category" class="w-full border p-3 rounded-xl font-bold bg-blue-50 text-blue-800"><option value="">Görünmesin</option><option value="Liste 1">Liste 1</option><option value="Liste 2">Liste 2</option><option value="Liste 3">Liste 3</option><option value="Liste 4">Liste 4</option><option value="Liste 5">Liste 5</option><option value="Liste 6">Liste 6</option><option value="Liste 7">Liste 7</option><option value="Liste 8">Liste 8</option></select></div>
+<div id="custom-label-modal" class="hidden bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl">
+        <h3 class="font-black text-xl mb-4 uppercase text-gray-800"><i class="fas fa-print mr-2 text-blue-600"></i>Serbest Etiket Bas</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Etikette Yazan İsim (Ürün Adı)</label>
+                <input type="text" id="cl-name" placeholder="Örn: 20W Şarj Aleti" class="w-full border p-3 rounded-lg font-bold bg-gray-50 outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Fiyat (₺)</label>
+                <input type="number" id="cl-price" placeholder="150" class="w-full border p-3 rounded-lg font-black text-emerald-600 bg-emerald-50 outline-none focus:border-emerald-500">
+            </div>
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400">Barkod Numarası</label>
+                <input type="text" id="cl-barcode" class="w-full border p-3 rounded-lg font-bold bg-gray-50 outline-none focus:border-blue-500 text-gray-600">
+                <p class="text-[9px] text-gray-400 mt-1">Sistem otomatik barkod üretti, isterseniz silebilir ve elinizdeki ürünün gerçek barkodunu okutabilirsiniz.</p>
+            </div>
         </div>
-        <div class="flex justify-end space-x-3 mt-8"><button onclick="closeModal()" class="px-6 py-2 font-bold text-gray-400 uppercase text-xs">Vazgeç</button><button onclick="saveProduct()" class="px-10 py-3 bg-emerald-600 text-white rounded-xl font-black shadow-lg">KAYDET</button></div>
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closeModal()" class="px-5 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold text-xs uppercase">İptal</button>
+            <button onclick="printCustomLabel()" class="px-6 py-3 bg-gray-900 text-white rounded-xl font-black shadow-lg"><i class="fas fa-print mr-1"></i> YAZDIR</button>
+        </div>
     </div>
-
     <div id="cust-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
         <h3 class="font-black text-xl mb-6 uppercase tracking-tighter">Müşteri Kaydı</h3>
         <input type="hidden" id="m-c-edit-idx" value="-1">
