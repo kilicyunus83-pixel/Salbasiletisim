@@ -237,35 +237,7 @@
             </li>
         </ul>
     </nav>
-    <!-- HESAP MAKİNESİ -->
-    <div class="border-t border-gray-700 p-3 bg-gray-900 flex-shrink-0">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-gray-400 uppercase"><i class="fas fa-calculator mr-1"></i> Hesap Makinesi</span>
-        </div>
-        <div id="calc-display" class="bg-gray-950 text-white text-right px-3 py-2 rounded-lg font-mono text-lg font-black mb-2 min-h-[40px] overflow-hidden text-ellipsis whitespace-nowrap">0</div>
-        <div class="grid grid-cols-4 gap-1">
-            <button onclick="calcInput('C')" class="calc-btn bg-red-600 text-white col-span-2">AC</button>
-            <button onclick="calcInput('⌫')" class="calc-btn bg-gray-600 text-white"><i class="fas fa-backspace text-xs"></i></button>
-            <button onclick="calcInput('÷')" class="calc-btn bg-amber-500 text-white">÷</button>
-            <button onclick="calcInput('7')" class="calc-btn bg-gray-700 text-white">7</button>
-            <button onclick="calcInput('8')" class="calc-btn bg-gray-700 text-white">8</button>
-            <button onclick="calcInput('9')" class="calc-btn bg-gray-700 text-white">9</button>
-            <button onclick="calcInput('×')" class="calc-btn bg-amber-500 text-white">×</button>
-            <button onclick="calcInput('4')" class="calc-btn bg-gray-700 text-white">4</button>
-            <button onclick="calcInput('5')" class="calc-btn bg-gray-700 text-white">5</button>
-            <button onclick="calcInput('6')" class="calc-btn bg-gray-700 text-white">6</button>
-            <button onclick="calcInput('-')" class="calc-btn bg-amber-500 text-white">-</button>
-            <button onclick="calcInput('1')" class="calc-btn bg-gray-700 text-white">1</button>
-            <button onclick="calcInput('2')" class="calc-btn bg-gray-700 text-white">2</button>
-            <button onclick="calcInput('3')" class="calc-btn bg-gray-700 text-white">3</button>
-            <button onclick="calcInput('+')" class="calc-btn bg-amber-500 text-white">+</button>
-            <button onclick="calcInput('%')" class="calc-btn bg-gray-600 text-white">%</button>
-            <button onclick="calcInput('0')" class="calc-btn bg-gray-700 text-white">0</button>
-            <button onclick="calcInput('.')" class="calc-btn bg-gray-700 text-white">.</button>
-            <button onclick="calcInput('=')" class="calc-btn bg-blue-600 text-white">=</button>
-        </div>
-    </div>
-</aside>
+    </aside>
 
 <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative">
     <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-6 z-10 flex-shrink-0">
@@ -334,7 +306,8 @@
                     <div id="pos-suggestions" class="hidden absolute z-50 w-full bg-white border border-gray-300 rounded-b-lg shadow-2xl max-h-60 overflow-y-auto top-full left-0 divide-y divide-gray-100"></div>
                 </div>
                 <button onclick="triggerBarcode()" class="bg-blue-600 text-white px-5 py-2 rounded text-sm font-bold hover:bg-blue-700 shadow-sm">Ekle</button>
-                <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
+               <button id="btn-fiyat-gor" onclick="togglePriceCheck()" class="bg-gray-200 text-gray-600 px-4 py-2 rounded text-sm font-bold border border-gray-300"><i class="fas fa-eye"></i> Fiyat Gör</button>
+<button onclick="openModal('calc-modal')" class="bg-purple-600 text-white px-4 py-2 rounded text-sm font-bold shadow-sm hover:bg-purple-700 flex items-center gap-1.5"><i class="fas fa-calculator"></i> Hesap Makinesi</button>
             </div>
                     <div class="p-3 border-b border-gray-200 bg-emerald-50 flex flex-wrap gap-2 items-center text-sm">
                         <span class="font-bold text-emerald-700 mr-1 text-xs"><i class="fas fa-bolt"></i> Muhtelif İşlem:</span>
@@ -825,6 +798,34 @@
 </div>
 
 <!-- MODALLER -->
+<div id="calc-modal" class="hidden bg-slate-900 w-full max-w-xs rounded-2xl p-4 shadow-2xl text-white">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-gray-400 uppercase"><i class="fas fa-calculator mr-1"></i> Hesap Makinesi (Klavye Aktif)</span>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-white text-sm px-1"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="calc-display" class="bg-gray-950 text-white text-right px-3 py-2.5 rounded-lg font-mono text-xl font-black mb-3 min-h-[46px] overflow-hidden text-ellipsis whitespace-nowrap border border-gray-800">0</div>
+        <div class="grid grid-cols-4 gap-1.5">
+            <button onclick="calcInput('C')" class="calc-btn bg-red-600 text-white col-span-2">AC</button>
+            <button onclick="calcInput('⌫')" class="calc-btn bg-gray-600 text-white"><i class="fas fa-backspace text-xs"></i></button>
+            <button onclick="calcInput('÷')" class="calc-btn bg-amber-500 text-white">÷</button>
+            <button onclick="calcInput('7')" class="calc-btn bg-gray-700 text-white">7</button>
+            <button onclick="calcInput('8')" class="calc-btn bg-gray-700 text-white">8</button>
+            <button onclick="calcInput('9')" class="calc-btn bg-gray-700 text-white">9</button>
+            <button onclick="calcInput('×')" class="calc-btn bg-amber-500 text-white">×</button>
+            <button onclick="calcInput('4')" class="calc-btn bg-gray-700 text-white">4</button>
+            <button onclick="calcInput('5')" class="calc-btn bg-gray-700 text-white">5</button>
+            <button onclick="calcInput('6')" class="calc-btn bg-gray-700 text-white">6</button>
+            <button onclick="calcInput('-')" class="calc-btn bg-amber-500 text-white">-</button>
+            <button onclick="calcInput('1')" class="calc-btn bg-gray-700 text-white">1</button>
+            <button onclick="calcInput('2')" class="calc-btn bg-gray-700 text-white">2</button>
+            <button onclick="calcInput('3')" class="calc-btn bg-gray-700 text-white">3</button>
+            <button onclick="calcInput('+')" class="calc-btn bg-amber-500 text-white">+</button>
+            <button onclick="calcInput('%')" class="calc-btn bg-gray-600 text-white">%</button>
+            <button onclick="calcInput('0')" class="calc-btn bg-gray-700 text-white">0</button>
+            <button onclick="calcInput('.')" class="calc-btn bg-gray-700 text-white">.</button>
+            <button onclick="calcInput('=')" class="calc-btn bg-blue-600 text-white">=</button>
+        </div>
+    </div>
 <div id="modal-bg" class="hidden fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
 <div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
         <h3 class="font-black text-xl mb-6 uppercase tracking-tighter">Ürün Kaydı</h3>
@@ -955,6 +956,27 @@ const oranlar = { 2:7.92, 3:9.78, 4:12.34, 5:14.05, 6:15.76, 7:17.97, 8:20.18, 9
 /* ========================================================
    HESAP MAKİNESİ
 ======================================================== */
+// Hesap Makinesi Klavye Dinleyicisi
+document.addEventListener('keydown', function(e) {
+    const calcModal = document.getElementById('calc-modal');
+    // Sadece hesap makinesi ekranda açıkken klavye girdilerini yakalar
+    if (calcModal && !calcModal.classList.contains('hidden')) {
+        if (/[0-9\.\+\-\*\/%]/.test(e.key)) {
+            e.preventDefault();
+            let keyMap = {'*': '×', '/': '÷'};
+            calcInput(keyMap[e.key] || e.key);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            calcInput('=');
+        } else if (e.key === 'Backspace') {
+            e.preventDefault();
+            calcInput('⌫');
+        } else if (e.key.toLowerCase() === 'c' || e.key === 'Escape') {
+            e.preventDefault();
+            calcInput('C');
+        }
+    }
+});
 let calcExpr = '';
 let calcResult = false;
 function calcInput(val) {
@@ -1129,15 +1151,21 @@ function fetchFinanceRates() {
                 });
         });
 }
-
 /* ========================================================
-   VERİ EŞİTLEME (YANLIŞLIKLA SİLİNEN FONKSİYON)
+   MODÜLER VERİ EŞİTLEME SİSTEMİ (PERFORMANS ODAKLI)
 ======================================================== */
 function sync() {
     if(auth.currentUser) {
         const uid = auth.currentUser.uid;
-        dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
         
+        // Her bir ana başlığı (Ürünler, Satışlar vb.) bulutta ayrı bir dökümana yazarak yükü böleriz
+        Object.keys(db).forEach(key => {
+            dbCloud.collection('sistem_kullanicilari').doc(uid)
+                   .collection('moduller').doc(key).set({ data: db[key] || [] })
+                   .catch(e => console.log(key + ' Bulut Senkronizasyon Hatası:', e));
+        });
+        
+        // Cihaz hafızasındaki (LocalStorage) yedekleme sistemini koruyoruz
         localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
         localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
         localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
@@ -1152,8 +1180,7 @@ function sync() {
         localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     }
     renderAll();
-}  
-/* ========================================================
+}/* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -2026,10 +2053,25 @@ function cancelPurchaseEdit() {
 }
 
 function compressImage(file, callback) {
-    const reader=new FileReader(); reader.readAsDataURL(file);
-    reader.onload=event=>{ const img=new Image(); img.src=event.target.result; img.onload=()=>{ const canvas=document.createElement('canvas'); const MAX_WIDTH=800; const scaleSize=MAX_WIDTH/img.width; canvas.width=MAX_WIDTH; canvas.height=img.height*scaleSize; const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0,canvas.width,canvas.height); callback(canvas.toDataURL('image/jpeg',0.6)); }; };
+    const reader = new FileReader(); 
+    reader.readAsDataURL(file);
+    reader.onload = event => { 
+        const img = new Image(); 
+        img.src = event.target.result; 
+        img.onload = () => { 
+            const canvas = document.createElement('canvas'); 
+            // Genişliği 800'den 600'e çekerek veri boyutunu dramatik şekilde düşürüyoruz
+            const MAX_WIDTH = 600; 
+            const scaleSize = MAX_WIDTH / img.width; 
+            canvas.width = MAX_WIDTH; 
+            canvas.height = img.height * scaleSize; 
+            const ctx = canvas.getContext('2d'); 
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
+            // Kalite oranını 0.6'dan 0.4'e düşürerek netliği bozmadan boyutu KB seviyesine indiriyoruz
+            callback(canvas.toDataURL('image/jpeg', 0.4)); 
+        }; 
+    };
 }
-
 function editPurchase(id) {
     const r=db.purchases.find(x=>x.id==id); if(!r) return;
     document.getElementById('p-edit-id').value=id; document.getElementById('p-name').value=r.name; document.getElementById('p-tc').value=r.tc; document.getElementById('p-phone').value=r.phone; document.getElementById('p-model').value=r.model; document.getElementById('p-imei').value=r.imei; document.getElementById('p-price').value=r.price;
@@ -2449,55 +2491,103 @@ function importData(e) {
 }
 
 /* ========================================================
-   VERİLERİ BULUTTAN ÇEKME (Sistemi Açan Kod)
+   GÜVENLİ VE OTOMATİK VERİ TAŞIMALI BULUT YÜKLEYİCİ
 ======================================================== */
 function loadCloudData(uid) {
-    dbCloud.collection('sistem_kullanicilari').doc(uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                db = Object.assign(db, doc.data());
+    const keys = Object.keys(db);
+    
+    // Önce yeni modüler yapıda kayıt var mı diye kontrol et
+    dbCloud.collection('sistem_kullanicilari').doc(uid).collection('moduller').limit(1).get()
+        .then(subDocs => {
+            if (!subDocs.empty) {
+                // Yeni sistem aktifse, tüm modülleri eş zamanlı ve hızlıca çek
+                const promises = keys.map(key => {
+                    return dbCloud.collection('sistem_kullanicilari').doc(uid)
+                                  .collection('moduller').doc(key).get()
+                                  .then(doc => {
+                                      if (doc.exists) db[key] = doc.data().data || [];
+                                  });
+                });
+                return Promise.all(promises);
             } else {
-                sync();
+                // Eğer yeni sistem boşsa, eski tek parça büyük dökümandan verileri oku (GÖÇ/MİGRASYON)
+                return dbCloud.collection('sistem_kullanicilari').doc(uid).get()
+                    .then(doc => {
+                        if (doc.exists) {
+                            db = Object.assign(db, doc.data());
+                            // Eski tek parça veriyi bulutta yeni parçalı sisteme otomatik dönüştürerek dağıt
+                            keys.forEach(key => {
+                                dbCloud.collection('sistem_kullanicilari').doc(uid)
+                                       .collection('moduller').doc(key).set({ data: db[key] || [] });
+                            });
+                            console.log("Eski dükkan verileri yeni performanslı sisteme başarıyla taşındı!");
+                        }
+                    });
             }
+        })
+        .then(() => {
+            // Yükleme bittiğinde giriş ekranını kapat ve paneli aç
             document.getElementById('login-screen').classList.add('hidden');
             renderAll();
         })
         .catch((error) => {
-            console.error("Veri çekme hatası:", error);
+            console.error("Buluttan veri çekilirken hata oluştu, yerel yedekler açılıyor:", error);
+            // İnternet kesilirse veya hata oluşursa dükkanın çalışmaya devam etmesi için local verileri yükle
+            keys.forEach(key => {
+                const localData = localStorage.getItem('bp_' + key + '_' + uid);
+                if (localData) db[key] = JSON.parse(localData);
+            });
             document.getElementById('login-screen').classList.add('hidden');
             renderAll();
         });
-}
-
-/* ========================================================
-   TÜMÜNÜ RENDER ET (HATA KORUMALI)
-======================================================== */
-function safeRender(fn) {
-    try { 
-        fn(); 
-    } catch(e) { 
-        console.error('Bölüm yüklenirken hata oluştu:', fn.name, e); 
-    }
-}
-
-function renderAll() {
-    safeRender(renderDashboard);
-    safeRender(renderProducts);
-    safeRender(renderCustomers);
-    safeRender(renderCart);
-    safeRender(renderQuickSell);
-    safeRender(renderRaporlar);
-    safeRender(renderFinances);
-    safeRender(renderStokSayimi);
-    safeRender(renderLogs);
-    safeRender(renderFaturasiz);
-    safeRender(renderPurchases);
-    safeRender(renderRepairs);
-    safeRender(renderNotes);
-    safeRender(renderTasks);
-    safeRender(renderTarifeler);
-    safeRender(renderOpLogs);
+}  
+  // Her zaman arka planda güncellenmesi gereken hafif fonksiyonlar
     safeRender(loadLogo);
+
+    // Ekranda hangi sayfa aktifse (hidden değilse) sadece onun tablolarını çiz
+    if (!document.getElementById('page-anasayfa').classList.contains('hidden')) {
+        safeRender(renderDashboard);
+    }
+    if (!document.getElementById('page-satis-yap').classList.contains('hidden')) {
+        safeRender(renderCart);
+        safeRender(renderQuickSell);
+    }
+    if (!document.getElementById('page-musteriler').classList.contains('hidden')) {
+        safeRender(renderCustomers);
+    }
+    if (!document.getElementById('page-urunler').classList.contains('hidden')) {
+        safeRender(renderProducts);
+    }
+    if (!document.getElementById('page-raporlar').classList.contains('hidden')) {
+        safeRender(renderRaporlar);
+    }
+    if (!document.getElementById('page-finans').classList.contains('hidden')) {
+        safeRender(renderFinances);
+    }
+    if (!document.getElementById('page-stok-sayimi').classList.contains('hidden')) {
+        safeRender(renderStokSayimi);
+    }
+    if (!document.getElementById('page-islem-tüneli').classList.contains('hidden')) {
+        safeRender(renderLogs);
+    }
+    if (!document.getElementById('page-faturasiz').classList.contains('hidden')) {
+        safeRender(renderFaturasiz);
+    }
+    if (!document.getElementById('page-ikinci-el').classList.contains('hidden')) {
+        safeRender(renderPurchases);
+    }
+    if (!document.getElementById('page-garanti').classList.contains('hidden')) {
+        safeRender(renderRepairs);
+    }
+    if (!document.getElementById('page-notlar').classList.contains('hidden')) {
+        safeRender(renderNotes);
+    }
+    if (!document.getElementById('page-gorevler').classList.contains('hidden')) {
+        safeRender(renderTasks);
+    }
+    if (!document.getElementById('page-tarifeler').classList.contains('hidden')) {
+        safeRender(renderTarifeler);
+    }
 }
 </script>
 </body>
