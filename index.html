@@ -529,7 +529,7 @@
                 <button onclick="saveAllStockCounts()" class="bg-emerald-600 text-white px-8 py-3 rounded-lg font-black shadow-lg hover:bg-emerald-700 transition w-full md:w-auto">TÜMÜNÜ KAYDET</button>
             </div>
             <div class="bg-white p-4 border-x border-gray-200 flex flex-col md:flex-row gap-4">
-                <div class="relative flex-1"><i class="fas fa-barcode absolute left-3 top-3 text-gray-400 text-xl"></i><input type="text" id="sayim-barkod-okut" placeholder="BARKOD OKUTUN..." class="w-full border-2 border-blue-400 bg-blue-50 rounded pl-10 pr-3 py-3 text-lg font-black outline-none focus:border-blue-600 transition shadow-inner"></div>
+                <div class="relative flex-1"><i class="fas fa-barcode absolute left-3 top-3 text-gray-400 text-xl"></i><input type="text" id="sayim-barkod-okut" onchange="handleSayim(event)" placeholder="BARKOD OKUTUN..." class="w-full border-2 border-blue-400 bg-blue-50 rounded pl-10 pr-3 py-3 text-lg font-black outline-none focus:border-blue-600 transition shadow-inner"></div>
                 <div class="relative flex-1"><i class="fas fa-search absolute left-3 top-3 text-gray-400 text-xl"></i><input type="text" id="sayim-search" onkeyup="renderStokSayimi()" placeholder="Tabloda Ara..." class="w-full border border-gray-300 rounded pl-10 pr-3 py-3 text-lg outline-none focus:border-gray-500"></div>
             </div>
             <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Sistem Stok</th><th class="p-3 text-right text-amber-300">Toplam Maliyet</th><th class="p-3 text-center bg-blue-700">Yeni Sayılan</th></tr></thead><tbody id="sayim-table" class="divide-y divide-gray-200"></tbody></table></div>
@@ -759,6 +759,44 @@
 
 <!-- MODALLER -->
 <div id="modal-bg" class="hidden fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
+<div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
+        <h3 class="font-black text-xl mb-6 uppercase tracking-tighter">Ürün Kaydı</h3>
+        <input type="hidden" id="m-p-edit-idx" value="-1">
+        
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase">Barkod</label>
+                <input type="text" id="m-p-barcode" placeholder="Otomatik üretilir veya okutun" class="w-full border p-3 rounded-xl font-bold bg-gray-50">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase">Ürün Adı</label>
+                <input type="text" id="m-p-name" placeholder="Ürün Adı" class="w-full border p-3 rounded-xl font-bold bg-gray-50">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Stok</label>
+                    <input type="number" id="m-p-stock" value="1" class="w-full border p-3 rounded-xl font-bold bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Kategori</label>
+                    <input type="text" id="m-p-category" placeholder="Örn: Liste 1" class="w-full border p-3 rounded-xl font-bold bg-gray-50">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase">Alış Fiyatı (₺)</label>
+                    <input type="number" id="m-p-buy" value="0" class="w-full border p-3 rounded-xl font-bold text-gray-600 bg-gray-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-600 uppercase">Satış Fiyatı (₺)</label>
+                    <input type="number" id="m-p-sell1" placeholder="0.00" class="w-full border p-3 rounded-xl font-black text-emerald-600 bg-emerald-50">
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black mt-6 shadow-md hover:bg-blue-700">KAYDET</button>
+        <button onclick="closeModal()" class="w-full bg-gray-200 text-gray-600 py-3 rounded-xl font-black mt-2 hover:bg-gray-300">İptal</button>
+    </div>
     <div id="taksit-modal" class="hidden bg-white w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl">
         <h3 class="font-black text-xl mb-4 text-purple-700 uppercase"><i class="fas fa-calculator mr-2"></i>Taksit Hesapla</h3>
         <div class="space-y-4">
