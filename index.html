@@ -902,6 +902,53 @@ function loadLogo() {
 /* ========================================================
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
+// E-posta ve Şifre ile Giriş Fonksiyonu
+function loginApp() {
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-pass').value;
+    const msg = document.getElementById('login-msg');
+
+    if (!email || !pass) {
+        msg.innerText = "Lütfen e-posta ve şifre alanlarını doldurun.";
+        return;
+    }
+
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+        .then((userCredential) => {
+            msg.innerText = "";
+            // Giriş başarılı olduğunda onAuthStateChanged otomatik tetiklenip sayfayı açacaktır.
+        })
+        .catch((error) => {
+            msg.innerText = "Giriş başarısız. Bilgilerinizi kontrol edin.";
+            console.error("Giriş Hatası:", error);
+        });
+}
+
+// Google Hesabı ile Giriş Fonksiyonu
+function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const msg = document.getElementById('login-msg');
+
+    firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+            msg.innerText = "";
+            // Başarılı giriş
+        })
+        .catch((error) => {
+            msg.innerText = "Google ile giriş iptal edildi veya başarısız oldu.";
+            console.error("Google Giriş Hatası:", error);
+        });
+}
+
+// Çıkış Yapma Fonksiyonu
+function logoutApp() {
+    firebase.auth().signOut().then(() => {
+        // Çıkış başarılı, sayfayı yenile ki giriş ekranına dönsün
+        window.location.reload();
+    }).catch((error) => {
+        console.error("Çıkış Hatası:", error);
+    });
+}
 window.onload = () => {
     // Firebase Oturum Kontrolü
     auth.onAuthStateChanged(user => {
