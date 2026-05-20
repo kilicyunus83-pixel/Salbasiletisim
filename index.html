@@ -919,16 +919,44 @@ window.onload = () => {
 
     loadReceiptSettings();
     loadLogo();
-// YENİ EKLENEN: Kurları çekme fonksiyonunu başlat ve 15 dakikada bir güncelle
-    fetchFinanceRates();
-    setInterval(fetchFinanceRates, 15 * 60 * 1000);
-    const today = new Date().toISOString().split('T')[0];
-    if(document.getElementById('log-date-picker')) document.getElementById('log-date-picker').value = today;
-    if(document.getElementById('rep-start-date')) { 
-        document.getElementById('rep-start-date').value = today; 
-        document.getElementById('rep-end-date').value = today; 
-    }
-    
+/* ========================================================
+   GÜNCEL KURLAR (Truncgil API)
+======================================================== */
+function fetchFinanceRates() {
+    // Harem Altın ve aracı servis yerine doğrudan ve daha stabil bir API kullanıyoruz.
+    const targetUrl = 'https://finans.truncgil.com/today.json';
+
+    fetch(targetUrl)
+        .then(res => res.json())
+        .then(data => {
+            if(data) {
+                // API'den gelen verileri alıp 2 küsuratlı hale getiriyoruz
+                const usd = data["USD"] ? parseFloat(data["USD"].Selling).toFixed(2) : '0.00';
+                const eur = data["EUR"] ? parseFloat(data["EUR"].Selling).toFixed(2) : '0.00';
+                const gram = data["gram-altin"] ? parseFloat(data["gram-altin"].Selling).toFixed(2) : '0.00';
+                const ceyrek = data["ceyrek-altin"] ? parseFloat(data["ceyrek-altin"].Selling).toFixed(2) : '0.00';
+
+                // HTML'deki ilgili alanlara yazdırıyoruz
+                document.getElementById('rate-usd').innerText = usd;
+                document.getElementById('rate-eur').innerText = eur;
+                document.getElementById('rate-gram').innerText = gram;
+                document.getElementById('rate-ceyrek').innerText = ceyrek;
+
+                // Kutu daha önce gizlendiyse tekrar görünür yapıyoruz
+                const rateContainer = document.getElementById('live-finance-rates');
+                if(rateContainer) rateContainer.style.display = 'flex';
+            }
+        })
+        .catch(err => {
+            console.warn('Kur verileri çekilirken hata oluştu:', err);
+            // Hata olursa kutuyu ve logoları (ikonları) GİZLEMİYORUZ.
+            // Sadece sayıların yerine "Hata" yazdırıyoruz.
+            document.getElementById('rate-usd').innerText = "Hata";
+            document.getElementById('rate-eur').innerText = "Hata";
+            document.getElementById('rate-gram').innerText = "Hata";
+            document.getElementById('rate-ceyrek').innerText = "Hata";
+        });
+}    
     setInterval(() => { 
         const d = document.getElementById('header-date'); 
         if(d) d.innerText = new Date().toLocaleString('tr-TR', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}); 
