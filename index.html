@@ -2496,11 +2496,9 @@ function importData(e) {
 function loadCloudData(uid) {
     const keys = Object.keys(db);
     
-    // Önce yeni modüler yapıda kayıt var mı diye kontrol et
     dbCloud.collection('sistem_kullanicilari').doc(uid).collection('moduller').limit(1).get()
         .then(subDocs => {
             if (!subDocs.empty) {
-                // Yeni sistem aktifse, tüm modülleri eş zamanlı ve hızlıca çek
                 const promises = keys.map(key => {
                     return dbCloud.collection('sistem_kullanicilari').doc(uid)
                                   .collection('moduller').doc(key).get()
@@ -2510,12 +2508,10 @@ function loadCloudData(uid) {
                 });
                 return Promise.all(promises);
             } else {
-                // Eğer yeni sistem boşsa, eski tek parça büyük dökümandan verileri oku (GÖÇ/MİGRASYON)
                 return dbCloud.collection('sistem_kullanicilari').doc(uid).get()
                     .then(doc => {
                         if (doc.exists) {
                             db = Object.assign(db, doc.data());
-                            // Eski tek parça veriyi bulutta yeni parçalı sisteme otomatik dönüştürerek dağıt
                             keys.forEach(key => {
                                 dbCloud.collection('sistem_kullanicilari').doc(uid)
                                        .collection('moduller').doc(key).set({ data: db[key] || [] });
@@ -2526,13 +2522,11 @@ function loadCloudData(uid) {
             }
         })
         .then(() => {
-            // Yükleme bittiğinde giriş ekranını kapat ve paneli aç
             document.getElementById('login-screen').classList.add('hidden');
             renderAll();
         })
         .catch((error) => {
             console.error("Buluttan veri çekilirken hata oluştu, yerel yedekler açılıyor:", error);
-            // İnternet kesilirse veya hata oluşursa dükkanın çalışmaya devam etmesi için local verileri yükle
             keys.forEach(key => {
                 const localData = localStorage.getItem('bp_' + key + '_' + uid);
                 if (localData) db[key] = JSON.parse(localData);
@@ -2541,10 +2535,20 @@ function loadCloudData(uid) {
             renderAll();
         });
 }  
-  // Her zaman arka planda güncellenmesi gereken hafif fonksiyonlar
+
+// Eksik olan safeRender fonksiyonu eklendi
+function safeRender(fn) {
+    try {
+        if (typeof fn === 'function') fn();
+    } catch (e) {
+        console.error("Arayüz çizim hatası:", e);
+    }
+}
+
+// Unutulan renderAll fonksiyon tanımı eklendi ve hata düzeltildi
+function renderAll() {
     safeRender(loadLogo);
 
-    // Ekranda hangi sayfa aktifse (hidden değilse) sadece onun tablolarını çiz
     if (!document.getElementById('page-anasayfa').classList.contains('hidden')) {
         safeRender(renderDashboard);
     }
