@@ -815,6 +815,7 @@
 
 <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 pointer-events-none"></div>
 
+
 <script>
 /* ========================================================
    FİREBASE
@@ -914,7 +915,10 @@ window.onload = () => {
     loadLogo();
     const today = new Date().toISOString().split('T')[0];
     if(document.getElementById('log-date-picker')) document.getElementById('log-date-picker').value = today;
-    if(document.getElementById('rep-custom-date')) document.getElementById('rep-custom-date').value = today;
+    if(document.getElementById('rep-start-date')) { 
+        document.getElementById('rep-start-date').value = today; 
+        document.getElementById('rep-end-date').value = today; 
+    }
     
     setInterval(() => { 
         const d = document.getElementById('header-date'); 
@@ -953,7 +957,6 @@ function logoutApp() {
     }
 }
 
-// sync fonksiyonunu da eski haline alalım (Sadece giriş yapmış kullanıcılar veritabanına yazabilsin)
 function sync() {
     if(auth.currentUser) {
         const uid = auth.currentUser.uid;
@@ -973,7 +976,9 @@ function sync() {
         localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
     }
     renderAll();
-}/* ========================================================
+}
+
+/* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -991,7 +996,6 @@ window.addEventListener('click', function(e) {
     if(!e.target.closest('.relative') && !e.target.closest('button') && !e.target.closest('.menu-item')) {
         document.querySelectorAll('[id$="Dropdown"]').forEach(drop => drop.classList.add('hidden'));
     }
-    // ARAMA KUTUSUNU DIŞARI TIKLANINCA KAPAT
     if(!e.target.closest('#pos-barcode') && !e.target.closest('#pos-suggestions')) {
         const sugg = document.getElementById('pos-suggestions');
         if(sugg) sugg.classList.add('hidden');
@@ -1103,20 +1107,19 @@ function updateCartQty(i, v) {
     if(cart[i].qty<=0) cart.splice(i,1); 
     renderCart(); 
 }
+
 function updateCartItem(index, field, value) {
     let val = Number(value);
     if(isNaN(val)) return showToast('Lütfen geçerli bir rakam girin.', 'error');
     
     if(field === 'sell1') {
-        // Satış fiyatı değiştirilirse
         cart[index].sell1 = val;
     } else if(field === 'profit') {
-        // Kâr değiştirilirse, alış fiyatını (maliyet) ona göre otomatik ayarlar
         cart[index].buy = cart[index].sell1 - val;
     }
-    
-    renderCart(); // Değişiklik sonrası sepeti anında günceller
+    renderCart();
 }
+
 function addMuhtelif() {
     const nInput = document.getElementById('muh-name').value || 'Muhtelif İşlem';
     const pInput = parseFloat(document.getElementById('muh-price').value);
@@ -1132,15 +1135,11 @@ function addMuhtelif() {
 function setQuickTab(tab) { activeQuickTab=tab; renderQuickSell(); }
 
 function renderQuickSell() {
-    // Listeleri 8'e çıkardık
     const tabs=['Liste 1','Liste 2','Liste 3','Liste 4','Liste 5','Liste 6','Liste 7','Liste 8'];
     const tabContainer=document.getElementById('quick-tabs');
     if(tabContainer) {
-        // whitespace-nowrap ve px-3 ekledik ki isimler alt alta geçmesin, yatay kaysın
         tabContainer.innerHTML=tabs.map(t=>`<button onclick="setQuickTab('${t}')" class="flex-1 py-2 px-3 whitespace-nowrap text-xs font-bold transition ${activeQuickTab===t?'bg-white text-blue-700 border-b-2 border-blue-600':'text-gray-500 hover:bg-gray-100'}">${t}</button>`).join('');
         const items=db.products.filter(p=>p.category===activeQuickTab);
-        
-        // Ürün listesini grid-cols-4 yerine daha esnek grid-cols-5 veya grid-cols-4 ile gösteriyoruz
         document.getElementById('quick-items').innerHTML=items.length===0?`<div class="col-span-4 text-center text-xs text-gray-400 py-6">Ürün yok.</div>`:items.map(p=>`<button onclick="addQuickItem('${p.barcode}')" class="bg-white border border-gray-200 rounded-lg p-2 flex flex-col items-center justify-center text-center shadow-sm hover:bg-blue-50 transition h-16"><span class="text-xs font-bold text-gray-700 truncate w-full mb-1">${p.name}</span><span class="text-[10px] font-black text-emerald-600">₺${p.sell1}</span></button>`).join('');
     }
 }
@@ -1150,7 +1149,6 @@ function addQuickItem(barcode) {
     if(p) { const i=cart.find(c=>c.barcode===p.barcode); if(i) i.qty++; else cart.push({...p,qty:1}); renderCart(); }
 }
 
-JavaScript
 function renderCart() {
     let t = 0;
     if(cart.length === 0) {
@@ -1158,13 +1156,12 @@ function renderCart() {
     } else {
         document.getElementById('cart-list').innerHTML = cart.map((c, i) => { 
             t += c.sell1 * c.qty; 
-            let profit = c.sell1 - (c.buy || 0); // Kâr = Satış - Alış
+            let profit = c.sell1 - (c.buy || 0);
             
             return `<tr class="border-b hover:bg-gray-50 transition">
                 <td class="p-3 text-center text-red-400 cursor-pointer align-middle" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash text-lg hover:text-red-600"></i></td>
                 <td class="p-3 align-middle">
                     <div class="font-bold text-sm text-gray-800 mb-1">${c.name}</div>
-                    
                     <div class="flex items-center gap-2 mt-1 text-xs font-bold text-gray-500">
                         Kâr: ₺<input type="number" value="${profit}" onchange="updateCartItem(${i}, 'profit', this.value)" class="w-16 p-1.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-700 font-black text-center outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 shadow-sm transition-all" title="Kârı Düzenle">
                     </div>
@@ -1177,11 +1174,9 @@ function renderCart() {
                     </div>
                 </td>
                 <td class="p-3 text-right align-middle">
-                    
                     <div class="text-xs font-bold text-gray-500 flex justify-end items-center gap-2 mb-2">
                         Birim: ₺<input type="number" value="${c.sell1}" onchange="updateCartItem(${i}, 'sell1', this.value)" class="w-20 p-1.5 rounded border border-blue-300 bg-blue-50 text-blue-700 font-black text-right outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm transition-all" title="Fiyatı Düzenle">
                     </div>
-                    
                     <div class="font-black text-emerald-600 text-lg" title="Toplam Tutar">₺${(c.sell1 * c.qty).toFixed(2)}</div>
                 </td>
             </tr>`; 
@@ -1382,29 +1377,26 @@ function getDateRangeBounds() {
     
     return { start, end };
 }
-JavaScript
+
 function setReportPeriod(period) {
     currentReportPeriod = period;
     
-    // Buton renklerini sıfırla
     document.querySelectorAll('.btn-rep').forEach(b => { 
         b.classList.remove('bg-blue-600', 'text-white'); 
         b.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-300'); 
     });
     
-    // Sadece Günlük, Haftalık, Aylık butonlarına basıldıysa onları renklendir
     const activeBtn = document.getElementById('btn-rep-' + period);
     if(activeBtn) {
         activeBtn.classList.add('bg-blue-600', 'text-white');
         activeBtn.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-300');
     }
     
-    // Filtrelemeyi çalıştır ve ekrana yansıt
     renderRaporlar();
 }
+
 function renderRaporlar() {
     const {start, end} = getDateRangeBounds();
-    // İşlem tarihinin seçilen aralıkta olup olmadığını kontrol eder
     const inRange = (dStr) => { 
         const d = new Date(dStr); 
         return d >= start && d <= end; 
@@ -1435,6 +1427,44 @@ function renderRaporlar() {
         </tr>
     `).join('');
 }
+
+function raporuExcelIndir() {
+    const {start, end} = getDateRangeBounds();
+    const inRange = (dStr) => { 
+        const d = new Date(dStr); 
+        return d >= start && d <= end; 
+    };
+    
+    const sales = db.sales.filter(s => inRange(s.date) && !s.isRefunded);
+    
+    if(sales.length === 0) return showToast('Bu tarih aralığında indirilecek veri yok!', 'error');
+
+    let csvContent = "Tarih;Saat;Islem Turu;Tutar (TL);Satilan Urunler\n";
+    
+    sales.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(s => {
+        const d = new Date(s.date);
+        const tarih = d.toLocaleDateString('tr-TR');
+        const saat = d.toLocaleTimeString('tr-TR');
+        const tur = s.type;
+        const tutar = s.total.toFixed(2);
+        const urunler = s.items.map(i => `${i.qty}x ${i.name}`).join(' - ');
+        
+        csvContent += `${tarih};${saat};${tur};${tutar};${urunler}\n`;
+    });
+
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Satis_Raporu_${new Date().toLocaleDateString('tr-TR')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast('Excel dosyası indiriliyor...', 'success');
+}
+
 /* ========================================================
    DASHBOARD
 ======================================================== */
@@ -1618,13 +1648,16 @@ function printCustomLabel() {
     window.print(); 
     setTimeout(() => document.getElementById('label-print-area').classList.remove('active-print'), 500);
     closeModal();
-}function renderCustomers() {
-    // Arama kutusuna yazılan kelimeyi al
+}
+
+/* ========================================================
+   MÜŞTERİLER
+======================================================== */
+function renderCustomers() {
     const searchInput = document.getElementById('cust-search');
     const s = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
     let html = '';
-    // Müşterileri listelerken arama kelimesine göre filtrele
     db.customers.forEach((c, i) => {
         if (s && !c.name.toLowerCase().includes(s) && !(c.tel && c.tel.includes(s))) return;
         
@@ -1633,12 +1666,35 @@ function printCustomLabel() {
 
     document.getElementById('cust-table').innerHTML = html || '<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">Aranan müşteri bulunamadı.</td></tr>';
     
-  if(document.getElementById('pos-customer-list')) { 
-    document.getElementById('pos-customer-list').innerHTML=db.customers.map(c=>`<option value="${c.name}"></option>`).join(''); 
-}
+    if(document.getElementById('pos-customer-list')) { 
+        document.getElementById('pos-customer-list').innerHTML=db.customers.map(c=>`<option value="${c.name}"></option>`).join(''); 
+    }
     document.getElementById('cust-count').innerText=`${db.customers.length} kişi`;
     document.getElementById('total-debt-badge').innerText=`₺${db.customers.reduce((a,b)=>a+b.debt,0).toFixed(2)}`;
 }
+
+function editCustomer(idx) {
+    document.getElementById('m-c-edit-idx').value=idx;
+    const c=db.customers[idx];
+    document.getElementById('m-c-name').value=c.name; document.getElementById('m-c-tel').value=c.tel||''; document.getElementById('m-c-note').value=c.note||''; document.getElementById('m-c-debt').value=c.debt||'';
+    openModal('cust-modal');
+}
+
+function saveCustomer() {
+    const idx=parseInt(document.getElementById('m-c-edit-idx').value);
+    const n=document.getElementById('m-c-name').value;
+    const tel=document.getElementById('m-c-tel').value;
+    const note=document.getElementById('m-c-note').value;
+    let debtInput=document.getElementById('m-c-debt').value;
+    const debt=debtInput?parseFloat(debtInput):0;
+    if(n) {
+        if(idx>-1) { db.customers[idx].name=n; db.customers[idx].tel=tel; db.customers[idx].note=note; if(debtInput!=='') db.customers[idx].debt=debt; showToast('Müşteri güncellendi','success'); }
+        else { db.customers.push({name:n,tel:tel,note:note,debt:debt}); showToast('Müşteri Eklendi','success'); }
+        sync(); closeModal();
+        document.getElementById('m-c-name').value=''; document.getElementById('m-c-tel').value=''; document.getElementById('m-c-note').value=''; document.getElementById('m-c-debt').value=''; document.getElementById('m-c-edit-idx').value='-1';
+    }
+}
+
 function openCustomerDetail(idx) {
     currentCustomerIdx=idx; const c=db.customers[idx];
     document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
@@ -2124,11 +2180,7 @@ function renderFaturasiz() {
 ======================================================== */
 function openTaksitModal() {
     const t = Number(document.getElementById('pos-toplam').value);
-    
-    // Sepet boş olsa bile ekranın açılması için hata veren kısıtlamayı kaldırdık.
-    // Eğer sepette ürün varsa o tutarı yazar, yoksa senin fiyat girmen için kutuyu boş bırakır.
     document.getElementById('taksit-tutar').value = t > 0 ? t : ''; 
-    
     document.getElementById('taksit-ay').value = '2'; 
     updateTaksitOran(); 
     document.getElementById('taksit-sonuc').classList.add('hidden'); 
