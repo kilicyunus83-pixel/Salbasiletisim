@@ -303,7 +303,7 @@
                             <tbody id="cart-list" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
-                    <div class="bg-white border-t border-gray-200 flex flex-col overflow-hidden hidden lg:flex h-48">
+<div class="bg-white border-t border-gray-200 flex flex-col overflow-hidden hidden lg:flex h-72">
                         <div class="flex border-b border-gray-200 overflow-x-auto bg-gray-50" id="quick-tabs"></div>
                         <div class="p-2 flex-1 overflow-y-auto"><div class="grid grid-cols-4 gap-2" id="quick-items"></div></div>
                     </div>
@@ -735,7 +735,7 @@
             <div><label class="text-[10px] font-black uppercase text-gray-400">Stok</label><input type="number" id="m-p-stock" value="1" class="w-full border p-2 rounded font-bold bg-gray-50 text-blue-600"></div>
             <div><label class="text-[10px] font-black uppercase text-gray-400">Alış Maliyeti ₺</label><input type="number" id="m-p-buy" value="0" class="w-full border p-2 rounded font-bold bg-gray-50"></div>
             <div class="col-span-2"><label class="text-[10px] font-black uppercase text-emerald-600">Satış Fiyatı ₺</label><input type="number" id="m-p-sell1" class="w-full border p-3 rounded-xl text-3xl font-black text-emerald-700 bg-emerald-50"></div>
-            <div class="col-span-2 mt-2"><label class="text-[10px] font-black uppercase text-blue-600">Hızlı Satış Kategorisi</label><select id="m-p-category" class="w-full border p-3 rounded-xl font-bold bg-blue-50 text-blue-800"><option value="">Görünmesin</option><option value="Liste 1">Liste 1</option><option value="Liste 2">Liste 2</option><option value="Liste 3">Liste 3</option><option value="Liste 4">Liste 4</option></select></div>
+   <div class="col-span-2 mt-2"><label class="text-[10px] font-black uppercase text-blue-600">Hızlı Satış Kategorisi</label><select id="m-p-category" class="w-full border p-3 rounded-xl font-bold bg-blue-50 text-blue-800"><option value="">Görünmesin</option><option value="Liste 1">Liste 1</option><option value="Liste 2">Liste 2</option><option value="Liste 3">Liste 3</option><option value="Liste 4">Liste 4</option><option value="Liste 5">Liste 5</option><option value="Liste 6">Liste 6</option><option value="Liste 7">Liste 7</option><option value="Liste 8">Liste 8</option></select></div>
         </div>
         <div class="flex justify-end space-x-3 mt-8"><button onclick="closeModal()" class="px-6 py-2 font-bold text-gray-400 uppercase text-xs">Vazgeç</button><button onclick="saveProduct()" class="px-10 py-3 bg-emerald-600 text-white rounded-xl font-black shadow-lg">KAYDET</button></div>
     </div>
@@ -1049,7 +1049,20 @@ function updateCartQty(i, v) {
     if(cart[i].qty<=0) cart.splice(i,1); 
     renderCart(); 
 }
-
+function updateCartItem(index, field, value) {
+    let val = Number(value);
+    if(isNaN(val)) return showToast('Lütfen geçerli bir rakam girin.', 'error');
+    
+    if(field === 'sell1') {
+        // Satış fiyatı değiştirilirse
+        cart[index].sell1 = val;
+    } else if(field === 'profit') {
+        // Kâr değiştirilirse, alış fiyatını (maliyet) ona göre otomatik ayarlar
+        cart[index].buy = cart[index].sell1 - val;
+    }
+    
+    renderCart(); // Değişiklik sonrası sepeti anında günceller
+}
 function addMuhtelif() {
     const nInput = document.getElementById('muh-name').value || 'Muhtelif İşlem';
     const pInput = parseFloat(document.getElementById('muh-price').value);
@@ -1065,11 +1078,15 @@ function addMuhtelif() {
 function setQuickTab(tab) { activeQuickTab=tab; renderQuickSell(); }
 
 function renderQuickSell() {
-    const tabs=['Liste 1','Liste 2','Liste 3','Liste 4'];
+    // Listeleri 8'e çıkardık
+    const tabs=['Liste 1','Liste 2','Liste 3','Liste 4','Liste 5','Liste 6','Liste 7','Liste 8'];
     const tabContainer=document.getElementById('quick-tabs');
     if(tabContainer) {
-        tabContainer.innerHTML=tabs.map(t=>`<button onclick="setQuickTab('${t}')" class="flex-1 py-2 text-xs font-bold transition ${activeQuickTab===t?'bg-white text-blue-700 border-b-2 border-blue-600':'text-gray-500 hover:bg-gray-100'}">${t}</button>`).join('');
+        // whitespace-nowrap ve px-3 ekledik ki isimler alt alta geçmesin, yatay kaysın
+        tabContainer.innerHTML=tabs.map(t=>`<button onclick="setQuickTab('${t}')" class="flex-1 py-2 px-3 whitespace-nowrap text-xs font-bold transition ${activeQuickTab===t?'bg-white text-blue-700 border-b-2 border-blue-600':'text-gray-500 hover:bg-gray-100'}">${t}</button>`).join('');
         const items=db.products.filter(p=>p.category===activeQuickTab);
+        
+        // Ürün listesini grid-cols-4 yerine daha esnek grid-cols-5 veya grid-cols-4 ile gösteriyoruz
         document.getElementById('quick-items').innerHTML=items.length===0?`<div class="col-span-4 text-center text-xs text-gray-400 py-6">Ürün yok.</div>`:items.map(p=>`<button onclick="addQuickItem('${p.barcode}')" class="bg-white border border-gray-200 rounded-lg p-2 flex flex-col items-center justify-center text-center shadow-sm hover:bg-blue-50 transition h-16"><span class="text-xs font-bold text-gray-700 truncate w-full mb-1">${p.name}</span><span class="text-[10px] font-black text-emerald-600">₺${p.sell1}</span></button>`).join('');
     }
 }
@@ -1079,14 +1096,44 @@ function addQuickItem(barcode) {
     if(p) { const i=cart.find(c=>c.barcode===p.barcode); if(i) i.qty++; else cart.push({...p,qty:1}); renderCart(); }
 }
 
+JavaScript
 function renderCart() {
-    let t=0;
-    if(cart.length===0) {
-        document.getElementById('cart-list').innerHTML=`<tr><td colspan="4" class="text-center text-gray-400 py-10"><i class="fas fa-shopping-basket text-4xl mb-2 opacity-50"></i><p>Sepet Boş</p></td></tr>`;
+    let t = 0;
+    if(cart.length === 0) {
+        document.getElementById('cart-list').innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-10"><i class="fas fa-shopping-basket text-4xl mb-2 opacity-50"></i><p>Sepet Boş</p></td></tr>`;
     } else {
-        document.getElementById('cart-list').innerHTML=cart.map((c,i)=>{ t+=c.sell1*c.qty; return `<tr class="border-b"><td class="p-3 text-center text-red-400 cursor-pointer" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash"></i></td><td class="p-3 font-bold text-xs md:text-sm">${c.name}</td><td class="p-3 text-center"><div class="flex items-center justify-center border rounded bg-white"><button class="px-2 bg-gray-100" onclick="updateCartQty(${i},-1)">-</button><span class="px-2 font-bold w-6 text-center">${c.qty}</span><button class="px-2 bg-gray-100" onclick="updateCartQty(${i},1)">+</button></div></td><td class="p-3 text-right font-black text-emerald-600">₺${c.sell1*c.qty}</td></tr>`; }).join('');
+        document.getElementById('cart-list').innerHTML = cart.map((c, i) => { 
+            t += c.sell1 * c.qty; 
+            let profit = c.sell1 - (c.buy || 0); // Kâr = Satış - Alış
+            
+            return `<tr class="border-b hover:bg-gray-50 transition">
+                <td class="p-3 text-center text-red-400 cursor-pointer" onclick="cart.splice(${i},1);renderCart()"><i class="fas fa-trash"></i></td>
+                <td class="p-3">
+                    <div class="font-bold text-xs md:text-sm">${c.name}</div>
+                    
+                    <div class="flex items-center gap-1 mt-1 text-[10px] text-gray-500">
+                        Birim Kâr: ₺<input type="number" value="${profit}" onchange="updateCartItem(${i}, 'profit', this.value)" class="w-12 border-b border-gray-300 outline-none text-emerald-600 bg-transparent text-center font-bold" title="Kârı Düzenle">
+                    </div>
+                </td>
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center border rounded bg-white">
+                        <button class="px-2 bg-gray-100" onclick="updateCartQty(${i},-1)">-</button>
+                        <span class="px-2 font-bold w-6 text-center">${c.qty}</span>
+                        <button class="px-2 bg-gray-100" onclick="updateCartQty(${i},1)">+</button>
+                    </div>
+                </td>
+                <td class="p-3 text-right">
+                    
+                    <div class="text-[10px] text-gray-400 flex justify-end items-center gap-1">
+                        Birim: ₺<input type="number" value="${c.sell1}" onchange="updateCartItem(${i}, 'sell1', this.value)" class="w-12 border-b border-gray-300 outline-none font-black text-gray-700 bg-transparent text-right" title="Fiyatı Düzenle">
+                    </div>
+                    
+                    <div class="font-black text-emerald-600 mt-1" title="Toplam Tutar">₺${(c.sell1 * c.qty).toFixed(2)}</div>
+                </td>
+            </tr>`; 
+        }).join('');
     }
-    document.getElementById('pos-toplam').value=t.toFixed(2);
+    document.getElementById('pos-toplam').value = t.toFixed(2);
     hesaplaParaUstu();
 }
 
