@@ -1680,9 +1680,12 @@ function saveProduct() {
         sell1: Number(document.getElementById('m-p-sell1').value),
         category: document.getElementById('m-p-category').value
     };
+    
     if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
     if(idx > -1) db.products[idx] = p; else db.products.push(p);
     
+    // ÖNCE MODALI KAPAT VE TEMİZLE
+    closeModal();
     document.getElementById('m-p-barcode').value = '';
     document.getElementById('m-p-name').value = '';
     document.getElementById('m-p-stock').value = '1';
@@ -1690,11 +1693,10 @@ function saveProduct() {
     document.getElementById('m-p-sell1').value = '';
     document.getElementById('m-p-edit-idx').value = '-1';
     
+    // SONRA SENKRONİZASYON YAP
     sync(); 
-    closeModal(); 
     showToast('Ürün kaydedildi', 'success');
-}
-function editProd(i) {
+}function editProd(i) {
     const p = db.products[i];
     if(!p) return;
     document.getElementById('m-p-edit-idx').value = i; 
@@ -1819,20 +1821,36 @@ function editCustomer(idx) {
 }
 
 function saveCustomer() {
-    const idx=parseInt(document.getElementById('m-c-edit-idx').value);
-    const n=document.getElementById('m-c-name').value;
-    const tel=document.getElementById('m-c-tel').value;
-    const note=document.getElementById('m-c-note').value;
-    let debtInput=document.getElementById('m-c-debt').value;
-    const debt=debtInput?parseFloat(debtInput):0;
-    if(n) {
-        if(idx>-1) { db.customers[idx].name=n; db.customers[idx].tel=tel; db.customers[idx].note=note; if(debtInput!=='') db.customers[idx].debt=debt; showToast('Müşteri güncellendi','success'); }
-        else { db.customers.push({name:n,tel:tel,note:note,debt:debt}); showToast('Müşteri Eklendi','success'); }
-        sync(); closeModal();
-        document.getElementById('m-c-name').value=''; document.getElementById('m-c-tel').value=''; document.getElementById('m-c-note').value=''; document.getElementById('m-c-debt').value=''; document.getElementById('m-c-edit-idx').value='-1';
+    const idx = parseInt(document.getElementById('m-c-edit-idx').value);
+    const n = document.getElementById('m-c-name').value;
+    const tel = document.getElementById('m-c-tel').value;
+    const note = document.getElementById('m-c-note').value;
+    let debtInput = document.getElementById('m-c-debt').value;
+    const debt = debtInput ? parseFloat(debtInput) : 0;
+    
+    if(!n) {
+        showToast('Lütfen müşteri adını girin!', 'error');
+        return;
     }
-}
 
+    if(idx > -1) { 
+        db.customers[idx].name = n; 
+        db.customers[idx].tel = tel; 
+        db.customers[idx].note = note; 
+        if(debtInput !== '') db.customers[idx].debt = debt; 
+        showToast('Müşteri güncellendi', 'success'); 
+    } else { 
+        db.customers.push({name:n, tel:tel, note:note, debt:debt}); 
+        showToast('Müşteri Eklendi', 'success'); 
+    }
+    
+    // ÖNCE MODALI KAPAT VE KUTULARI TEMİZLE (Kilitlenmeyi önler)
+    closeModal();
+    document.getElementById('m-c-name').value = ''; 
+    document.getElementById('m-c-tel').value = ''; 
+    document.getElementById('m-c-note').value = ''; 
+    document.getElementById('m-c-debt').value = ''; 
+    document.getElementById('m-c-edit-idx').value = '-1';
 function openCustomerDetail(idx) {
     currentCustomerIdx=idx; const c=db.customers[idx];
     document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
@@ -2456,26 +2474,34 @@ function loadCloudData(uid) {
 }
 
 /* ========================================================
-   TÜMÜNÜ RENDER ET
+   TÜMÜNÜ RENDER ET (HATA KORUMALI)
 ======================================================== */
+function safeRender(fn) {
+    try { 
+        fn(); 
+    } catch(e) { 
+        console.error('Bölüm yüklenirken hata oluştu:', fn.name, e); 
+    }
+}
+
 function renderAll() {
-    renderDashboard();
-    renderProducts();
-    renderCustomers();
-    renderCart();
-    renderQuickSell();
-    renderRaporlar();
-    renderFinances();
-    renderStokSayimi();
-    renderLogs();
-    renderFaturasiz();
-    renderPurchases();
-    renderRepairs();
-    renderNotes();
-    renderTasks();
-    renderTarifeler();
-    renderOpLogs();
-    loadLogo();
+    safeRender(renderDashboard);
+    safeRender(renderProducts);
+    safeRender(renderCustomers);
+    safeRender(renderCart);
+    safeRender(renderQuickSell);
+    safeRender(renderRaporlar);
+    safeRender(renderFinances);
+    safeRender(renderStokSayimi);
+    safeRender(renderLogs);
+    safeRender(renderFaturasiz);
+    safeRender(renderPurchases);
+    safeRender(renderRepairs);
+    safeRender(renderNotes);
+    safeRender(renderTasks);
+    safeRender(renderTarifeler);
+    safeRender(renderOpLogs);
+    safeRender(loadLogo);
 }
 </script>
 </body>
