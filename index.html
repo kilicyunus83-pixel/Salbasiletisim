@@ -1534,40 +1534,46 @@ function renderProducts() {
         }).join('');
 }
 function printLabel(idx) {
-    const p=db.products[idx];
-    if(!p.barcode||p.barcode.startsWith('MUH-')) return showToast('Geçerli barkod yok.','error');
-    document.getElementById('label-price').innerText=`₺${p.sell1.toFixed(2)}`;
-    document.getElementById('label-title').innerText=p.name;
-    JsBarcode('#label-barcode',p.barcode,{format:'CODE128',width:2,height:40,displayValue:true,fontSize:12,margin:0});
-    document.getElementById('label-print-area').classList.add('active-print'); window.print(); setTimeout(()=>document.getElementById('label-print-area').classList.remove('active-print'),500);
+    const p = db.products[idx];
+    if(!p.barcode || p.barcode.startsWith('MUH-')) return showToast('Geçerli barkod yok.', 'error');
+    
+    document.getElementById('label-logo').src = getLogoSrc();
+    document.getElementById('label-title').innerText = p.name;
+    document.getElementById('label-price').innerText = `₺${p.sell1.toFixed(2)}`;
+    // Barkod ebatını logoya yer kalsın diye biraz kısalttık (height: 30)
+    JsBarcode('#label-barcode', p.barcode, {format:'CODE128', width:1.5, height:30, displayValue:true, fontSize:10, margin:0});
+    
+    document.getElementById('label-print-area').classList.add('active-print'); 
+    window.print(); 
+    setTimeout(() => document.getElementById('label-print-area').classList.remove('active-print'), 500);
 }
 
-/* ========================================================
-   MÜŞTERİLER
-======================================================== */
-function editCustomer(idx) {
-    document.getElementById('m-c-edit-idx').value=idx;
-    const c=db.customers[idx];
-    document.getElementById('m-c-name').value=c.name; document.getElementById('m-c-tel').value=c.tel||''; document.getElementById('m-c-note').value=c.note||''; document.getElementById('m-c-debt').value=c.debt||'';
-    openModal('cust-modal');
+function openCustomLabelModal() {
+    document.getElementById('cl-name').value = '';
+    document.getElementById('cl-price').value = '';
+    // 8 haneli rastgele bir barkod oluşturur
+    document.getElementById('cl-barcode').value = Math.floor(Math.random() * 90000000) + 10000000; 
+    openModal('custom-label-modal');
 }
 
-function saveCustomer() {
-    const idx=parseInt(document.getElementById('m-c-edit-idx').value);
-    const n=document.getElementById('m-c-name').value;
-    const tel=document.getElementById('m-c-tel').value;
-    const note=document.getElementById('m-c-note').value;
-    let debtInput=document.getElementById('m-c-debt').value;
-    const debt=debtInput?parseFloat(debtInput):0;
-    if(n) {
-        if(idx>-1) { db.customers[idx].name=n; db.customers[idx].tel=tel; db.customers[idx].note=note; if(debtInput!=='') db.customers[idx].debt=debt; showToast('Müşteri güncellendi','success'); }
-        else { db.customers.push({name:n,tel:tel,note:note,debt:debt}); showToast('Müşteri Eklendi','success'); }
-        sync(); closeModal();
-        document.getElementById('m-c-name').value=''; document.getElementById('m-c-tel').value=''; document.getElementById('m-c-note').value=''; document.getElementById('m-c-debt').value=''; document.getElementById('m-c-edit-idx').value='-1';
-    }
-}
+function printCustomLabel() {
+    const name = document.getElementById('cl-name').value;
+    const price = document.getElementById('cl-price').value;
+    const barcode = document.getElementById('cl-barcode').value;
 
-function renderCustomers() {
+    if(!name || !price || !barcode) return showToast('Lütfen isim ve fiyat alanlarını doldurun.', 'error');
+
+    document.getElementById('label-logo').src = getLogoSrc();
+    document.getElementById('label-title').innerText = name;
+    document.getElementById('label-price').innerText = `₺${parseFloat(price).toFixed(2)}`;
+    
+    JsBarcode('#label-barcode', barcode, {format:'CODE128', width:1.5, height:30, displayValue:true, fontSize:10, margin:0});
+    
+    document.getElementById('label-print-area').classList.add('active-print'); 
+    window.print(); 
+    setTimeout(() => document.getElementById('label-print-area').classList.remove('active-print'), 500);
+    closeModal();
+}function renderCustomers() {
     // Arama kutusuna yazılan kelimeyi al
     const searchInput = document.getElementById('cust-search');
     const s = searchInput ? searchInput.value.toLowerCase().trim() : '';
