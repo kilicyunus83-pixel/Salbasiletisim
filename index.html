@@ -2161,25 +2161,73 @@ function importData(e) {
 /* ========================================================
    VERİLERİ BULUTTAN ÇEKME (Sistemi Açan Kod)
 ======================================================== */
+
 function loadCloudData(uid) {
+    isDataLoaded = false; // Yükleme esnasında emniyet kilidini kapat
+    const keys = Object.keys(db);
+
+    // 1. ADIM: Önce yeni tek parça formatı kontrol et
     dbCloud.collection('sistem_kullanicilari').doc(uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                db = Object.assign(db, doc.data());
+        .then(doc => {
+            if (doc.exists && doc.data().tum_veriler) {
+                db = Object.assign(db, doc.data().tum_veriler);
+                console.log("Veriler tek parça sistemden başarıyla yüklendi.");
+                finishLoading();
             } else {
-                sync();
+                // 2. ADIM: Yeni formatta veri yoksa, eski "moduller" alt klasörüne bak ve verileri kurtar!
+                kurtarmaModunuBaslat(uid);
             }
-            document.getElementById('login-screen').classList.add('hidden');
-            renderAll();
         })
         .catch((error) => {
-            console.error("Veri çekme hatası:", error);
-            document.getElementById('login-screen').classList.add('hidden');
-            renderAll();
+            console.error("Bulut hatası, yerel hafızaya geçiliyor:", error);
+            yerelHafizadanYukle(uid);
         });
-}
 
-/* ========================================================
+    // Eski sistemdeki verileri bulup tek parça sisteme taşıyan kurtarıcı fonksiyon
+    function kurtarmaModunuBaslat(uid) {
+        dbCloud.collection('sistem_kullanicilari').doc(uid).collection('moduller').get()
+            .then(querySnapshot => {
+                if (!querySnapshot.empty) {
+                    // Alt klasördeki tüm verileri çek ve hafızaya (db) yükle
+                    querySnapshot.forEach(doc => {
+                        const key = doc.id;
+                        if (db.hasOwnProperty(key)) {
+                            db[key] = doc.data().data || [];
+                        }
+                    });
+                    console.log("Eski sistemdeki tüm verileriniz başarıyla bulundu ve kurtarıldı!");
+                    
+                    // Kurtarılan verileri hemen yeni tek parça sisteme kaydetmesi için tetikle
+                    isDataLoaded = true;
+                    sync(); 
+                }
+                finishLoading();
+            })
+            .catch(err => {
+                console.error("Veri kurtarma esnasında hata:", err);
+                yerelHafizadanYukle(uid);
+            });
+    }
+
+    function yerelHafizadanYukle(uid) {
+        const localData = localStorage.getItem('bp_all_data_' + uid);
+        if (localData) {
+            db = Object.assign(db, JSON.parse(localData));
+        } else {
+            keys.forEach(key => {
+                const oldLocal = localStorage.getItem('bp_' + key + '_' + uid);
+                if (oldLocal) db[key] = JSON.parse(oldLocal);
+            });
+        }
+        finishLoading();
+    }
+
+    function finishLoading() {
+        isDataLoaded = true; // Yükleme bitti, kilidi aç
+        document.getElementById('login-screen').classList.add('hidden');
+        renderAll();
+    }
+}/* ========================================================
    TÜMÜNÜ RENDER ET
 ======================================================== */
 function renderAll() {
