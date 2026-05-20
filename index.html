@@ -1640,26 +1640,59 @@ function renderDashboard() {
 
 function renderCharts() {
     if(!window.ApexCharts) return;
-    const chartContainer = document.querySelector('#chart-30-days');
-    if(!chartContainer || chartContainer.offsetParent === null) return; 
+    const chartContainer30 = document.querySelector('#chart-30-days');
+    const chartContainer6 = document.querySelector('#chart-6-months');
+    
+    // Eğer grafik alanları sayfada o an yüklenmemişse veya gizliyse hata vermemesi için koruma çizgisi
+    if(!chartContainer30 || chartContainer30.offsetParent === null || !chartContainer6 || chartContainer6.offsetParent === null) return; 
 
     const last30=Array.from({length:30},(_,i)=>{ const d=new Date(); d.setDate(d.getDate()-i); return d.toLocaleDateString('tr-TR'); }).reverse();
     const sales30=last30.map(dStr=>db.sales.filter(s=>!s.isRefunded&&new Date(s.date).toLocaleDateString('tr-TR')===dStr).reduce((a,b)=>a+b.total,0));
     const opts30={series:[{name:'Ciro',data:sales30}],chart:{type:'area',height:250,toolbar:{show:false}},stroke:{curve:'smooth',width:2},fill:{type:'gradient',gradient:{shadeIntensity:1,opacityFrom:0.7,opacityTo:0.1}},xaxis:{categories:last30,labels:{show:false}},dataLabels:{enabled:false},colors:['#3b82f6']};
     if(chart30) chart30.destroy();
-    chart30=new ApexCharts(chartContainer,opts30); chart30.render();
+    chart30=new ApexCharts(chartContainer30,opts30); chart30.render();
     
     const mNames=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
     const mData=[]; const mCat=[];
     for(let i=5;i>=0;i--) { const d=new Date(); d.setMonth(d.getMonth()-i); mCat.push(mNames[d.getMonth()]); mData.push(db.sales.filter(s=>!s.isRefunded&&new Date(s.date).getMonth()===d.getMonth()&&new Date(s.date).getFullYear()===d.getFullYear()).reduce((a,b)=>a+b.total,0)); }
     const opts6={series:[{name:'Ciro',data:mData}],chart:{type:'bar',height:250,toolbar:{show:false}},plotOptions:{bar:{borderRadius:4,dataLabels:{position:'top'}}},dataLabels:{enabled:true,formatter:val=>'₺'+val,offsetY:-20,style:{fontSize:'10px',colors:['#304758']}},xaxis:{categories:mCat},colors:['#10b981']};
     if(chart6) chart6.destroy();
-    chart6=new ApexCharts(document.querySelector('#chart-6-months'),opts6); chart6.render();
-}
-
-/* ========================================================
+    chart6=new ApexCharts(chartContainer6,opts6); chart6.render();
+}/* ========================================================
    ÜRÜNLER
 ======================================================== */
+function renderProducts() {
+    const searchInput = document.getElementById('prod-search');
+    if(!searchInput) return;
+    const s = searchInput.value.toLowerCase();
+    
+    document.getElementById('prod-table').innerHTML = db.products
+        .filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s))
+        .map(p => {
+            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
+            const realIdx = db.products.findIndex(x => x.barcode === p.barcode);
+            
+            return `<tr class="${isLow} hover:bg-gray-50 transition-colors">
+                <td class="p-3 text-[10px] text-gray-400">${p.barcode}</td>
+                <td class="p-3 uppercase text-xs font-bold">${p.name}</td>
+                <td class="p-2 text-center">
+                    <input type="number" value="${p.stock}" onchange="updateProductInline(${realIdx}, 'stock', this.value)" class="w-12 md:w-16 text-center font-black text-blue-600 bg-transparent border-b-2 border-transparent hover:border-blue-300 focus:border-blue-500 outline-none transition-all" title="Stoğu Düzenle">
+                </td>
+                <td class="p-3 text-center text-[10px]">${p.category||'-'}</td>
+                <td class="p-2 text-right whitespace-nowrap">
+                    <span class="text-gray-400 text-[10px]">₺</span><input type="number" value="${p.buy}" onchange="updateProductInline(${realIdx}, 'buy', this.value)" class="w-12 md:w-16 text-right font-bold text-gray-500 bg-transparent border-b-2 border-transparent hover:border-gray-300 focus:border-gray-500 outline-none transition-all" title="Alış Fiyatını Düzenle">
+                </td>
+                <td class="p-2 text-right whitespace-nowrap">
+                    <span class="text-emerald-600 font-bold text-[10px]">₺</span><input type="number" value="${p.sell1}" onchange="updateProductInline(${realIdx}, 'sell1', this.value)" class="w-14 md:w-20 text-right font-black text-emerald-600 bg-transparent border-b-2 border-transparent hover:border-emerald-300 focus:border-emerald-500 outline-none transition-all" title="Satış Fiyatını Düzenle">
+                </td>
+                <td class="p-3 text-center whitespace-nowrap">
+                    <button onclick="printLabel(${realIdx})" class="text-gray-500 mr-1 hover:text-gray-800" title="Etiket Yazdır"><i class="fas fa-tags"></i></button>
+                    <button onclick="editProd(${realIdx})" class="text-amber-500 mr-1 hover:text-amber-600" title="Tam Düzenleme"><i class="fas fa-edit"></i></button>
+                    <button onclick="if(confirm('Silinecek emin misiniz?')){db.products.splice(${realIdx},1);sync()}" class="text-red-300 hover:text-red-500" title="Sil"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+}
 function yeniUrunEkleModal() {
     document.getElementById('m-p-edit-idx').value = '-1';
     document.getElementById('m-p-barcode').value = '';
