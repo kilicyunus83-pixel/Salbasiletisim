@@ -12,6 +12,32 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script>tailwind.config = { theme: { extend: { colors: { primary: '#008FFB', dark: '#1e293b', lightbg: '#f8fafc' } } } }</script>
+function renderOpLogs() {
+    const tbody = document.getElementById('op-log-table');
+    if(tbody) {
+        tbody.innerHTML = db.opLogs.map(l => `<tr>
+            <td class="p-3">${new Date(l.date).toLocaleTimeString('tr-TR')}</td>
+            <td class="p-3">${l.desc}</td>
+            <td class="p-3 text-center"><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${l.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+        </tr>`).join('');
+    }
+}
+
+function saveOpLog() {
+    const text = document.getElementById('op-log-text').value;
+    if(!text) return showToast('Not boş olamaz', 'error');
+    db.opLogs.unshift({id: Date.now(), desc: text, date: new Date().toISOString()});
+    document.getElementById('op-log-text').value = '';
+    sync();
+    showToast('Not eklendi', 'success');
+}
+
+function cancelOpLogEdit() {
+    document.getElementById('oplog-edit-id').value = '';
+    document.getElementById('op-log-text').value = '';
+    document.getElementById('btn-oplog-cancel').classList.add('hidden');
+    document.getElementById('btn-oplog-save').innerText = 'NOTU KAYDET';
+}
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -912,7 +938,16 @@ function msg(text, isError = true) {
     }
 }
 
-let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };let currentUserUid = null;
+let db = let cart = [];
+let lastSaleId = null;
+let isPriceCheckMode = false;
+let activeQuickTab = 'Liste 1';
+let currentReportPeriod = 'gunluk';
+let currentCustomerIdx = null;
+let activeTarifeOp = 'TURKCELL';
+let activeOperator = 'TURKCELL';
+let chart30 = null;
+let chart6 = null; = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };let currentUserUid = null;
 //
 /* ========================================================
    HESAP MAKİNESİ
