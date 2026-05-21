@@ -26,8 +26,9 @@
         .calc-btn:active { transform: scale(0.93); }
         /* Yazdırma */
         /* KESİN GİZLEME DÜZELTMESİ (Ekranda görünmeyi engeller) */
-#print-area, #label-print-area, #contract-print-area, #repair-print-area { display: none !important; }            @page { margin: 0; size: auto; }
-            body { margin: 0; padding: 0; background: white; }
+#print-area, #label-print-area, #contract-print-area, #repair-print-area { display: none !important; }
+@media print {
+    @page { margin: 0; size: auto; }            body { margin: 0; padding: 0; background: white; }
             body * { visibility: hidden; }
             #print-area.active-print { display: block !important; position: absolute; left: 0; top: 0; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; overflow: visible !important; visibility: visible; width: 100%; }
             #print-area.active-print * { visibility: visible; color: black !important; }
@@ -1193,7 +1194,7 @@ function addQuickItem(barcode) {
     if(p) { const i=cart.find(c=>c.barcode===p.barcode); if(i) i.qty++; else cart.push({...p,qty:1}); renderCart(); }
 }
 
-JavaScript
+
 function renderCart() {
     let t = 0;
     if(cart.length === 0) {
@@ -1425,7 +1426,7 @@ function getDateRangeBounds() {
     
     return { start, end };
 }
-JavaScript
+
 function setReportPeriod(period) {
     currentReportPeriod = period;
     
@@ -1679,41 +1680,46 @@ function printCustomLabel() {
   if(document.getElementById('pos-customer-list')) { 
     document.getElementById('pos-customer-list').innerHTML=db.customers.map(c=>`<option value="${c.name}"></option>`).join(''); 
 }
-    document.getElementById('cust-count').innerText=`${db.customers.length} kişi`;
+   document.getElementById('cust-count').innerText=`${db.customers.length} kişi`;
     document.getElementById('total-debt-badge').innerText=`₺${db.customers.reduce((a,b)=>a+b.debt,0).toFixed(2)}`;
 }
+
+function editCustomer(i) {
+    const c = db.customers[i];
+    if(!c) return;
+    document.getElementById('m-c-edit-idx').value = i;
+    document.getElementById('m-c-name').value = c.name;
+    document.getElementById('m-c-tel').value = c.tel || '';
+    document.getElementById('m-c-note').value = c.note || '';
+    document.getElementById('m-c-debt').value = c.debt;
+    openModal('cust-modal');
+}
+
+function saveCustomer() {
+    const idx = parseInt(document.getElementById('m-c-edit-idx').value);
+    const name = document.getElementById('m-c-name').value.trim();
+    const tel = document.getElementById('m-c-tel').value.trim();
+    const note = document.getElementById('m-c-note').value.trim();
+    const debt = Number(document.getElementById('m-c-debt').value) || 0;
+    if(!name) return showToast('Müşteri adı boş bırakılamaz!', 'error');
+    const customerData = { name, tel, note, debt };
+    if(idx > -1) {
+        db.customers[idx] = customerData;
+        showToast('Müşteri bilgileri güncellendi.', 'success');
+    } else {
+        db.customers.push(customerData);
+        showToast('Yeni müşteri kaydedildi.', 'success');
+    }
+    document.getElementById('m-c-edit-idx').value = "-1";
+    document.getElementById('m-c-name').value = "";
+    document.getElementById('m-c-tel').value = "";
+    document.getElementById('m-c-note').value = "";
+    document.getElementById('m-c-debt').value = "";
+    sync();
+    closeModal();
+}
+
 function openCustomerDetail(idx) {
-    currentCustomerIdx=idx; const c=db.customers[idx];
-    document.getElementById('cd-name').innerText=c.name; document.getElementById('cd-tel').innerText=c.tel||'-'; document.getElementById('cd-note').innerText=c.note||'-'; document.getElementById('cd-debt').innerText=`₺${c.debt.toLocaleString()}`;
-    const cSales=db.sales.filter(s=>s.customer===c.name).map(s=>({id:s.id,type:s.type,date:s.date,total:s.total,desc:s.items&&s.items.length?s.items.map(i=>`${i.qty}x ${i.name}`).join(', '):'',isRefunded:s.isRefunded,isPayment:false}));
-    const cFinances=db.finances.filter(f=>f.desc.includes(`(${c.name})`)||f.customer===c.name).map(f=>({type:f.type==='Gelir'?'Tahsilat':'Gider',date:f.date,total:f.amount,desc:f.desc,isRefunded:false,isPayment:true}));
-    const history=[...cSales,...cFinances].sort((a,b)=>new Date(b.date)-new Date(a.date));
-    document.getElementById('cd-history-table').innerHTML=history.length===0?`<tr><td colspan="5" class="p-6 text-center text-gray-400">Kayıt yok.</td></tr>`:history.map(h=>{
-        const dt=new Date(h.date).toLocaleString('tr-TR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-        let status=''; let rowClass='';
-        if(h.isPayment) { status=`<span class="text-emerald-600 font-bold">ÖDENDİ</span>`; } else if(h.isRefunded) { status=`<span class="text-red-500 font-bold">İPTAL</span>`; rowClass='opacity-50 line-through'; } else { status=`<span class="text-blue-500 font-bold">SATIŞ</span>`; }
-        return `<tr class="${rowClass}"><td class="p-3 text-xs">${dt}</td><td class="p-3 font-bold text-xs uppercase">${h.type}</td><td class="p-3 text-xs italic max-w-[150px] truncate">${h.desc}</td><td class="p-3 text-right font-black">₺${h.total}</td><td class="p-3 text-center">${status}</td></tr>`;
-    }).join('');
-    simulateNavigation('Müşteri Detayları');
-}
-
-function payDebtFromDetail() { if(currentCustomerIdx!==null) { payDebt(currentCustomerIdx); openCustomerDetail(currentCustomerIdx); } }
-function satisEkranindanTahsilat() { const cN=document.getElementById('pos-customer').value; if(!cN) return showToast('Müşteri seçin!','error'); const idx=db.customers.findIndex(x=>x.name===cN); if(idx>-1) payDebt(idx); }
-
-function payDebt(i) {
-    const c=db.customers[i]; const a=prompt(`₺${c.debt} Tutarında Tahsilat Alınacak.\nAlınan Tutar (TL):`);
-    if(a&&!isNaN(a)) { c.debt-=Number(a); db.finances.push({id:Date.now(),type:'Gelir',amount:Number(a),desc:`Tahsilat (${c.name})`,customer:c.name,date:new Date().toISOString()}); sync(); if(currentCustomerIdx===i) openCustomerDetail(i); showToast('Tahsilat eklendi','success'); }
-}
-
-function sendWA(type) {
-    if(currentCustomerIdx===null) return;
-    const c=db.customers[currentCustomerIdx];
-    if(!c.tel) return showToast('Bu müşterinin telefon numarası kayıtlı değil!','error');
-    let tel=c.tel.replace(/\D/g,''); if(tel.startsWith('0')) tel=tel.substring(1); if(tel.length!==10) return showToast('Geçersiz telefon numarası!','error');
-    let text=type==='borc'?`Merhaba ${c.name}, Güncel açık hesap borcunuz: *${c.debt} TL*'dir. Lütfen ödemenizi vadesinde yapmayı unutmayınız.`:`Merhaba ${c.name}, Cihazınızın işlemleri tamamlanmıştır.`;
-    window.open(`https://wa.me/90${tel}?text=${encodeURIComponent(text)}`,'_blank');
-}
-
 /* ========================================================
    FİNANS
 ======================================================== */
@@ -2186,22 +2192,45 @@ function hesaplaTaksit() {
 }
 
 /* ========================================================
-   VERİ YÖNETİMİ
+   VERİ YÖNETİMİ (GÜVENLİ BLOB SÜRÜMÜ)
 ======================================================== */
 function exportData() {
-    const dataStr='data:text/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(db));
-    const a=document.createElement('a'); a.setAttribute('href',dataStr); a.setAttribute('download','salbas_yedek_'+new Date().toISOString().split('T')[0]+'.json');
-    document.body.appendChild(a); a.click(); a.remove();
+    try {
+        const jsonString = JSON.stringify(db, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'salbas_yedek_' + new Date().toISOString().split('T')[0] + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Yedek başarıyla indirildi!', 'success');
+    } catch (err) {
+        showToast('Yedekleme sırasında bir hata oluştu!', 'error');
+    }
 }
 
 function importData(e) {
-    const file=e.target.files[0]; if(!file) return;
-    const reader=new FileReader();
-    reader.onload=function(e) { try { const importedData=JSON.parse(e.target.result); if(confirm('Mevcut veriler silinip yedek yüklenecek. Emin misiniz?')) { db=Object.assign(db,importedData); sync(); showToast('Yedek başarıyla yüklendi!','success'); } } catch(err) { showToast('Geçersiz yedek dosyası!','error'); } };
+    const file = e.target.files[0]; 
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) { 
+        try { 
+            const importedData = JSON.parse(evt.target.result); 
+            if(confirm('Mevcut tüm verileriniz silinecek ve bu yedek yüklenecek. Emin misiniz?')) { 
+                db = importedData; 
+                sync(); 
+                showToast('Yedek başarıyla yüklendi!', 'success'); 
+            } 
+        } catch(err) { 
+            showToast('Geçersiz yedek dosyası!', 'error'); 
+        } 
+        e.target.value = '';
+    }; 
     reader.readAsText(file);
-}
-
-/* ========================================================
+}/* ========================================================
    VERİLERİ BULUTTAN ÇEKME (Sistemi Açan Kod)
 ======================================================== */
 function loadCloudData(uid) {
