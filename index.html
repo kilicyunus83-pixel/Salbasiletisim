@@ -1720,6 +1720,82 @@ function saveCustomer() {
 }
 
 function openCustomerDetail(idx) {
+    currentCustomerIdx = idx; 
+    const c = db.customers[idx];
+    document.getElementById('cd-name').innerText = c.name; 
+    document.getElementById('cd-tel').innerText = c.tel || '-'; 
+    document.getElementById('cd-note').innerText = c.note || '-'; 
+    document.getElementById('cd-debt').innerText = `₺${c.debt.toLocaleString()}`;
+    
+    const cSales = db.sales.filter(s => s.customer === c.name).map(s => ({
+        id: s.id, type: s.type, date: s.date, total: s.total, 
+        desc: s.items && s.items.length ? s.items.map(i => `${i.qty}x ${i.name}`).join(', ') : '', 
+        isRefunded: s.isRefunded, isPayment: false
+    }));
+    
+    const cFinances = db.finances.filter(f => f.desc.includes(`(${c.name})`) || f.customer === c.name).map(f => ({
+        type: f.type === 'Gelir' ? 'Tahsilat' : 'Gider', date: f.date, total: f.amount, 
+        desc: f.desc, isRefunded: false, isPayment: true
+    }));
+    
+    const history = [...cSales, ...cFinances].sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    document.getElementById('cd-history-table').innerHTML = history.length === 0 ? 
+        `<tr><td colspan="5" class="text-center text-gray-400">Kayıt yok.</td></tr>` : 
+        history.map(h => {
+            const dt = new Date(h.date).toLocaleString('tr-TR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            let status = ''; 
+            let rowClass = '';
+            if (h.isPayment) { 
+                status = `<span class="text-emerald-600 font-bold">ÖDENDİ</span>`; 
+            } else if (h.isRefunded) { 
+                status = `<span class="text-red-500 font-bold">İPTAL</span>`; 
+                rowClass = 'opacity-50 line-through'; 
+            } else { 
+                status = `<span class="text-blue-500 font-bold">SATIŞ</span>`; 
+            }
+            return `<tr class="${rowClass}"><td class="p-3 text-xs">${dt}</td><td class="p-3 font-bold text-xs uppercase">${h.type}</td><td class="p-3 text-xs italic max-w-[150px] truncate">${h.desc}</td><td class="p-3 text-right font-black">₺${h.total}</td><td class="p-3 text-center">${status}</td></tr>`;
+        }).join('');
+        
+    simulateNavigation('Müşteri Detayları');
+}
+
+function payDebtFromDetail() { 
+    if(currentCustomerIdx !== null) { 
+        payDebt(currentCustomerIdx); 
+        openCustomerDetail(currentCustomerIdx); 
+    } 
+}
+
+function satisEkranindanTahsilat() { 
+    const cN = document.getElementById('pos-customer').value; 
+    if(!cN) return showToast('Müşteri seçin!', 'error'); 
+    const idx = db.customers.findIndex(x => x.name === cN); 
+    if(idx > -1) payDebt(idx); 
+}
+
+function payDebt(i) {
+    const c = db.customers[i]; 
+    const a = prompt(`₺${c.debt} Tutarında Tahsilat Alınacak.\nAlınan Tutar (TL):`);
+    if(a && !isNaN(a)) { 
+        c.debt -= Number(a); 
+        db.finances.push({ id: Date.now(), type: 'Gelir', amount: Number(a), desc: `Tahsilat (${c.name})`, customer: c.name, date: new Date().toISOString() }); 
+        sync(); 
+        if(currentCustomerIdx === i) openCustomerDetail(i); 
+        showToast('Tahsilat eklendi', 'success'); 
+    }
+}
+
+function sendWA(type) {
+    if(currentCustomerIdx === null) return;
+    const c = db.customers[currentCustomerIdx];
+    if(!c.tel) return showToast('Bu müşterinin telefon numarası kayıtlı değil!', 'error');
+    let tel = c.tel.replace(/\D/g, ''); 
+    if(tel.startsWith('0')) tel = tel.substring(1); 
+    if(tel.length !== 10) return showToast('Geçersiz telefon numarası!', 'error');
+    let text = type === 'borc' ? `Merhaba ${c.name}, Güncel açık hesap borcunuz: *${c.debt} TL*'dir. Lütfen ödemenizi vadesinde yapmayı unutmayınız.` : `Merhaba ${c.name}, Cihazınızın işlemleri tamamlanmıştır.`;
+    window.open(`https://wa.me/90${tel}?text=${encodeURIComponent(text)}`, '_blank');
+}
 /* ========================================================
    FİNANS
 ======================================================== */
