@@ -1261,11 +1261,11 @@ function completeSale(type) {
     }
     cart.forEach(it => { 
         if(!it.isCustom) {
-            const p = db.products.find(x => x.barcode === it.barcode); 
+            // Barkod tipini String ile eşitleyerek stok düşüşünü garantiye aldık
+            const p = db.products.find(x => String(x.barcode) === String(it.barcode)); 
             if(p) p.stock -= it.qty; 
         }
-    });
-    clearCart(); lastSaleId=newId; sync(); showToast('Satış Tamamlandı!','success');
+    });    clearCart(); lastSaleId=newId; sync(); showToast('Satış Tamamlandı!','success');
 }
 
 function printLastSale() { if(!lastSaleId) return showToast('Henüz bir fiş yok!','error'); printSpecificSale(lastSaleId); }
