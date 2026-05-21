@@ -965,8 +965,17 @@ function loadLogo() {
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
 window.onload = () => {
-    // MOBİL GİRİŞ TETİKLEYİCİSİ (En üst satıra eklendi)
-    auth.getRedirectResult().catch(err => console.log("Mobil giriş hatası:", err));
+    // Mobil cihazlar için yönlendirme sonucunu kararlı şekilde yakala
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result && result.user) {
+                showToast("Google ile giriş başarılı!", "success");
+            }
+        })
+        .catch(err => {
+            console.error("Yönlendirme hatası:", err);
+            msg("Mobil Giriş Hatası: " + err.message);
+        });
 
     // Firebase Oturum Kontrolü
     auth.onAuthStateChanged(user => {
@@ -995,14 +1004,7 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
-};{ if(e.key==='Enter') handleSayim(e); });
 };
-function msg(text, isErr=true) {
-    const el = document.getElementById('login-msg');
-    el.innerText = text;
-    el.className = isErr ? 'text-xs font-bold text-red-500 mt-4 h-4' : 'text-xs font-bold text-emerald-500 mt-4 h-4';
-}
-
 function loginApp() {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-pass').value;
@@ -1015,18 +1017,22 @@ function loginApp() {
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' }); // Kullanıcıya hesap seçme ekranını zorunlu tutar
     
-    // Cihazın mobil olup olmadığını kontrol et
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (isMobile) {
-        // Mobilde ise sayfayı güvenli bir şekilde Google'a yönlendir (Popup engeline takılmaz)
         auth.signInWithRedirect(provider);
     } else {
-        // Bilgisayarda ise normal pencere aç
         auth.signInWithPopup(provider)
-            .then(() => msg('Giriş başarılı!', false))
-            .catch(err => msg('Giriş hatası: ' + err.message));
+            .then(() => {
+                msg('Giriş başarılı!', false);
+                showToast("Hoş geldiniz!", "success");
+            })
+            .catch(err => {
+                console.error("Google Auth Hatası:", err);
+                msg('Giriş hatası: ' + err.message, true);
+            });
     }
 }
 function logoutApp() {
@@ -1069,8 +1075,7 @@ function openModal(id) { document.getElementById('modal-bg').classList.remove('h
 function closeModal() { document.getElementById('modal-bg').classList.add('hidden'); document.querySelectorAll('#modal-bg > div').forEach(d => d.classList.add('hidden')); }
 function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
 
-// window.addEventListener('click') fonksiyonunun içindeki en alt satıra ekleyin:
-    // Telefon ekranındayken sol menü dışındaki herhangi bir boşluğa dokunulursa menüyü otomatik kapatır
+window.addEventListener('click', (e) => {
     if (window.innerWidth < 768 && !e.target.closest('#sidebar') && !e.target.closest('#mobileMenuBtn')) {
         const sidebar = document.getElementById('sidebar');
         if (sidebar && !sidebar.classList.contains('hidden')) {
@@ -1078,6 +1083,7 @@ function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidd
             sidebar.classList.remove('flex');
         }
     }
+});
 function showToast(message, type='info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
