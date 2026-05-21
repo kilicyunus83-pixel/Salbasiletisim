@@ -912,7 +912,7 @@ function msg(text, isError = true) {
     }
 }
 
-let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };
+let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };let currentUserUid = null;
 //
 /* ========================================================
    HESAP MAKİNESİ
@@ -990,8 +990,13 @@ window.onload = () => {
     auth.onAuthStateChanged(user => {
         if(user) {
             currentUserUid = user.uid;
-            document.getElementById('user-email-display').innerText = user.email || user.displayName || 'Dükkan Sahibi';
-            if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
+            
+            const emailDisplay = document.getElementById('user-email-display');
+            if (emailDisplay) emailDisplay.innerText = user.email || user.displayName || 'Dükkan Sahibi';
+            
+            const userPhoto = document.getElementById('user-photo');
+            if (userPhoto && user.photoURL) userPhoto.src = user.photoURL;
+            
             loadCloudData(user.uid);
         } else {
             currentUserUid = null;
@@ -1013,16 +1018,24 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
-};
-function loginApp() {
+};function loginApp() {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-pass').value;
     if(!e || !p) return msg('Lütfen e-posta ve şifre girin.');
+    
     auth.signInWithEmailAndPassword(e, p)
         .then(() => msg('Giriş başarılı...', false))
-        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
+        .catch((error) => {
+            let hataMesaji = 'Hatalı giriş! E-posta veya şifre yanlış.';
+            if (error.code === 'auth/user-not-found') hataMesaji = 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
+            if (error.code === 'auth/wrong-password') hataMesaji = 'Şifrenizi yanlış girdiniz.';
+            if (error.code === 'auth/invalid-email') hataMesaji = 'Geçersiz bir e-posta formatı girdiniz.';
+            if (error.code === 'auth/too-many-requests') hataMesaji = 'Çok fazla başarısız deneme yaptınız. Lütfen bekleyin.';
+            
+            msg(hataMesaji);
+            console.error("Giriş Hatası:", error);
+        });
 }
-
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
