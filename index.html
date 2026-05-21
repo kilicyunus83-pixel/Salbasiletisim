@@ -965,8 +965,11 @@ window.onload = () => {
     loadReceiptSettings();
     loadLogo();
     const today = new Date().toISOString().split('T')[0];
+    
+    // Doğru raporlama ve log tarih eşitlemeleri yapıldı
     if(document.getElementById('log-date-picker')) document.getElementById('log-date-picker').value = today;
-    if(document.getElementById('rep-custom-date')) document.getElementById('rep-custom-date').value = today;
+    if(document.getElementById('rep-start-date')) document.getElementById('rep-start-date').value = today;
+    if(document.getElementById('rep-end-date')) document.getElementById('rep-end-date').value = today;
     
     setInterval(() => { 
         const d = document.getElementById('header-date'); 
@@ -975,7 +978,6 @@ window.onload = () => {
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
 };
-
 function msg(text, isErr=true) {
     const el = document.getElementById('login-msg');
     el.innerText = text;
@@ -1248,26 +1250,40 @@ function hesaplaParaUstu() { const t=Number(document.getElementById('pos-toplam'
 
 function completeSale(type) {
     if(!cart.length) return showToast('Sepet boş!', 'error');
-    const total=Number(document.getElementById('pos-toplam').value);
-    const profit=cart.reduce((a,b)=>a+((b.sell1-b.buy)*b.qty),0);
-    const cId=document.getElementById('pos-customer').value;
-    const newId=Date.now();
+    const cId = document.getElementById('pos-customer').value.trim();
+    
+    // KRİTİK KONTROL: Veresiye satışta müşteri doğrulaması en başta yapılmalı
+    if(type === 'Açık Hesap') {
+        if(!cId) return showToast('Veresiye (Açık Hesap) satışı için lütfen listeden bir müşteri seçin!', 'error');
+        const c = db.customers.find(x => x.name === cId);
+        if(!c) return showToast('Seçilen isimde bir müşteri bulunamadı! Lütfen harf hatası olup olmadığını kontrol edin veya önce müşteriyi kaydedin.', 'error');
+    }
+
+    const total = Number(document.getElementById('pos-toplam').value);
+    const profit = cart.reduce((a, b) => a + ((b.sell1 - b.buy) * b.qty), 0);
+    const newId = Date.now();
+    
+    // Artık kayıtlar ancak müşteri kontrolünden geçebilirse listeye eklenir
     db.sales.push({id:newId, total, profit, type, customer:cId, date:new Date().toISOString(), isRefunded:false, items:[...cart]});
-    if(type==='Açık Hesap') {
-        const c=db.customers.find(x=>x.name===cId);
-        if(c) c.debt+=total; else return showToast('Veresiye için müşteri seçin!','error');
+    if(type === 'Açık Hesap') {
+        const c = db.customers.find(x => x.name === cId);
+        if(c) c.debt += total;
     } else {
         db.finances.push({id:Date.now(), type:'Gelir', amount:total, desc:`Satış (${type})`, date:new Date().toISOString(), customer:cId});
     }
+    
     cart.forEach(it => { 
         if(!it.isCustom) {
-            // Barkod tipini String ile eşitleyerek stok düşüşünü garantiye aldık
             const p = db.products.find(x => String(x.barcode) === String(it.barcode)); 
             if(p) p.stock -= it.qty; 
         }
-    });    clearCart(); lastSaleId=newId; sync(); showToast('Satış Tamamlandı!','success');
+    });
+    
+    clearCart(); 
+    lastSaleId = newId; 
+    sync(); 
+    showToast('Satış Tamamlandı!', 'success');
 }
-
 function printLastSale() { if(!lastSaleId) return showToast('Henüz bir fiş yok!','error'); printSpecificSale(lastSaleId); }
 function wpLastSale() { if(!lastSaleId) return showToast('Son fiş yok!','error'); wpOldSale(lastSaleId); }
 
@@ -1574,6 +1590,7 @@ function yeniUrunEkleModal() {
     document.getElementById('m-p-barcode').value = '';
     document.getElementById('m-p-name').value = '';
     document.getElementById('m-p-stock').value = '1';
+    document.getElementById('m-p-category').value = '';
     document.getElementById('m-p-buy').value = '0';
     document.getElementById('m-p-sell1').value = '';
     document.getElementById('m-p-category').value = '';
