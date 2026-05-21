@@ -44,7 +44,23 @@
             .thickness-extra-bold, .thickness-extra-bold * { font-weight: 900 !important; color: #000 !important; -webkit-text-stroke: 0.3px black; letter-spacing: 0.2px; }
             .break-text { word-wrap: break-word; word-break: break-word; white-space: normal; }
         }
-    </style>
+/* MOBİL UYUMLULUK VE AKICILIK GÜNCELLEMESİ */
+        @media (max-width: 768px) {
+            /* Telefonlarda inputlara tıklayınca ekranın saçma sapan yakınlaşmasını (Zoom) engeller */
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            /* Mobil cihazlarda çift tıklayınca ekranın büyümesini engeller, tepki süresini hızlandırır */
+            body {
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+            }
+            /* Telefonların alt/üst tarayıcı barlarının yüksekliği kapatmasını engeller */
+            body, main {
+                height: 100dvh !important;
+            }
+        }    
+</style>
 </head>
 <body class="bg-lightbg font-sans text-gray-800 h-screen flex overflow-hidden">
 
@@ -949,6 +965,9 @@ function loadLogo() {
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
 window.onload = () => {
+    // MOBİL GİRİŞ TETİKLEYİCİSİ (En üst satıra eklendi)
+    auth.getRedirectResult().catch(err => console.log("Mobil giriş hatası:", err));
+
     // Firebase Oturum Kontrolü
     auth.onAuthStateChanged(user => {
         if(user) {
@@ -966,7 +985,6 @@ window.onload = () => {
     loadLogo();
     const today = new Date().toISOString().split('T')[0];
     
-    // Doğru raporlama ve log tarih eşitlemeleri yapıldı
     if(document.getElementById('log-date-picker')) document.getElementById('log-date-picker').value = today;
     if(document.getElementById('rep-start-date')) document.getElementById('rep-start-date').value = today;
     if(document.getElementById('rep-end-date')) document.getElementById('rep-end-date').value = today;
@@ -977,6 +995,7 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
+};{ if(e.key==='Enter') handleSayim(e); });
 };
 function msg(text, isErr=true) {
     const el = document.getElementById('login-msg');
@@ -996,11 +1015,20 @@ function loginApp() {
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(() => msg('Giriş başarılı!', false))
-        .catch(err => msg('Giriş hatası: ' + err.message));
+    
+    // Cihazın mobil olup olmadığını kontrol et
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+        // Mobilde ise sayfayı güvenli bir şekilde Google'a yönlendir (Popup engeline takılmaz)
+        auth.signInWithRedirect(provider);
+    } else {
+        // Bilgisayarda ise normal pencere aç
+        auth.signInWithPopup(provider)
+            .then(() => msg('Giriş başarılı!', false))
+            .catch(err => msg('Giriş hatası: ' + err.message));
+    }
 }
-
 function logoutApp() {
     if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
@@ -1041,17 +1069,15 @@ function openModal(id) { document.getElementById('modal-bg').classList.remove('h
 function closeModal() { document.getElementById('modal-bg').classList.add('hidden'); document.querySelectorAll('#modal-bg > div').forEach(d => d.classList.add('hidden')); }
 function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
 
-window.addEventListener('click', function(e) {
-    if(!e.target.closest('.relative') && !e.target.closest('button') && !e.target.closest('.menu-item')) {
-        document.querySelectorAll('[id$="Dropdown"]').forEach(drop => drop.classList.add('hidden'));
+// window.addEventListener('click') fonksiyonunun içindeki en alt satıra ekleyin:
+    // Telefon ekranındayken sol menü dışındaki herhangi bir boşluğa dokunulursa menüyü otomatik kapatır
+    if (window.innerWidth < 768 && !e.target.closest('#sidebar') && !e.target.closest('#mobileMenuBtn')) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && !sidebar.classList.contains('hidden')) {
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('flex');
+        }
     }
-    // ARAMA KUTUSUNU DIŞARI TIKLANINCA KAPAT
-    if(!e.target.closest('#pos-barcode') && !e.target.closest('#pos-suggestions')) {
-        const sugg = document.getElementById('pos-suggestions');
-        if(sugg) sugg.classList.add('hidden');
-    }
-});
-
 function showToast(message, type='info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
