@@ -899,12 +899,21 @@ firebase.initializeApp(firebaseConfig);
 const dbCloud = firebase.firestore();
 const auth = firebase.auth();
 
-let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };
-let cart = []; let lastSaleId = null; let currentReportPeriod = 'gunluk'; let isPriceCheckMode = false;
-let activeOperator = 'TURKCELL'; let activeTarifeOp = 'TURKCELL'; let activeQuickTab = 'Liste 1';
-let currentCustomerIdx = null; let chart30 = null; let chart6 = null; let currentUserUid = null;
-const oranlar = { 2:7.92, 3:9.78, 4:12.34, 5:14.05, 6:15.76, 7:17.97, 8:20.18, 9:21.89, 10:24.10, 11:25.81, 12:28.02 };
+// Eklenen Fonksiyon
+function msg(text, isError = true) {
+    const msgEl = document.getElementById('login-msg');
+    if (msgEl) {
+        msgEl.innerText = text;
+        if (isError) {
+            msgEl.className = "text-xs font-bold text-red-500 mt-4 h-4";
+        } else {
+            msgEl.className = "text-xs font-bold text-green-500 mt-4 h-4";
+        }
+    }
+}
 
+let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };
+//
 /* ========================================================
    HESAP MAKİNESİ
 ======================================================== */
