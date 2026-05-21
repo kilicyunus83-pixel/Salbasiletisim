@@ -12,32 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script>tailwind.config = { theme: { extend: { colors: { primary: '#008FFB', dark: '#1e293b', lightbg: '#f8fafc' } } } }</script>
-function renderOpLogs() {
-    const tbody = document.getElementById('op-log-table');
-    if(tbody) {
-        tbody.innerHTML = db.opLogs.map(l => `<tr>
-            <td class="p-3">${new Date(l.date).toLocaleTimeString('tr-TR')}</td>
-            <td class="p-3">${l.desc}</td>
-            <td class="p-3 text-center"><button onclick="if(confirm('Sil?')){db.opLogs=db.opLogs.filter(x=>x.id!==${l.id});sync()}" class="text-red-500"><i class="fas fa-trash"></i></button></td>
-        </tr>`).join('');
-    }
-}
-
-function saveOpLog() {
-    const text = document.getElementById('op-log-text').value;
-    if(!text) return showToast('Not boş olamaz', 'error');
-    db.opLogs.unshift({id: Date.now(), desc: text, date: new Date().toISOString()});
-    document.getElementById('op-log-text').value = '';
-    sync();
-    showToast('Not eklendi', 'success');
-}
-
-function cancelOpLogEdit() {
-    document.getElementById('oplog-edit-id').value = '';
-    document.getElementById('op-log-text').value = '';
-    document.getElementById('btn-oplog-cancel').classList.add('hidden');
-    document.getElementById('btn-oplog-save').innerText = 'NOTU KAYDET';
-}
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
@@ -70,23 +44,7 @@ function cancelOpLogEdit() {
             .thickness-extra-bold, .thickness-extra-bold * { font-weight: 900 !important; color: #000 !important; -webkit-text-stroke: 0.3px black; letter-spacing: 0.2px; }
             .break-text { word-wrap: break-word; word-break: break-word; white-space: normal; }
         }
-/* MOBİL UYUMLULUK VE AKICILIK GÜNCELLEMESİ */
-        @media (max-width: 768px) {
-            /* Telefonlarda inputlara tıklayınca ekranın saçma sapan yakınlaşmasını (Zoom) engeller */
-            input, select, textarea {
-                font-size: 16px !important;
-            }
-            /* Mobil cihazlarda çift tıklayınca ekranın büyümesini engeller, tepki süresini hızlandırır */
-            body {
-                touch-action: manipulation;
-                -webkit-tap-highlight-color: transparent;
-            }
-            /* Telefonların alt/üst tarayıcı barlarının yüksekliği kapatmasını engeller */
-            body, main {
-                height: 100dvh !important;
-            }
-        }    
-</style>
+    </style>
 </head>
 <body class="bg-lightbg font-sans text-gray-800 h-screen flex overflow-hidden">
 
@@ -925,30 +883,12 @@ firebase.initializeApp(firebaseConfig);
 const dbCloud = firebase.firestore();
 const auth = firebase.auth();
 
-// Eklenen Fonksiyon
-function msg(text, isError = true) {
-    const msgEl = document.getElementById('login-msg');
-    if (msgEl) {
-        msgEl.innerText = text;
-        if (isError) {
-            msgEl.className = "text-xs font-bold text-red-500 mt-4 h-4";
-        } else {
-            msgEl.className = "text-xs font-bold text-green-500 mt-4 h-4";
-        }
-    }
-}
+let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };
+let cart = []; let lastSaleId = null; let currentReportPeriod = 'gunluk'; let isPriceCheckMode = false;
+let activeOperator = 'TURKCELL'; let activeTarifeOp = 'TURKCELL'; let activeQuickTab = 'Liste 1';
+let currentCustomerIdx = null; let chart30 = null; let chart6 = null; let currentUserUid = null;
+const oranlar = { 2:7.92, 3:9.78, 4:12.34, 5:14.05, 6:15.76, 7:17.97, 8:20.18, 9:21.89, 10:24.10, 11:25.81, 12:28.02 };
 
-let db = let cart = [];
-let lastSaleId = null;
-let isPriceCheckMode = false;
-let activeQuickTab = 'Liste 1';
-let currentReportPeriod = 'gunluk';
-let currentCustomerIdx = null;
-let activeTarifeOp = 'TURKCELL';
-let activeOperator = 'TURKCELL';
-let chart30 = null;
-let chart6 = null; = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] };let currentUserUid = null;
-//
 /* ========================================================
    HESAP MAKİNESİ
 ======================================================== */
@@ -1009,29 +949,12 @@ function loadLogo() {
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
 window.onload = () => {
-    // Mobil cihazlar için yönlendirme sonucunu kararlı şekilde yakala
-    auth.getRedirectResult()
-        .then((result) => {
-            if (result && result.user) {
-                showToast("Google ile giriş başarılı!", "success");
-            }
-        })
-        .catch(err => {
-            console.error("Yönlendirme hatası:", err);
-            msg("Mobil Giriş Hatası: " + err.message);
-        });
-
     // Firebase Oturum Kontrolü
     auth.onAuthStateChanged(user => {
         if(user) {
             currentUserUid = user.uid;
-            
-            const emailDisplay = document.getElementById('user-email-display');
-            if (emailDisplay) emailDisplay.innerText = user.email || user.displayName || 'Dükkan Sahibi';
-            
-            const userPhoto = document.getElementById('user-photo');
-            if (userPhoto && user.photoURL) userPhoto.src = user.photoURL;
-            
+            document.getElementById('user-email-display').innerText = user.email || user.displayName || 'Dükkan Sahibi';
+            if(user.photoURL) document.getElementById('user-photo').src = user.photoURL;
             loadCloudData(user.uid);
         } else {
             currentUserUid = null;
@@ -1042,10 +965,8 @@ window.onload = () => {
     loadReceiptSettings();
     loadLogo();
     const today = new Date().toISOString().split('T')[0];
-    
     if(document.getElementById('log-date-picker')) document.getElementById('log-date-picker').value = today;
-    if(document.getElementById('rep-start-date')) document.getElementById('rep-start-date').value = today;
-    if(document.getElementById('rep-end-date')) document.getElementById('rep-end-date').value = today;
+    if(document.getElementById('rep-custom-date')) document.getElementById('rep-custom-date').value = today;
     
     setInterval(() => { 
         const d = document.getElementById('header-date'); 
@@ -1053,45 +974,31 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
-};function loginApp() {
+};
+
+function msg(text, isErr=true) {
+    const el = document.getElementById('login-msg');
+    el.innerText = text;
+    el.className = isErr ? 'text-xs font-bold text-red-500 mt-4 h-4' : 'text-xs font-bold text-emerald-500 mt-4 h-4';
+}
+
+function loginApp() {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-pass').value;
     if(!e || !p) return msg('Lütfen e-posta ve şifre girin.');
-    
     auth.signInWithEmailAndPassword(e, p)
         .then(() => msg('Giriş başarılı...', false))
-        .catch((error) => {
-            let hataMesaji = 'Hatalı giriş! E-posta veya şifre yanlış.';
-            if (error.code === 'auth/user-not-found') hataMesaji = 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
-            if (error.code === 'auth/wrong-password') hataMesaji = 'Şifrenizi yanlış girdiniz.';
-            if (error.code === 'auth/invalid-email') hataMesaji = 'Geçersiz bir e-posta formatı girdiniz.';
-            if (error.code === 'auth/too-many-requests') hataMesaji = 'Çok fazla başarısız deneme yaptınız. Lütfen bekleyin.';
-            
-            msg(hataMesaji);
-            console.error("Giriş Hatası:", error);
-        });
+        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
 }
+
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' }); // Kullanıcıya hesap seçme ekranını zorunlu tutar
-    
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-        auth.signInWithRedirect(provider);
-    } else {
-        auth.signInWithPopup(provider)
-            .then(() => {
-                msg('Giriş başarılı!', false);
-                showToast("Hoş geldiniz!", "success");
-            })
-            .catch(err => {
-                console.error("Google Auth Hatası:", err);
-                msg('Giriş hatası: ' + err.message, true);
-            });
-    }
+    auth.signInWithPopup(provider)
+        .then(() => msg('Giriş başarılı!', false))
+        .catch(err => msg('Giriş hatası: ' + err.message));
 }
+
 function logoutApp() {
     if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
@@ -1132,15 +1039,17 @@ function openModal(id) { document.getElementById('modal-bg').classList.remove('h
 function closeModal() { document.getElementById('modal-bg').classList.add('hidden'); document.querySelectorAll('#modal-bg > div').forEach(d => d.classList.add('hidden')); }
 function toggleDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
 
-window.addEventListener('click', (e) => {
-    if (window.innerWidth < 768 && !e.target.closest('#sidebar') && !e.target.closest('#mobileMenuBtn')) {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar && !sidebar.classList.contains('hidden')) {
-            sidebar.classList.add('hidden');
-            sidebar.classList.remove('flex');
-        }
+window.addEventListener('click', function(e) {
+    if(!e.target.closest('.relative') && !e.target.closest('button') && !e.target.closest('.menu-item')) {
+        document.querySelectorAll('[id$="Dropdown"]').forEach(drop => drop.classList.add('hidden'));
+    }
+    // ARAMA KUTUSUNU DIŞARI TIKLANINCA KAPAT
+    if(!e.target.closest('#pos-barcode') && !e.target.closest('#pos-suggestions')) {
+        const sugg = document.getElementById('pos-suggestions');
+        if(sugg) sugg.classList.add('hidden');
     }
 });
+
 function showToast(message, type='info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
@@ -1216,8 +1125,7 @@ function triggerBarcode() {
     if(suggBox) suggBox.classList.add('hidden');
     if(!val) return;
 
-    // String zorlaması ekleyerek sayısal barkodların çökmesini engelledik
-    const p = db.products.find(x => String(x.barcode).toLowerCase() === val || x.name.toLowerCase().includes(val));
+    const p = db.products.find(x => x.barcode.toLowerCase()===val || x.name.toLowerCase()===val);
     if(!p) return showToast('Ürün bulunamadı!', 'error');
 
     if(isPriceCheckMode) {
@@ -1229,11 +1137,12 @@ function triggerBarcode() {
         if (p.stock <= 0) {
             if(!confirm(`DİKKAT! "${p.name}" stokta kalmadı (0 adet). Yine de sepete eklemek istiyor musunuz?`)) return;
         }
-        const inC = cart.find(c => String(c.barcode) === String(p.barcode));
+        const inC = cart.find(c => c.barcode===p.barcode);
         if(inC) inC.qty++; else cart.push({...p, qty:1});
         renderCart();
     }
 }
+
 function updateCartQty(i, v) { 
     if (v > 0) {
         const item = cart[i];
@@ -1339,40 +1248,26 @@ function hesaplaParaUstu() { const t=Number(document.getElementById('pos-toplam'
 
 function completeSale(type) {
     if(!cart.length) return showToast('Sepet boş!', 'error');
-    const cId = document.getElementById('pos-customer').value.trim();
-    
-    // KRİTİK KONTROL: Veresiye satışta müşteri doğrulaması en başta yapılmalı
-    if(type === 'Açık Hesap') {
-        if(!cId) return showToast('Veresiye (Açık Hesap) satışı için lütfen listeden bir müşteri seçin!', 'error');
-        const c = db.customers.find(x => x.name === cId);
-        if(!c) return showToast('Seçilen isimde bir müşteri bulunamadı! Lütfen harf hatası olup olmadığını kontrol edin veya önce müşteriyi kaydedin.', 'error');
-    }
-
-    const total = Number(document.getElementById('pos-toplam').value);
-    const profit = cart.reduce((a, b) => a + ((b.sell1 - b.buy) * b.qty), 0);
-    const newId = Date.now();
-    
-    // Artık kayıtlar ancak müşteri kontrolünden geçebilirse listeye eklenir
+    const total=Number(document.getElementById('pos-toplam').value);
+    const profit=cart.reduce((a,b)=>a+((b.sell1-b.buy)*b.qty),0);
+    const cId=document.getElementById('pos-customer').value;
+    const newId=Date.now();
     db.sales.push({id:newId, total, profit, type, customer:cId, date:new Date().toISOString(), isRefunded:false, items:[...cart]});
-    if(type === 'Açık Hesap') {
-        const c = db.customers.find(x => x.name === cId);
-        if(c) c.debt += total;
+    if(type==='Açık Hesap') {
+        const c=db.customers.find(x=>x.name===cId);
+        if(c) c.debt+=total; else return showToast('Veresiye için müşteri seçin!','error');
     } else {
         db.finances.push({id:Date.now(), type:'Gelir', amount:total, desc:`Satış (${type})`, date:new Date().toISOString(), customer:cId});
     }
-    
     cart.forEach(it => { 
         if(!it.isCustom) {
-            const p = db.products.find(x => String(x.barcode) === String(it.barcode)); 
+            const p = db.products.find(x => x.barcode === it.barcode); 
             if(p) p.stock -= it.qty; 
         }
     });
-    
-    clearCart(); 
-    lastSaleId = newId; 
-    sync(); 
-    showToast('Satış Tamamlandı!', 'success');
+    clearCart(); lastSaleId=newId; sync(); showToast('Satış Tamamlandı!','success');
 }
+
 function printLastSale() { if(!lastSaleId) return showToast('Henüz bir fiş yok!','error'); printSpecificSale(lastSaleId); }
 function wpLastSale() { if(!lastSaleId) return showToast('Son fiş yok!','error'); wpOldSale(lastSaleId); }
 
@@ -1418,56 +1313,30 @@ function printSpecificSale(saleId) {
 }
 
 function printZRaporu() {
-    const now = new Date();
-    const isToday = (dStr) => { 
-        const d = new Date(dStr); 
-        return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); 
-    };
-    
-    const salesToday = db.sales.filter(s => !s.isRefunded && isToday(s.date));
-    const finsToday = db.finances.filter(f => isToday(f.date));
-    
-    const ciro = salesToday.reduce((sum, s) => sum + s.total, 0);
-    const kar = salesToday.reduce((sum, s) => sum + (s.profit || 0), 0);
-    
-    const gelenNakit = finsToday.filter(f => f.type === 'Gelir').reduce((sum, f) => sum + f.amount, 0);
-    const gider = finsToday.filter(f => f.type === 'Gider').reduce((sum, f) => sum + f.amount, 0);
-    
-    const netKasa = gelenNakit - gider;
-    const settings = JSON.parse(localStorage.getItem('receiptSettings')) || { companyName: 'SALBAŞ İLETİŞİM' };
-    
-    let html = '<div style="text-align:center;font-family:monospace;margin-bottom:15px;border-bottom:2px solid #000;padding-bottom:10px;">';
-    html += '<img src="' + getLogoSrc() + '" style="max-width:100%;max-height:50px;margin:0 auto 5px;display:block;filter:grayscale(100%);">';
-    html += '<h3 style="margin:0;">' + settings.companyName + '</h3>';
-    html += '<p style="margin:0;font-weight:bold;">Z RAPORU (GÜN SONU)</p>';
-    html += '<p style="margin:0;font-size:10px;">' + now.toLocaleString('tr-TR') + '</p>';
-    html += '</div>';
-    
-    html += '<table style="width:100%;font-family:monospace;font-size:12px;">';
-    html += '<tr><td>Toplam Satış İşlemi:</td><td style="text-align:right">' + salesToday.length + ' Adet</td></tr>';
-    html += '<tr><td>Toplam Ciro (Veresiye Dahil):</td><td style="text-align:right">₺' + ciro.toFixed(2) + '</td></tr>';
-    html += '<tr><td>Günlük Net Kâr:</td><td style="text-align:right">₺' + kar.toFixed(2) + '</td></tr>';
-    html += '<tr><td>Kasaya Toplam Giriş:</td><td style="text-align:right">₺' + gelenNakit.toFixed(2) + '</td></tr>';
-    html += '<tr><td>Toplam Dükkan Gideri:</td><td style="text-align:right">₺' + gider.toFixed(2) + '</td></tr>';
-    html += '<tr><td colspan="2"><hr style="border-top:1px dashed #000;"></td></tr>';
-    html += '<tr style="font-weight:bold;font-size:14px;"><td>ÇEKMECEDEKİ NAKİT:</td><td style="text-align:right">₺' + netKasa.toFixed(2) + '</td></tr>';
-    html += '</table>';
-    
-    document.getElementById('print-area').innerHTML = html;
+    const now=new Date();
+    const isToday=(dStr)=>{ const d=new Date(dStr); return d.getDate()===now.getDate()&&d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); };
+    const salesToday=db.sales.filter(s=>!s.isRefunded&&isToday(s.date));
+    const finsToday=db.finances.filter(f=>isToday(f.date));
+    const ciro=salesToday.reduce((sum,s)=>sum+s.total,0);
+    const kar=salesToday.reduce((sum,s)=>sum+(s.profit||0),0);
+    const gider=finsToday.filter(f=>f.type==='Gider').reduce((sum,f)=>sum+f.amount,0);
+    const netKasa=ciro-gider;
+    const settings=JSON.parse(localStorage.getItem('receiptSettings'))||{companyName:'SALBAŞ İLETİŞİM'};
+    let html=`<div style="text-align:center;font-family:monospace;margin-bottom:15px;border-bottom:2px solid #000;padding-bottom:10px;"><img src="${getLogoSrc()}" style="max-width:100%;max-height:50px;margin:0 auto 5px;display:block;filter:grayscale(100%);"><h3 style="margin:0;">${settings.companyName}</h3><p style="margin:0;font-weight:bold;">Z RAPORU (GÜN SONU)</p><p style="margin:0;font-size:10px;">${now.toLocaleString('tr-TR')}</p></div>`;
+    html+=`<table style="width:100%;font-family:monospace;font-size:12px;"><tr><td>Toplam İşlem:</td><td style="text-align:right">${salesToday.length} Adet</td></tr><tr><td>Toplam Ciro:</td><td style="text-align:right">₺${ciro.toFixed(2)}</td></tr><tr><td>Günlük Kâr:</td><td style="text-align:right">₺${kar.toFixed(2)}</td></tr><tr><td>Masraflar/Gider:</td><td style="text-align:right">₺${gider.toFixed(2)}</td></tr><tr><td colspan="2"><hr></td></tr><tr style="font-weight:bold;font-size:14px;"><td>NET KASA:</td><td style="text-align:right">₺${netKasa.toFixed(2)}</td></tr></table>`;
+    document.getElementById('print-area').innerHTML=html;
     document.getElementById('print-area').classList.add('active-print');
-    window.print(); 
-    setTimeout(() => { 
-        document.getElementById('print-area').classList.remove('active-print'); 
-    }, 500);
-}function showPosSuggestions() {
+    window.print(); setTimeout(()=>document.getElementById('print-area').classList.remove('active-print'),500);
+}
+
+function showPosSuggestions() {
     const val = document.getElementById('pos-barcode').value.toLowerCase().trim();
     const box = document.getElementById('pos-suggestions');
     if(!val) { box.classList.add('hidden'); return; }
 
-    // String(p.barcode) dönüşümü yapıldı
     const matches = db.products.filter(p => 
         p.name.toLowerCase().includes(val) || 
-        String(p.barcode).includes(val)
+        p.barcode.includes(val)
     ).slice(0, 8);
 
     if(matches.length === 0) { box.classList.add('hidden'); return; }
@@ -1486,6 +1355,7 @@ function printZRaporu() {
     `).join('');
     box.classList.remove('hidden');
 }
+
 function selectPosSuggestion(barcode) {
     document.getElementById('pos-barcode').value = barcode;
     document.getElementById('pos-suggestions').classList.add('hidden');
@@ -1679,7 +1549,6 @@ function yeniUrunEkleModal() {
     document.getElementById('m-p-barcode').value = '';
     document.getElementById('m-p-name').value = '';
     document.getElementById('m-p-stock').value = '1';
-    document.getElementById('m-p-category').value = '';
     document.getElementById('m-p-buy').value = '0';
     document.getElementById('m-p-sell1').value = '';
     document.getElementById('m-p-category').value = '';
@@ -1733,18 +1602,12 @@ function updateProductInline(idx, field, value) {
 function renderProducts() {
     const searchInput = document.getElementById('prod-search');
     if(!searchInput) return;
-    const s = searchInput.value.toLowerCase().trim();
+    const s = searchInput.value.toLowerCase();
     
-    // Arama kutusu boşsa ilk 50 ürünü göster, arama yapılmışsa filtrelenenlerin ilk 100'ünü göster
-    let filteredProducts = db.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s));
-    if (s === "") {
-        filteredProducts = filteredProducts.slice(0, 50);
-    } else {
-        filteredProducts = filteredProducts.slice(0, 100);
-    }
-    
-    document.getElementById('prod-table').innerHTML = filteredProducts
-        .map(p => {            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
+    document.getElementById('prod-table').innerHTML = db.products
+        .filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s))
+        .map(p => {
+            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
             const realIdx = db.products.findIndex(x => x.barcode === p.barcode);
             
             return `<tr class="${isLow} hover:bg-gray-50 transition-colors">
@@ -2226,25 +2089,12 @@ function sendReklamSMS(tel) { if(!tel) return showToast('Telefon no yok!','error
    STOK SAYIMI
 ======================================================== */
 function handleSayim(e) {
-    const val = e.target.value.trim().toLowerCase(); 
-    document.getElementById('sayim-barkod-okut').value = ''; 
-    if(!val) return;
-    
-    // Güvenli String eşleştirmesi yapıldı
-    const idx = db.products.findIndex(x => String(x.barcode).toLowerCase() === val);
-    if(idx > -1) { 
-        document.getElementById('sayim-search').value = db.products[idx].barcode; 
-        renderStokSayimi(); 
-        const inputEl = document.getElementById(`sayim-input-${idx}`); 
-        if(inputEl) { 
-            inputEl.value = parseInt(inputEl.value) + 1; 
-            inputEl.classList.add('bg-emerald-100'); 
-            setTimeout(() => inputEl.classList.remove('bg-emerald-100'), 500); 
-        } 
-    } else { 
-        showToast('Ürün bulunamadı!', 'error'); 
-    }
+    const val=e.target.value.trim().toLowerCase(); document.getElementById('sayim-barkod-okut').value=''; if(!val) return;
+    const idx=db.products.findIndex(x=>x.barcode===val);
+    if(idx>-1) { document.getElementById('sayim-search').value=db.products[idx].barcode; renderStokSayimi(); const inputEl=document.getElementById(`sayim-input-${idx}`); if(inputEl) { inputEl.value=parseInt(inputEl.value)+1; inputEl.classList.add('bg-emerald-100'); setTimeout(()=>inputEl.classList.remove('bg-emerald-100'),500); } }
+    else { showToast('Ürün bulunamadı!','error'); }
 }
+
 function renderStokSayimi() {
     const filter=document.getElementById('sayim-search').value.toLowerCase();
     document.getElementById('sayim-table').innerHTML=db.products.filter(p=>!p.category&&(p.name.toLowerCase().includes(filter)||p.barcode.includes(filter))).map(p=>{ const idx=db.products.findIndex(x=>x.barcode===p.barcode); return `<tr><td class="p-3 font-mono text-xs">${p.barcode}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center text-lg">${p.stock}</td><td class="p-3 text-right text-amber-600 font-bold">₺${(p.buy*p.stock).toFixed(2)}</td><td class="p-3 text-center bg-blue-50"><input type="number" id="sayim-input-${idx}" value="${p.stock}" class="border-2 border-blue-300 rounded p-2 w-20 text-center font-black text-blue-700 outline-none"></td></tr>`; }).join('');
