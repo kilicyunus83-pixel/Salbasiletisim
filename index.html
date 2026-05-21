@@ -1602,12 +1602,18 @@ function updateProductInline(idx, field, value) {
 function renderProducts() {
     const searchInput = document.getElementById('prod-search');
     if(!searchInput) return;
-    const s = searchInput.value.toLowerCase();
+    const s = searchInput.value.toLowerCase().trim();
     
-    document.getElementById('prod-table').innerHTML = db.products
-        .filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s))
-        .map(p => {
-            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
+    // Arama kutusu boşsa ilk 50 ürünü göster, arama yapılmışsa filtrelenenlerin ilk 100'ünü göster
+    let filteredProducts = db.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s));
+    if (s === "") {
+        filteredProducts = filteredProducts.slice(0, 50);
+    } else {
+        filteredProducts = filteredProducts.slice(0, 100);
+    }
+    
+    document.getElementById('prod-table').innerHTML = filteredProducts
+        .map(p => {            const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
             const realIdx = db.products.findIndex(x => x.barcode === p.barcode);
             
             return `<tr class="${isLow} hover:bg-gray-50 transition-colors">
