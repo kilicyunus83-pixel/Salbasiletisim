@@ -2444,6 +2444,70 @@ function renderAll() {
     renderOpLogs();
     loadLogo();
 }
+function cancelOpLogEdit() {
+    document.getElementById('oplog-edit-id').value = '';
+    document.getElementById('op-log-text').value = '';
+    document.getElementById('btn-oplog-save').innerText = 'NOTU KAYDET';
+    document.getElementById('btn-oplog-cancel').classList.add('hidden');
+}
+
+function saveOpLog() {
+    const id = document.getElementById('oplog-edit-id').value;
+    const text = document.getElementById('op-log-text').value.trim();
+    if (!text) return showToast('Lütfen bir not yazın!', 'error');
+
+    if (id) {
+        const log = db.opLogs.find(x => x.id == id);
+        if (log) log.text = text;
+        cancelOpLogEdit();
+        showToast('İşlem notu güncellendi', 'success');
+    } else {
+        if (!db.opLogs) db.opLogs = [];
+        db.opLogs.push({ id: Date.now(), op: activeOperator, text: text, date: new Date().toISOString() });
+        document.getElementById('op-log-text').value = '';
+        showToast('İşlem notu eklendi', 'success');
+    }
+    sync();
+}
+
+function editOpLog(id) {
+    const log = db.opLogs.find(x => x.id == id);
+    if (!log) return;
+    document.getElementById('oplog-edit-id').value = id;
+    document.getElementById('op-log-text').value = log.text;
+    document.getElementById('btn-oplog-save').innerText = 'GÜNCELLE';
+    document.getElementById('btn-oplog-cancel').classList.remove('hidden');
+    document.getElementById('op-log-text').focus();
+}
+
+function deleteOpLog(id) {
+    db.opLogs = db.opLogs.filter(x => x.id !== id);
+    sync();
+}
+
+function renderOpLogs() {
+    if (!db.opLogs) db.opLogs = [];
+    const tbody = document.getElementById('op-log-table');
+    if (!tbody) return;
+    
+    const logs = db.opLogs.filter(x => x.op === activeOperator).sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 font-bold">Kayıtlı işlem notu yok.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = logs.map(l => `
+        <tr class="hover:bg-gray-50 transition border-b border-gray-100">
+            <td class="p-3 align-middle text-xs text-gray-500">${new Date(l.date).toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'})}</td>
+            <td class="p-3 align-middle font-bold">${l.text}</td>
+            <td class="p-3 text-center align-middle whitespace-nowrap">
+                <button onclick="editOpLog(${l.id})" class="text-amber-500 mr-2 hover:text-amber-600" title="Düzenle"><i class="fas fa-edit"></i></button>
+                <button onclick="if(confirm('Silinecek?')){deleteOpLog(${l.id})}" class="text-red-400 hover:text-red-600" title="Sil"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>
+    `).join('');
+}
 </script>
 </body>
 </html>
