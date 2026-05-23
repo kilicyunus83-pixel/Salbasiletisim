@@ -768,7 +768,8 @@
         <div class="space-y-3 mb-6">
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Barkod Numarası</label>
-               <input type="text" id="m-p-barcode" oninput="checkExistingProduct(this.value)" placeholder="Barkod" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500">            </div>
+                <input type="text" id="m-p-barcode" placeholder="Barkod" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500">
+            </div>
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ürün Adı</label>
                 <input type="text" id="m-p-name" placeholder="Ürün Adı" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500">
@@ -1553,57 +1554,18 @@ function yeniUrunEkleModal() {
     document.getElementById('m-p-category').value = '';
     openModal('prod-modal');
 }
-function checkExistingProduct(barcode) {
-    if (!barcode) return;
-    
-    // Sadece "Yeni Ürün Ekle" modundayken (idx === -1) bu kontrolü yapalım
-    const currentIdx = parseInt(document.getElementById('m-p-edit-idx').value);
-    
-    if (currentIdx === -1) {
-        const existingProduct = db.products.find(x => x.barcode === barcode);
-        
-        if (existingProduct) {
-            // Ürün bulundu, bilgileri forma doldur
-            document.getElementById('m-p-name').value = existingProduct.name;
-            document.getElementById('m-p-stock').value = existingProduct.stock; // Mevcut stoğu getirir
-            document.getElementById('m-p-buy').value = existingProduct.buy;
-            document.getElementById('m-p-sell1').value = existingProduct.sell1;
-            document.getElementById('m-p-category').value = existingProduct.category || '';
-            
-            showToast('Bu barkoda ait ürün bulundu, bilgileri getirildi!', 'info');
-        }
-    }
-}
 function saveProduct() {
-    let idx = parseInt(document.getElementById('m-p-edit-idx').value);
-    const inputBarcode = document.getElementById('m-p-barcode').value || Date.now().toString();
-
-    // Sisteme eklenmeye çalışılan barkod zaten var mı diye kontrol et
-    const existingIdx = db.products.findIndex(x => x.barcode === inputBarcode);
-
-    // Eğer ürün veritabanında varsa ve biz "Yeni Ekle" diyorsak, index'i mevcut ürünün index'i ile değiştir (Üzerine yazsın)
-    if (existingIdx > -1 && idx === -1) {
-        idx = existingIdx;
-    }
-
+    const idx = parseInt(document.getElementById('m-p-edit-idx').value);
     const p = {
-        barcode: inputBarcode,
+        barcode: document.getElementById('m-p-barcode').value || Date.now().toString(),
         name: document.getElementById('m-p-name').value,
         stock: Number(document.getElementById('m-p-stock').value),
         buy: Number(document.getElementById('m-p-buy').value),
         sell1: Number(document.getElementById('m-p-sell1').value),
         category: document.getElementById('m-p-category').value
     };
-
     if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
-
-    if(idx > -1) {
-        // Mevcut ürünü güncelle
-        db.products[idx] = p;
-    } else {
-        // Yepyeni ürün ekle
-        db.products.push(p);
-    }
+    if(idx > -1) db.products[idx] = p; else db.products.push(p);
     
     document.getElementById('m-p-barcode').value = '';
     document.getElementById('m-p-name').value = '';
@@ -2463,6 +2425,14 @@ function renderAll() {
     renderOpLogs();
     loadLogo();
 }
+function renderAll() {
+        renderDashboard();
+        renderProducts();
+        renderCustomers();
+        // ... diğer render kodları ...
+        renderTarifeler();
+        renderOpLogs();
+        loadLogo();
 </script>
 </body>
 </html>
