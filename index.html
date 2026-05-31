@@ -994,11 +994,8 @@ function loginApp() {
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(() => msg('Giriş başarılı!', false))
-        .catch(err => msg('Giriş hatası: ' + err.message));
-}
-
+    // 🚀 POPUP yerine REDIRECT kullanarak tarayıcı engellerini kökten çözüyoruz
+    auth.signInWithRedirect(provider);
 function logoutApp() {
     if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
@@ -2389,11 +2386,15 @@ function loadCloudData(uid) {
     dbCloud.collection('sistem_kullanicilari').doc(uid).get()
         .then((doc) => {
             if (doc.exists) {
-                db = Object.assign(db, doc.data());
+                // Veriyi temiz bir şekilde çekip veritabanına aktarır
+                db = Object.assign({ products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] }, doc.data());
+                showToast('Verileriniz başarıyla yüklendi!', 'success');
+                document.getElementById('login-screen').classList.add('hidden');
             } else {
-                sync();
+                // 🚨 KRİTİK DÜZELTME: Yanlış hesapla girilirse boş veri yazmayı engeller ve uyarır!
+                alert('DİKKAT: Bu Google hesabında dükkan kaydı bulunamadı! Lütfen binlerce kaydınızın olduğu ASIL dükkan Google hesabınızla giriş yapın.');
+                auth.signOut(); // Yanlış hesabı sistemden otomatik atar
             }
-            document.getElementById('login-screen').classList.add('hidden');
             renderAll();
         })
         .catch((error) => {
@@ -2402,7 +2403,6 @@ function loadCloudData(uid) {
             renderAll();
         });
 }
-
 /* ========================================================
    TÜMÜNÜ RENDER ET
 ======================================================== */
