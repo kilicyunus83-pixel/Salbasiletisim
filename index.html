@@ -884,7 +884,73 @@ let db = { products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:
 let cart = []; let lastSaleId = null; let currentReportPeriod = 'gunluk'; let isPriceCheckMode = false;
 let activeOperator = 'TURKCELL'; let activeTarifeOp = 'TURKCELL'; let activeQuickTab = 'Liste 1';
 let currentCustomerIdx = null; let chart30 = null; let chart6 = null; let currentUserUid = null;
+let isDataLoaded = false;
+let currentShopDocId = null;
 const oranlar = { 2:7.92, 3:9.78, 4:12.34, 5:14.05, 6:15.76, 7:17.97, 8:20.18, 9:21.89, 10:24.10, 11:25.81, 12:28.02 };
+
+function getDefaultDb() {
+    return { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] };
+}
+
+/** Google ve e-posta girişi aynı dükkan verisini kullansın diye e-posta = ana anahtar */
+function getShopDocId(user) {
+    if (user && user.email) return user.email.trim().toLowerCase();
+    return user ? user.uid : 'anonim';
+}
+
+function normalizeDbData(raw) {
+    const base = getDefaultDb();
+    if (!raw || typeof raw !== 'object') return base;
+    const out = Object.assign(base, raw);
+    Object.keys(base).forEach(k => { if (!Array.isArray(out[k])) out[k] = []; });
+    return out;
+}
+
+function countDbRecords(data) {
+    if (!data) return 0;
+    return (data.products?.length || 0) + (data.customers?.length || 0) + (data.sales?.length || 0) +
+        (data.finances?.length || 0) + (data.repairs?.length || 0) + (data.purchases?.length || 0);
+}
+
+function saveLocalBackup(shopId) {
+    if (!shopId) return;
+    localStorage.setItem('bp_prods_' + shopId, JSON.stringify(db.products));
+    localStorage.setItem('bp_custs_' + shopId, JSON.stringify(db.customers));
+    localStorage.setItem('bp_sales_' + shopId, JSON.stringify(db.sales));
+    localStorage.setItem('bp_fin_' + shopId, JSON.stringify(db.finances));
+    localStorage.setItem('bp_logs_' + shopId, JSON.stringify(db.logs));
+    localStorage.setItem('bp_faturasiz_' + shopId, JSON.stringify(db.faturasiz));
+    localStorage.setItem('bp_notes_' + shopId, JSON.stringify(db.notes));
+    localStorage.setItem('bp_tasks_' + shopId, JSON.stringify(db.tasks));
+    localStorage.setItem('bp_oplogs_' + shopId, JSON.stringify(db.opLogs));
+    localStorage.setItem('bp_oppacks_' + shopId, JSON.stringify(db.operatorPacks));
+    localStorage.setItem('bp_purchases_' + shopId, JSON.stringify(db.purchases));
+    localStorage.setItem('bp_repairs_' + shopId, JSON.stringify(db.repairs));
+}
+
+function loadLocalBackup(shopId, altId) {
+    const ids = [shopId, altId].filter(Boolean);
+    for (const id of ids) {
+        const prods = localStorage.getItem('bp_prods_' + id);
+        if (!prods) continue;
+        try {
+            db.products = JSON.parse(prods) || [];
+            db.customers = JSON.parse(localStorage.getItem('bp_custs_' + id) || '[]');
+            db.sales = JSON.parse(localStorage.getItem('bp_sales_' + id) || '[]');
+            db.finances = JSON.parse(localStorage.getItem('bp_fin_' + id) || '[]');
+            db.logs = JSON.parse(localStorage.getItem('bp_logs_' + id) || '[]');
+            db.faturasiz = JSON.parse(localStorage.getItem('bp_faturasiz_' + id) || '[]');
+            db.notes = JSON.parse(localStorage.getItem('bp_notes_' + id) || '[]');
+            db.tasks = JSON.parse(localStorage.getItem('bp_tasks_' + id) || '[]');
+            db.opLogs = JSON.parse(localStorage.getItem('bp_oplogs_' + id) || '[]');
+            db.operatorPacks = JSON.parse(localStorage.getItem('bp_oppacks_' + id) || '[]');
+            db.purchases = JSON.parse(localStorage.getItem('bp_purchases_' + id) || '[]');
+            db.repairs = JSON.parse(localStorage.getItem('bp_repairs_' + id) || '[]');
+            return id;
+        } catch (e) { console.warn('Yerel yedek okunamadı', e); }
+    }
+    return null;
+}
 
 /* ========================================================
    HESAP MAKİNESİ
@@ -986,6 +1052,9 @@ window.onload = () => {
             loadCloudData(user.uid);
         } else {
             currentUserUid = null;
+            isDataLoaded = false;
+            currentShopDocId = null;
+            db = getDefaultDb();
             document.getElementById('login-screen').classList.remove('hidden');
         }
     });
@@ -1053,23 +1122,16 @@ function logoutApp() {
 }
 
 function sync() {
-    if (auth.currentUser) {
-        const uid = auth.currentUser.uid;
-        dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
-
-        localStorage.setItem('bp_prods_' + uid, JSON.stringify(db.products));
-        localStorage.setItem('bp_custs_' + uid, JSON.stringify(db.customers));
-        localStorage.setItem('bp_sales_' + uid, JSON.stringify(db.sales));
-        localStorage.setItem('bp_fin_' + uid, JSON.stringify(db.finances));
-        localStorage.setItem('bp_logs_' + uid, JSON.stringify(db.logs));
-        localStorage.setItem('bp_faturasiz_' + uid, JSON.stringify(db.faturasiz));
-        localStorage.setItem('bp_notes_' + uid, JSON.stringify(db.notes));
-        localStorage.setItem('bp_tasks_' + uid, JSON.stringify(db.tasks));
-        localStorage.setItem('bp_oplogs_' + uid, JSON.stringify(db.opLogs));
-        localStorage.setItem('bp_oppacks_' + uid, JSON.stringify(db.operatorPacks));
-        localStorage.setItem('bp_purchases_' + uid, JSON.stringify(db.purchases));
-        localStorage.setItem('bp_repairs_' + uid, JSON.stringify(db.repairs));
-    }
+    if (!auth.currentUser || !isDataLoaded) return;
+    const shopId = getShopDocId(auth.currentUser);
+    currentShopDocId = shopId;
+    const payload = Object.assign({}, db, {
+        lastUpdated: new Date().toISOString(),
+        ownerEmail: auth.currentUser.email || '',
+        ownerUid: auth.currentUser.uid
+    });
+    dbCloud.collection('sistem_kullanicilari').doc(shopId).set(payload).catch(e => console.log('Cloud Hatası:', e));
+    saveLocalBackup(shopId);
     renderAll();
 }
 /* ========================================================
@@ -2483,29 +2545,87 @@ function importData(e) {
 }/* ========================================================
    VERİLERİ BULUTTAN ÇEKME (Sistemi Açan Kod)
 ======================================================== */
-function loadCloudData(uid) {
-    dbCloud.collection('sistem_kullanicilari').doc(uid).get()
-        .then((doc) => {
-            if (doc.exists) {
-                // Veriyi temiz bir şekilde çekip veritabanına aktarır
-                db = Object.assign(
-                    { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] },
-                    doc.data()
-                );
-                showToast('Verileriniz başarıyla yüklendi!', 'success');
-                document.getElementById('login-screen').classList.add('hidden');
-            } else {
-                // 🚨 KRİTİK DÜZELTME: Yanlış hesapla girilirse boş veri yazmayı engeller ve uyarır!
-                alert('DİKKAT: Bu Google hesabında dükkan kaydı bulunamadı! Lütfen binlerce kaydınızın olduğu ASIL dükkan Google hesabınızla giriş yapın.');
-                auth.signOut(); // Yanlış hesabı sistemden otomatik atar
+async function loadCloudData(uid) {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const shopId = getShopDocId(user);
+    currentShopDocId = shopId;
+    isDataLoaded = false;
+
+    const col = dbCloud.collection('sistem_kullanicilari');
+    const docIds = [...new Set([shopId, uid].filter(Boolean))];
+
+    try {
+        const snapshots = await Promise.all(docIds.map(id => col.doc(id).get()));
+        let best = null;
+        let bestCount = -1;
+
+        snapshots.forEach((doc, i) => {
+            if (!doc.exists) return;
+            const data = doc.data();
+            const count = countDbRecords(data);
+            const updated = data.lastUpdated ? new Date(data.lastUpdated).getTime() : 0;
+            if (count > bestCount || (count === bestCount && updated > (best?.updated || 0))) {
+                bestCount = count;
+                best = { id: docIds[i], data, updated };
             }
-            renderAll();
-        })
-        .catch((error) => {
-            console.error("Veri çekme hatası:", error);
+        });
+
+        const emailSnap = snapshots[docIds.indexOf(shopId)];
+        if (emailSnap && emailSnap.exists) {
+            const emailData = emailSnap.data();
+            const emailUpdated = emailData.lastUpdated ? new Date(emailData.lastUpdated).getTime() : 0;
+            const emailCount = countDbRecords(emailData);
+            if (emailCount > 0 && emailUpdated > (best?.updated || 0)) {
+                best = { id: shopId, data: emailData, updated: emailUpdated };
+                bestCount = emailCount;
+            }
+        }
+
+        if (best && bestCount > 0) {
+            db = normalizeDbData(best.data);
+            isDataLoaded = true;
+            saveLocalBackup(shopId);
+            if (best.id !== shopId) {
+                await col.doc(shopId).set(Object.assign({}, db, {
+                    lastUpdated: new Date().toISOString(),
+                    ownerEmail: user.email || '',
+                    ownerUid: user.uid,
+                    mergedFrom: best.id
+                }));
+                showToast('Eski hesap verileri dükkan kaydınıza birleştirildi.', 'success');
+            } else {
+                showToast(`Güncel veriler yüklendi (${bestCount} kayıt)`, 'success');
+            }
             document.getElementById('login-screen').classList.add('hidden');
             renderAll();
-        });
+            return;
+        }
+
+        const localId = loadLocalBackup(shopId, uid);
+        if (localId && countDbRecords(db) > 0) {
+            isDataLoaded = true;
+            showToast('Buluttan kayıt yok; bu cihazdaki yedek yüklendi. Senkron için bir işlem kaydedin.', 'info');
+            document.getElementById('login-screen').classList.add('hidden');
+            sync();
+            return;
+        }
+
+        alert('Bu hesapta dükkan verisi bulunamadı.\n\nDaha önce giriş yaptığınız AYNI e-posta ile (Google veya şifre) girin.\nVerileriniz farklı bir Google hesabında olabilir.');
+        auth.signOut();
+    } catch (error) {
+        console.error('Veri çekme hatası:', error);
+        const localId = loadLocalBackup(shopId, uid);
+        if (localId && countDbRecords(db) > 0) {
+            isDataLoaded = true;
+            showToast('İnternet/kısıt hatası; yerel yedek açıldı.', 'info');
+            document.getElementById('login-screen').classList.add('hidden');
+            renderAll();
+        } else {
+            msg('Veri yüklenemedi: ' + (error.message || error.code), true);
+        }
+    }
 }
 /* ========================================================
    TÜMÜNÜ RENDER ET
