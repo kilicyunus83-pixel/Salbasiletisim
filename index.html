@@ -990,39 +990,57 @@ function loginApp() {
         .then(() => msg('Giriş başarılı...', false))
         .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
 }
+function loginApp() {
+    const e = document.getElementById('login-email').value;
+    const p = document.getElementById('login-pass').value;
+    if(!e || !p) return msg('Lütfen e-posta ve şifre girin.');
+    auth.signInWithEmailAndPassword(e, p)
+        .then(() => msg('Giriş başarılı...', false))
+        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
+}
+
+function loginApp() {
+    const e = document.getElementById('login-email').value;
+    const p = document.getElementById('login-pass').value;
+    if (!e || !p) return msg('Lütfen e-posta ve şifre girin.');
+    auth.signInWithEmailAndPassword(e, p)
+        .then(() => msg('Giriş başarılı...', false))
+        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
+}
 
 function loginWithGoogle() {
     msg('Google paneli açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
-    // 🚀 POPUP yerine REDIRECT kullanarak tarayıcı engellerini kökten çözüyoruz
     auth.signInWithRedirect(provider);
+}
+
 function logoutApp() {
-    if(confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
+    if (confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
     }
 }
 
-// sync fonksiyonunu da eski haline alalım (Sadece giriş yapmış kullanıcılar veritabanına yazabilsin)
 function sync() {
-    if(auth.currentUser) {
+    if (auth.currentUser) {
         const uid = auth.currentUser.uid;
         dbCloud.collection('sistem_kullanicilari').doc(uid).set(db).catch(e => console.log('Cloud Hatası:', e));
-        
-        localStorage.setItem('bp_prods_'+uid, JSON.stringify(db.products));
-        localStorage.setItem('bp_custs_'+uid, JSON.stringify(db.customers));
-        localStorage.setItem('bp_sales_'+uid, JSON.stringify(db.sales));
-        localStorage.setItem('bp_fin_'+uid, JSON.stringify(db.finances));
-        localStorage.setItem('bp_logs_'+uid, JSON.stringify(db.logs));
-        localStorage.setItem('bp_faturasiz_'+uid, JSON.stringify(db.faturasiz));
-        localStorage.setItem('bp_notes_'+uid, JSON.stringify(db.notes));
-        localStorage.setItem('bp_tasks_'+uid, JSON.stringify(db.tasks));
-        localStorage.setItem('bp_oplogs_'+uid, JSON.stringify(db.opLogs));
-        localStorage.setItem('bp_oppacks_'+uid, JSON.stringify(db.operatorPacks));
-        localStorage.setItem('bp_purchases_'+uid, JSON.stringify(db.purchases));
-        localStorage.setItem('bp_repairs_'+uid, JSON.stringify(db.repairs));
+
+        localStorage.setItem('bp_prods_' + uid, JSON.stringify(db.products));
+        localStorage.setItem('bp_custs_' + uid, JSON.stringify(db.customers));
+        localStorage.setItem('bp_sales_' + uid, JSON.stringify(db.sales));
+        localStorage.setItem('bp_fin_' + uid, JSON.stringify(db.finances));
+        localStorage.setItem('bp_logs_' + uid, JSON.stringify(db.logs));
+        localStorage.setItem('bp_faturasiz_' + uid, JSON.stringify(db.faturasiz));
+        localStorage.setItem('bp_notes_' + uid, JSON.stringify(db.notes));
+        localStorage.setItem('bp_tasks_' + uid, JSON.stringify(db.tasks));
+        localStorage.setItem('bp_oplogs_' + uid, JSON.stringify(db.opLogs));
+        localStorage.setItem('bp_oppacks_' + uid, JSON.stringify(db.operatorPacks));
+        localStorage.setItem('bp_purchases_' + uid, JSON.stringify(db.purchases));
+        localStorage.setItem('bp_repairs_' + uid, JSON.stringify(db.repairs));
     }
     renderAll();
-}/* ========================================================
+}
+/* ========================================================
    NAVİGASYON VE ARAYÜZ
 ======================================================== */
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -2387,8 +2405,10 @@ function loadCloudData(uid) {
         .then((doc) => {
             if (doc.exists) {
                 // Veriyi temiz bir şekilde çekip veritabanına aktarır
-                db = Object.assign({ products:[], customers:[], sales:[], finances:[], logs:[], faturasiz:[], notes:[], tasks:[], opLogs:[], operatorPacks:[], purchases:[], repairs:[] }, doc.data());
-                showToast('Verileriniz başarıyla yüklendi!', 'success');
+                db = Object.assign(
+    { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] },
+    doc.data()
+);                showToast('Verileriniz başarıyla yüklendi!', 'success');
                 document.getElementById('login-screen').classList.add('hidden');
             } else {
                 // 🚨 KRİTİK DÜZELTME: Yanlış hesapla girilirse boş veri yazmayı engeller ve uyarır!
