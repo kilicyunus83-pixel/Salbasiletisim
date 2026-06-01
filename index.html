@@ -941,9 +941,33 @@ function loadLogo() {
 /* ========================================================
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
+function googleAuthErrorText(error) {
+    const host = window.location.hostname;
+    const map = {
+        'auth/unauthorized-domain': `Bu site Firebase'de yetkili değil! Firebase Console → Authentication → Settings → Authorized domains → "${host}" ekleyin.`,
+        'auth/operation-not-allowed': 'Google girişi Firebase panelinde kapalı. Authentication → Sign-in method → Google → Etkinleştir.',
+        'auth/popup-blocked': 'Tarayıcı pop-up engelledi. Adres çubuğundan izin verin veya tekrar deneyin (yönlendirme açılır).',
+        'auth/popup-closed-by-user': 'Google penceresi kapatıldı. Tekrar deneyin.',
+        'auth/cancelled-popup-request': 'Giriş iptal edildi. Tekrar deneyin.',
+        'auth/network-request-failed': 'İnternet bağlantısı veya ağ hatası. Tekrar deneyin.'
+    };
+    return map[error.code] || ('Google giriş hatası: ' + (error.message || error.code));
+}
+
 window.onload = () => {
-    // Google yönlendirme girişi (redirect sonrası)
-    auth.getRedirectResult().catch(() => msg('Google girişi tamamlanamadı.', true));
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
+
+    // Google redirect ile dönüldüyse oturumu tamamla
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result && result.user) msg('Google ile giriş başarılı!', false);
+        })
+        .catch((error) => {
+            if (error && error.code && error.code !== 'auth/no-auth-event') {
+                console.error('Google redirect:', error);
+                msg(googleAuthErrorText(error), true);
+            }
+        });
 
     // Firebase Oturum Kontrolü
     auth.onAuthStateChanged(user => {
@@ -988,9 +1012,21 @@ function loginApp() {
 }
 
 function loginWithGoogle() {
-    msg('Google paneli açılıyor...', false);
+    msg('Google ile giriş açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // GitHub Pages / canlı sitede popup daha güvenilir; engellenirse redirect
+    auth.signInWithPopup(provider)
+        .then(() => msg('Giriş başarılı...', false))
+        .catch((error) => {
+            console.error('Google popup:', error);
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                msg('Pop-up açılamadı, Google sayfasına yönlendiriliyorsunuz...', false);
+                return auth.signInWithRedirect(provider);
+            }
+            msg(googleAuthErrorText(error), true);
+        });
 }
 
 function logoutApp() {
