@@ -55,19 +55,22 @@
         <img id="login-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl">
         <h1 class="text-4xl font-black text-blue-600 mb-1 mt-2">SALBAŞ<span class="text-slate-700">İletişim</span></h1>
         <p class="text-slate-400 font-bold mb-8 uppercase text-xs tracking-widest flex items-center justify-center gap-2"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
-        <input type="email" id="login-email" placeholder="Dükkan E-Postası" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-4 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition">
-        <input type="password" id="login-pass" placeholder="Güvenlik Şifresi" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-6 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition" onkeypress="if(event.key==='Enter') loginApp()">
-        <button onclick="loginApp()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg text-lg hover:bg-blue-700 transition transform hover:scale-[1.02]">SİSTEME GİRİŞ YAP</button>
-        <div class="mt-4 border-t border-gray-100 pt-4">
-            <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
+        <input type="text" id="login-email" placeholder="E-posta veya kullanıcı adı" autocomplete="username" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-3 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition">
+        <input type="password" id="login-pass" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-4 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition" onkeypress="if(event.key==='Enter') loginApp()">
+        <button id="btn-login" onclick="loginApp()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg text-lg hover:bg-blue-700 transition">GİRİŞ YAP</button>
+        <button id="btn-register" onclick="registerApp()" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow hover:bg-emerald-700 transition text-sm">İLK KEZ MİSİNİZ? HESAP OLUŞTUR</button>
+        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Kullanıcı adı yazarsanız otomatik e-posta oluşturulur.<br>Örnek: <strong>yunus</strong> → yunus@salbas.dukkan</p>
+        <details class="mt-4 text-left">
+            <summary class="text-xs font-bold text-slate-500 cursor-pointer">Google ile giriş (isteğe bağlı)</summary>
+            <button type="button" onclick="loginWithGoogle()" class="w-full mt-2 bg-red-500 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-red-600 flex items-center justify-center gap-2">
                 <i class="fab fa-google"></i> Google Hesabıyla Gir
             </button>
-            <p id="google-cookie-help" class="hidden text-[10px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-3 text-left leading-relaxed">
-                <strong>Chrome çerez uyarısı çıkarsa:</strong> Adres çubuğunun solundaki veya sayfanın üstündeki <strong>«Üçüncü taraf çerezlerine izin ver» → İzin ver</strong> deyin. Sonra tekrar «Google Hesabıyla Gir»e basın.<br>
-                <span class="text-amber-600">GitHub sitesinde giriş tam sayfa yönlendirme ile yapılır (eski pencere yöntemi değil).</span>
+            <p id="google-cookie-help" class="hidden text-[10px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2 leading-relaxed">
+                GitHub sitesinde Google girişi tam sayfa açılır. Çerez uyarısı çıkarsa «İzin ver» deyin.
             </p>
-        </div>
-        <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 min-h-[1rem]"></p>
+        </details>
+        <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 min-h-[1.25rem]"></p>
+        <p id="login-loading" class="hidden text-xs font-bold text-blue-600 mt-2"><i class="fas fa-spinner fa-spin"></i> Giriş yapılıyor, veriler yükleniyor...</p>
     </div>
 </div>
 
@@ -1015,17 +1018,82 @@ function isGitHubPagesHost() {
     return location.hostname.endsWith('.github.io');
 }
 
-function googleAuthErrorText(error) {
-    const host = window.location.hostname;
+const LOGIN_EMAIL_DOMAIN = '@salbas.dukkan';
+
+function resolveLoginEmail(input) {
+    const v = (input || '').trim().toLowerCase();
+    if (!v) return '';
+    if (v.includes('@')) return v;
+    return v.replace(/[^a-z0-9._-]/g, '') + LOGIN_EMAIL_DOMAIN;
+}
+
+function setLoginBusy(busy) {
+    ['btn-login', 'btn-register'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.disabled = busy; el.classList.toggle('opacity-50', busy); }
+    });
+    const load = document.getElementById('login-loading');
+    if (load) load.classList.toggle('hidden', !busy);
+}
+
+function authErrorText(error) {
+    const host = window.location.hostname || 'localhost';
     const map = {
-        'auth/unauthorized-domain': `Firebase yetkili domain listesine "${host}" ekleyin. (Authentication → Settings → Authorized domains)`,
-        'auth/operation-not-allowed': 'Google girişi Firebase panelinde kapalı. Authentication → Sign-in method → Google → Etkinleştir.',
-        'auth/popup-blocked': 'Tarayıcı pop-up engelledi. Adres çubuğundan izin verin veya tekrar deneyin (yönlendirme açılır).',
-        'auth/popup-closed-by-user': 'Google penceresi kapatıldı. Tekrar deneyin.',
-        'auth/cancelled-popup-request': 'Giriş iptal edildi. Tekrar deneyin.',
-        'auth/network-request-failed': 'İnternet bağlantısı veya ağ hatası. Tekrar deneyin.'
+        'auth/invalid-email': 'Geçersiz e-posta veya kullanıcı adı.',
+        'auth/user-disabled': 'Bu hesap kapatılmış. Firebase yöneticisine başvurun.',
+        'auth/user-not-found': 'Hesap yok. «İlk kez misiniz? Hesap oluştur» ile kayıt olun.',
+        'auth/wrong-password': 'Şifre yanlış.',
+        'auth/invalid-credential': 'E-posta/kullanıcı adı veya şifre hatalı.',
+        'auth/email-already-in-use': 'Bu hesap zaten var. Giriş yapın.',
+        'auth/weak-password': 'Şifre en az 6 karakter olmalı.',
+        'auth/operation-not-allowed': 'E-posta ile giriş Firebase\'de kapalı. FIREBASE-KURULUM.md dosyasına bakın.',
+        'auth/too-many-requests': 'Çok deneme yapıldı. Birkaç dakika bekleyin.',
+        'auth/unauthorized-domain': `Bu site adresi Firebase\'e eklenmeli: ${host}`,
+        'auth/network-request-failed': 'İnternet bağlantısı yok veya zayıf.',
+        'auth/popup-blocked': 'Pop-up engellendi. E-posta/şifre ile giriş yapın.',
+        'auth/popup-closed-by-user': 'Google penceresi kapatıldı.',
+        'permission-denied': 'Bulut izni yok. Firebase kurallarını kontrol edin.'
     };
-    return map[error.code] || ('Google giriş hatası: ' + (error.message || error.code));
+    return map[error.code] || (error.message || error.code || 'Bilinmeyen hata');
+}
+
+function googleAuthErrorText(error) {
+    return authErrorText(error);
+}
+
+function openPanelAfterLogin(message, type) {
+    document.getElementById('login-screen').classList.add('hidden');
+    setLoginBusy(false);
+    if (message) showToast(message, type || 'success');
+    renderAll();
+}
+
+function startFreshShop(shopId, uid) {
+    db = getDefaultDb();
+    isDataLoaded = true;
+    currentShopDocId = shopId;
+    openPanelAfterLogin('Yeni dükkan hazır. Yaptığınız işlemler tüm cihazlarda kaydedilir.', 'success');
+    sync();
+}
+
+async function migrateLegacyShopData(shopId, uid) {
+    try {
+        const legacy = await dbCloud.collection('dukkan').doc('veri').get();
+        if (!legacy.exists) return null;
+        const data = normalizeDbData(legacy.data());
+        if (countDbRecords(data) === 0) return null;
+        const payload = Object.assign({}, data, {
+            lastUpdated: new Date().toISOString(),
+            ownerEmail: auth.currentUser?.email || shopId,
+            ownerUid: uid,
+            migratedFrom: 'dukkan/veri'
+        });
+        await dbCloud.collection('sistem_kullanicilari').doc(shopId).set(payload);
+        return data;
+    } catch (e) {
+        console.warn('Eski veri taşınamadı:', e);
+        return null;
+    }
 }
 
 window.onload = () => {
@@ -1075,6 +1143,11 @@ window.onload = () => {
     if (isGitHubPagesHost()) {
         document.getElementById('google-cookie-help')?.classList.remove('hidden');
     }
+
+    const savedUser = localStorage.getItem('lastLoginUser');
+    if (savedUser && document.getElementById('login-email')) {
+        document.getElementById('login-email').value = savedUser;
+    }
 };
 
 function msg(text, isErr=true) {
@@ -1084,37 +1157,51 @@ function msg(text, isErr=true) {
 }
 
 function loginApp() {
-    const e = document.getElementById('login-email').value.trim();
+    const email = resolveLoginEmail(document.getElementById('login-email').value);
     const p = document.getElementById('login-pass').value;
-    if (!e || !p) return msg('Lütfen e-posta ve şifre girin.');
-    auth.signInWithEmailAndPassword(e, p)
-        .then(() => msg('Giriş başarılı...', false))
-        .catch(() => msg('Hatalı giriş! E-posta veya şifre yanlış.'));
+    if (!email || !p) return msg('Kullanıcı adı/e-posta ve şifre girin.');
+    localStorage.setItem('lastLoginUser', document.getElementById('login-email').value.trim());
+    setLoginBusy(true);
+    msg('Giriş yapılıyor...', false);
+    auth.signInWithEmailAndPassword(email, p)
+        .catch(err => {
+            setLoginBusy(false);
+            msg(authErrorText(err), true);
+        });
+}
+
+function registerApp() {
+    const email = resolveLoginEmail(document.getElementById('login-email').value);
+    const p = document.getElementById('login-pass').value;
+    if (!email) return msg('Kullanıcı adı veya e-posta girin.');
+    if (!p || p.length < 6) return msg('Şifre en az 6 karakter olmalı.');
+    localStorage.setItem('lastLoginUser', document.getElementById('login-email').value.trim());
+    setLoginBusy(true);
+    msg('Hesap oluşturuluyor...', false);
+    auth.createUserWithEmailAndPassword(email, p)
+        .then(() => msg('Hesap oluşturuldu, veriler hazırlanıyor...', false))
+        .catch(err => {
+            setLoginBusy(false);
+            msg(authErrorText(err), true);
+        });
 }
 
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-
-    // GitHub Pages: popup çerez engeline takılır → tam sayfa yönlendirme kullan
-    if (isGitHubPagesHost()) {
-        msg('Google hesap sayfasına yönlendiriliyorsunuz, lütfen bekleyin...', false);
-        return auth.signInWithRedirect(provider);
-    }
-
-    msg('Google penceresi açılıyor...', false);
-    auth.signInWithPopup(provider)
-        .then(() => msg('Giriş başarılı...', false))
-        .catch((error) => {
-            console.error('Google popup:', error);
-            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-                msg('Pencere açılamadı, tam sayfa girişe yönlendiriliyorsunuz...', false);
-                return auth.signInWithRedirect(provider);
-            }
-            msg(googleAuthErrorText(error), true);
-        });
+    // signInWithPopup yerine signInWithRedirect kullanıyoruz. 
+    // Bu sayede pencere engellemesi yaşanmaz.
+    auth.signInWithRedirect(provider);
 }
 
+// Sayfa yüklendiğinde yönlendirmeden (redirect) geri dönülüp dönülmediğini yakalamak için
+// bunu da window.onload içindeki auth.onAuthStateChanged bloğunun hemen üstüne ekleyin:
+auth.getRedirectResult().then((result) => {
+    if (result.credential) {
+        msg("Google ile giriş başarılı!", false);
+    }
+}).catch((error) => {
+    msg("Google Giriş Hatası: " + error.message);
+});
 function logoutApp() {
     if (confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
@@ -1130,7 +1217,10 @@ function sync() {
         ownerEmail: auth.currentUser.email || '',
         ownerUid: auth.currentUser.uid
     });
-    dbCloud.collection('sistem_kullanicilari').doc(shopId).set(payload).catch(e => console.log('Cloud Hatası:', e));
+    dbCloud.collection('sistem_kullanicilari').doc(shopId).set(payload).catch(e => {
+        console.error('Cloud Hatası:', e);
+        if (e.code === 'permission-denied') showToast('Buluta yazılamadı: Firebase izinleri (Firestore rules) güncellenmeli.', 'error');
+    });
     saveLocalBackup(shopId);
     renderAll();
 }
@@ -2552,6 +2642,8 @@ async function loadCloudData(uid) {
     const shopId = getShopDocId(user);
     currentShopDocId = shopId;
     isDataLoaded = false;
+    setLoginBusy(true);
+    msg('Veriler yükleniyor...', false);
 
     const col = dbCloud.collection('sistem_kullanicilari');
     const docIds = [...new Set([shopId, uid].filter(Boolean))];
@@ -2572,17 +2664,6 @@ async function loadCloudData(uid) {
             }
         });
 
-        const emailSnap = snapshots[docIds.indexOf(shopId)];
-        if (emailSnap && emailSnap.exists) {
-            const emailData = emailSnap.data();
-            const emailUpdated = emailData.lastUpdated ? new Date(emailData.lastUpdated).getTime() : 0;
-            const emailCount = countDbRecords(emailData);
-            if (emailCount > 0 && emailUpdated > (best?.updated || 0)) {
-                best = { id: shopId, data: emailData, updated: emailUpdated };
-                bestCount = emailCount;
-            }
-        }
-
         if (best && bestCount > 0) {
             db = normalizeDbData(best.data);
             isDataLoaded = true;
@@ -2594,36 +2675,44 @@ async function loadCloudData(uid) {
                     ownerUid: user.uid,
                     mergedFrom: best.id
                 }));
-                showToast('Eski hesap verileri dükkan kaydınıza birleştirildi.', 'success');
+                openPanelAfterLogin('Eski kayıtlar hesabınıza birleştirildi.', 'success');
             } else {
-                showToast(`Güncel veriler yüklendi (${bestCount} kayıt)`, 'success');
+                openPanelAfterLogin('Güncel veriler yüklendi (' + bestCount + ' kayıt)', 'success');
             }
-            document.getElementById('login-screen').classList.add('hidden');
-            renderAll();
+            return;
+        }
+
+        const migrated = await migrateLegacyShopData(shopId, uid);
+        if (migrated && countDbRecords(migrated) > 0) {
+            db = normalizeDbData(migrated);
+            isDataLoaded = true;
+            saveLocalBackup(shopId);
+            openPanelAfterLogin('Eski dükkan verileri buluta taşındı.', 'success');
             return;
         }
 
         const localId = loadLocalBackup(shopId, uid);
         if (localId && countDbRecords(db) > 0) {
             isDataLoaded = true;
-            showToast('Buluttan kayıt yok; bu cihazdaki yedek yüklendi. Senkron için bir işlem kaydedin.', 'info');
-            document.getElementById('login-screen').classList.add('hidden');
+            openPanelAfterLogin('Bu cihazdaki yedek yüklendi; buluta kaydediliyor...', 'info');
             sync();
             return;
         }
 
-        alert('Bu hesapta dükkan verisi bulunamadı.\n\nDaha önce giriş yaptığınız AYNI e-posta ile (Google veya şifre) girin.\nVerileriniz farklı bir Google hesabında olabilir.');
-        auth.signOut();
+        startFreshShop(shopId, uid);
     } catch (error) {
         console.error('Veri çekme hatası:', error);
         const localId = loadLocalBackup(shopId, uid);
         if (localId && countDbRecords(db) > 0) {
             isDataLoaded = true;
-            showToast('İnternet/kısıt hatası; yerel yedek açıldı.', 'info');
-            document.getElementById('login-screen').classList.add('hidden');
-            renderAll();
+            openPanelAfterLogin('Bulut hatası; yerel yedekle devam ediliyor.', 'info');
+        } else if (error.code === 'permission-denied') {
+            db = getDefaultDb();
+            isDataLoaded = true;
+            openPanelAfterLogin('Bulut izni yok; sadece bu cihazda çalışıyorsunuz. Firebase kurallarını güncelleyin.', 'error');
         } else {
-            msg('Veri yüklenemedi: ' + (error.message || error.code), true);
+            setLoginBusy(false);
+            msg(authErrorText(error), true);
         }
     }
 }
