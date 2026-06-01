@@ -62,8 +62,12 @@
             <button onclick="loginWithGoogle()" class="w-full bg-red-500 text-white py-3 rounded-xl font-bold shadow hover:bg-red-600 transition flex items-center justify-center gap-2">
                 <i class="fab fa-google"></i> Google Hesabıyla Gir
             </button>
+            <p id="google-cookie-help" class="hidden text-[10px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-3 text-left leading-relaxed">
+                <strong>Chrome çerez uyarısı çıkarsa:</strong> Adres çubuğunun solundaki veya sayfanın üstündeki <strong>«Üçüncü taraf çerezlerine izin ver» → İzin ver</strong> deyin. Sonra tekrar «Google Hesabıyla Gir»e basın.<br>
+                <span class="text-amber-600">GitHub sitesinde giriş tam sayfa yönlendirme ile yapılır (eski pencere yöntemi değil).</span>
+            </p>
         </div>
-        <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 h-4"></p>
+        <p id="login-msg" class="text-xs font-bold text-red-500 mt-4 min-h-[1rem]"></p>
     </div>
 </div>
 
@@ -941,10 +945,14 @@ function loadLogo() {
 /* ========================================================
    GİRİŞ / ÇIKIŞ (GERÇEK SİSTEM)
 ======================================================== */
+function isGitHubPagesHost() {
+    return location.hostname.endsWith('.github.io');
+}
+
 function googleAuthErrorText(error) {
     const host = window.location.hostname;
     const map = {
-        'auth/unauthorized-domain': `Bu site Firebase'de yetkili değil! Firebase Console → Authentication → Settings → Authorized domains → "${host}" ekleyin.`,
+        'auth/unauthorized-domain': `Firebase yetkili domain listesine "${host}" ekleyin. (Authentication → Settings → Authorized domains)`,
         'auth/operation-not-allowed': 'Google girişi Firebase panelinde kapalı. Authentication → Sign-in method → Google → Etkinleştir.',
         'auth/popup-blocked': 'Tarayıcı pop-up engelledi. Adres çubuğundan izin verin veya tekrar deneyin (yönlendirme açılır).',
         'auth/popup-closed-by-user': 'Google penceresi kapatıldı. Tekrar deneyin.',
@@ -994,6 +1002,10 @@ window.onload = () => {
     }, 1000);
     
     document.getElementById('sayim-barkod-okut')?.addEventListener('keypress', (e) => { if(e.key==='Enter') handleSayim(e); });
+
+    if (isGitHubPagesHost()) {
+        document.getElementById('google-cookie-help')?.classList.remove('hidden');
+    }
 };
 
 function msg(text, isErr=true) {
@@ -1012,17 +1024,22 @@ function loginApp() {
 }
 
 function loginWithGoogle() {
-    msg('Google ile giriş açılıyor...', false);
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
 
-    // GitHub Pages / canlı sitede popup daha güvenilir; engellenirse redirect
+    // GitHub Pages: popup çerez engeline takılır → tam sayfa yönlendirme kullan
+    if (isGitHubPagesHost()) {
+        msg('Google hesap sayfasına yönlendiriliyorsunuz, lütfen bekleyin...', false);
+        return auth.signInWithRedirect(provider);
+    }
+
+    msg('Google penceresi açılıyor...', false);
     auth.signInWithPopup(provider)
         .then(() => msg('Giriş başarılı...', false))
         .catch((error) => {
             console.error('Google popup:', error);
-            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-                msg('Pop-up açılamadı, Google sayfasına yönlendiriliyorsunuz...', false);
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+                msg('Pencere açılamadı, tam sayfa girişe yönlendiriliyorsunuz...', false);
                 return auth.signInWithRedirect(provider);
             }
             msg(googleAuthErrorText(error), true);
