@@ -6,13 +6,13 @@
     <title>Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel</title>
     <link rel="manifest" href="https://kilicyunus83-pixel.github.io/Salbasiletisim/manifest.json">
     <meta name="theme-color" content="#2563eb">
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/saved_resource"></script>
-    <link rel="stylesheet" href="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/all.min.css">
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/apexcharts"></script>
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/JsBarcode.all.min.js.indir"></script>
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/firebase-app-compat.js.indir"></script>
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/firebase-firestore-compat.js.indir"></script>
-    <script src="./Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel_files/firebase-auth-compat.js.indir"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script>tailwind.config = { theme: { extend: { colors: { primary: '#008FFB', dark: '#1e293b', lightbg: '#f8fafc' } } } }</script>
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -8865,6 +8865,18 @@ let isDataLoaded = false;
 let currentShopDocId = null;
 const oranlar = { 2:7.92, 3:9.78, 4:12.34, 5:14.05, 6:15.76, 7:17.97, 8:20.18, 9:21.89, 10:24.10, 11:25.81, 12:28.02 };
 
+function productStr(v) { return v != null ? String(v) : ''; }
+function productMatchesQuery(p, q) {
+    const query = productStr(q).trim().toLowerCase();
+    if (!query) return false;
+    return productStr(p?.barcode).toLowerCase() === query || productStr(p?.name).toLowerCase() === query;
+}
+function productMatchesSearch(p, s) {
+    const term = productStr(s).toLowerCase();
+    if (!term) return true;
+    return productStr(p?.name).toLowerCase().includes(term) || productStr(p?.barcode).toLowerCase().includes(term);
+}
+
 function getDefaultDb() {
     return { products: [], customers: [], sales: [], finances: [], logs: [], faturasiz: [], notes: [], tasks: [], opLogs: [], operatorPacks: [], purchases: [], repairs: [] };
 }
@@ -9167,15 +9179,6 @@ function loginWithGoogle() {
     auth.signInWithRedirect(provider);
 }
 
-// Sayfa yüklendiğinde yönlendirmeden (redirect) geri dönülüp dönülmediğini yakalamak için
-// bunu da window.onload içindeki auth.onAuthStateChanged bloğunun hemen üstüne ekleyin:
-auth.getRedirectResult().then((result) => {
-    if (result.credential) {
-        msg("Google ile giriş başarılı!", false);
-    }
-}).catch((error) => {
-    msg("Google Giriş Hatası: " + error.message);
-});
 function logoutApp() {
     if (confirm('Sistemden çıkış yapmak istediğinize emin misiniz?')) {
         auth.signOut().then(() => window.location.reload());
@@ -9203,7 +9206,7 @@ function sync() {
 ======================================================== */
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const sidebar = document.getElementById('sidebar');
-mobileMenuBtn.addEventListener('click', () => {
+mobileMenuBtn?.addEventListener('click', () => {
     if(sidebar.classList.contains('hidden')) { sidebar.classList.remove('hidden'); sidebar.classList.add('flex'); }
     else { sidebar.classList.add('hidden'); sidebar.classList.remove('flex'); }
 });
@@ -9298,7 +9301,7 @@ function triggerBarcode() {
     if(suggBox) suggBox.classList.add('hidden');
     if(!val) return;
 
-    const p = db.products.find(x => x.barcode.toLowerCase()===val || x.name.toLowerCase()===val);
+    const p = db.products.find(x => productMatchesQuery(x, val));
     if(!p) return showToast('Ürün bulunamadı!', 'error');
 
     if(isPriceCheckMode) {
@@ -9535,9 +9538,8 @@ function showPosSuggestions() {
     const box = document.getElementById('pos-suggestions');
     if(!val) { box.classList.add('hidden'); return; }
 
-    const matches = db.products.filter(p => 
-        p.name.toLowerCase().includes(val) || 
-        p.barcode.includes(val)
+    const matches = db.products.filter(p =>
+        productMatchesSearch(p, val)
     ).slice(0, 8);
 
     if(matches.length === 0) { box.classList.add('hidden'); return; }
@@ -9761,8 +9763,7 @@ function yeniUrunEkleModal() {
 
 function findProductIndex(val) {
     if(!val) return -1;
-    const q = val.trim().toLowerCase();
-    return db.products.findIndex(x => x.barcode.toLowerCase() === q || x.name.toLowerCase() === q);
+    return db.products.findIndex(x => productMatchesQuery(x, val));
 }
 
 function lookupProductInModal() {
@@ -9801,8 +9802,8 @@ function highlightProductRow(index) {
     const p = db.products[index];
     if(!p) return;
     const search = document.getElementById('prod-search');
-    if(search) { search.value = p.barcode; renderProducts(); }
-    const row = document.getElementById('prod-table')?.querySelector('tr');
+    if(search) { search.value = productStr(p.barcode) || productStr(p.name); renderProducts(); }
+    const row = document.getElementById('prod-table')?.querySelector(`tr[data-prod-idx="${index}"]`);
     if(!row) return;
     row.classList.add('bg-amber-100', 'ring-2', 'ring-amber-400');
     row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -9830,7 +9831,7 @@ function saveProduct() {
         }
     } else {
         const conflict = db.products.findIndex((x, i) =>
-            i !== idx && barcodeInput && x.barcode.toLowerCase() === barcodeInput.toLowerCase()
+            i !== idx && barcodeInput && productStr(x.barcode).toLowerCase() === barcodeInput.toLowerCase()
         );
         if(conflict >= 0) return showToast(`Bu barkod "${db.products[conflict].name}" ürününde kullanılıyor!`, 'error');
     }
@@ -9871,12 +9872,12 @@ function renderProducts() {
     const s = searchInput.value.toLowerCase();
     
     document.getElementById('prod-table').innerHTML = db.products
-        .filter(p => p.name.toLowerCase().includes(s) || p.barcode.includes(s))
+        .filter(p => productMatchesSearch(p, s))
         .map(p => {
             const isLow = (!p.category && p.stock <= 0) ? 'bg-red-50' : '';
-            const realIdx = db.products.findIndex(x => x.barcode === p.barcode);
+            const realIdx = db.products.findIndex(x => x === p);
             
-            return `<tr class="${isLow} hover:bg-gray-50 transition-colors">
+            return `<tr data-prod-idx="${realIdx}" class="${isLow} hover:bg-gray-50 transition-colors">
                 <td class="p-3 text-[10px] text-gray-400">${p.barcode}</td>
                 <td class="p-3 uppercase text-xs font-bold">${p.name}</td>
                 <td class="p-2 text-center">
@@ -10365,7 +10366,7 @@ function handleSayim(e) {
 
 function renderStokSayimi() {
     const filter=document.getElementById('sayim-search').value.toLowerCase();
-    document.getElementById('sayim-table').innerHTML=db.products.filter(p=>!p.category&&(p.name.toLowerCase().includes(filter)||p.barcode.includes(filter))).map(p=>{ const idx=db.products.findIndex(x=>x.barcode===p.barcode); return `<tr><td class="p-3 font-mono text-xs">${p.barcode}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center text-lg">${p.stock}</td><td class="p-3 text-right text-amber-600 font-bold">₺${(p.buy*p.stock).toFixed(2)}</td><td class="p-3 text-center bg-blue-50"><input type="number" id="sayim-input-${idx}" value="${p.stock}" class="border-2 border-blue-300 rounded p-2 w-20 text-center font-black text-blue-700 outline-none"></td></tr>`; }).join('');
+    document.getElementById('sayim-table').innerHTML=db.products.filter(p=>!p.category&&productMatchesSearch(p,filter)).map(p=>{ const idx=db.products.findIndex(x=>x===p); return `<tr><td class="p-3 font-mono text-xs">${productStr(p.barcode)}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center text-lg">${p.stock}</td><td class="p-3 text-right text-amber-600 font-bold">₺${(p.buy*p.stock).toFixed(2)}</td><td class="p-3 text-center bg-blue-50"><input type="number" id="sayim-input-${idx}" value="${p.stock}" class="border-2 border-blue-300 rounded p-2 w-20 text-center font-black text-blue-700 outline-none"></td></tr>`; }).join('');
 }
 
 function saveAllStockCounts() {
