@@ -3,232 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Salbaş İletişim - Bulut Tabanlı Gelişmiş Panel</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Salbaş İletişim - Bulut Tabanlı Panel</title>
     <meta name="theme-color" content="#2563eb">
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <!-- JsBarcode -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    
     <style>
-        /* Özel stiller */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
-        .rotate-90 { transform: rotate(90deg); }
-        .calc-btn { display:flex; align-items:center; justify-content:center; height:36px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; transition:all 0.1s; user-select:none; }
-        .calc-btn:active { transform: scale(0.93); }
-        /* Yazdırma alanları gizli */
-        #print-area, #label-print-area, #contract-print-area, #repair-print-area { display: none !important; }
-        @media print {
-            @page { margin: 0; size: auto; }
-            body { margin: 0; padding: 0; background: white; }
-            body * { visibility: hidden; }
-            #print-area.active-print { display: block !important; position: absolute; left: 0; top: 0; margin: 0 !important; padding: 0 !important; box-sizing: border-box !important; overflow: visible !important; visibility: visible; width: 100%; }
-            #print-area.active-print * { visibility: visible; color: black !important; }
-            #label-print-area.active-print { display: flex !important; flex-direction: column; justify-content: center; align-items: center; position: absolute; left: 0; top: 0; width: 60mm; height: 40mm; padding: 2mm; margin: 0; color: #000; font-family: 'Arial', sans-serif; visibility: visible; page-break-after: avoid; }
-            #label-print-area.active-print * { visibility: visible; }
-            #contract-print-area.active-print { display: block !important; position: absolute; left: 0; top: 0; width: 210mm !important; min-height: 297mm !important; padding: 15mm 20mm !important; margin: 0 !important; background: white !important; color: black !important; visibility: visible; font-family: sans-serif; }
-            #contract-print-area.active-print * { visibility: visible; }
-            #repair-print-area.active-print { display: block !important; position: absolute; left: 0; top: 0; margin: 0 !important; padding: 2mm !important; box-sizing: border-box !important; visibility: visible; width: 100%; font-family: monospace; color: black !important; }
-            #repair-print-area.active-print * { visibility: visible; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .thickness-normal, .thickness-normal * { font-weight: 600 !important; color: #000 !important; }
-            .thickness-bold, .thickness-bold * { font-weight: 800 !important; color: #000 !important; }
-            .thickness-extra-bold, .thickness-extra-bold * { font-weight: 900 !important; color: #000 !important; -webkit-text-stroke: 0.3px black; letter-spacing: 0.2px; }
-            .break-text { word-wrap: break-word; word-break: break-word; white-space: normal; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif}
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:#f1f1f1}
+        ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+        .calc-btn{display:flex;align-items:center;justify-content:center;height:40px;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.1s;user-select:none}
+        .calc-btn:active{transform:scale(0.95)}
+        #print-area,#label-print-area,#contract-print-area,#repair-print-area{display:none !important}
+        @media print{
+            @page{margin:0;size:auto}
+            body{margin:0;padding:0;background:white}
+            body *{visibility:hidden}
+            #print-area.active-print{display:block !important;position:absolute;left:0;top:0;margin:0 !important;padding:0 !important;visibility:visible;width:100%}
+            #print-area.active-print *{visibility:visible}
+            #label-print-area.active-print{display:flex !important;position:absolute;left:0;top:0;width:60mm;height:40mm;visibility:visible}
+            #label-print-area.active-print *{visibility:visible}
+            #contract-print-area.active-print{display:block !important;position:absolute;left:0;top:0;width:210mm;visibility:visible}
+            #contract-print-area.active-print *{visibility:visible}
+            .thickness-bold *{font-weight:800 !important}
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800 h-screen flex overflow-hidden">
+<body class="bg-gray-100 h-screen flex overflow-hidden">
 
-<!-- GİRİŞ EKRANI -->
-<div id="login-screen" class="fixed inset-0 bg-gray-900 z-[200] flex items-center justify-center p-4" style="display: flex;">
-    <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
-        <img id="login-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Logo" class="w-full max-h-32 object-contain mx-auto mb-2 rounded-xl">
-        <h1 class="text-4xl font-black text-blue-600 mb-1 mt-2">SALBAŞ<span class="text-slate-700">İletişim</span></h1>
-        <p class="text-slate-400 font-bold mb-8 uppercase text-xs tracking-widest flex items-center justify-center gap-2"><i class="fas fa-lock text-blue-500"></i> Yönetici Girişi</p>
-        <input type="text" id="login-email" placeholder="E-posta veya kullanıcı adı" autocomplete="username" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-3 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition">
-        <input type="password" id="login-pass" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" class="w-full border-2 border-slate-200 p-4 rounded-xl mb-4 font-bold outline-none focus:border-blue-500 text-center text-slate-700 transition" onkeypress="if(event.key==='Enter') loginApp()">
-        <button id="btn-login" onclick="loginApp()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg text-lg hover:bg-blue-700 transition">GİRİŞ YAP</button>
-        <button id="btn-register" onclick="registerApp()" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow hover:bg-emerald-700 transition text-sm">İLK KEZ MİSİNİZ? HESAP OLUŞTUR</button>
-        <p class="text-[10px] text-slate-400 mt-3 leading-relaxed">Kullanıcı adı yazarsanız otomatik e-posta oluşturulur.<br>Örnek: <strong>yunus</strong> → yunus@salbas.dukkan</p>
-        <details class="mt-4 text-left">
-            <summary class="text-xs font-bold text-slate-500 cursor-pointer">Google ile giriş (isteğe bağlı)</summary>
-            <button type="button" onclick="loginWithGoogle()" class="w-full mt-2 bg-red-500 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-red-600 flex items-center justify-center gap-2">
-                <i class="fab fa-google"></i> Google Hesabıyla Gir
-            </button>
-            <p id="google-cookie-help" class="text-[10px] text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mt-2 leading-relaxed hidden">
-                GitHub sitesinde Google girişi tam sayfa açılır. Çerez uyarısı çıkarsa «İzin ver» deyin.
-            </p>
-        </details>
-        <p id="login-msg" class="text-xs font-bold text-emerald-500 mt-4 h-4">Veriler yükleniyor...</p>
-        <p id="login-loading" class="text-xs font-bold text-blue-600 mt-2 hidden"><i class="fas fa-spinner fa-spin"></i> Giriş yapılıyor, veriler yükleniyor...</p>
+<!-- GİRŞ EKRANI -->
+<div id="login-screen" class="fixed inset-0 bg-gray-900 z-[200] flex items-center justify-center p-4" style="display:flex">
+    <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center">
+        <div class="absolute top-0 left-0 w-full h-2 bg-blue-600 rounded-t-3xl"></div>
+        <img id="login-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="w-24 h-24 mx-auto mb-4">
+        <h1 class="text-3xl font-black text-blue-600">SALBAŞ<span class="text-gray-700">İletişim</span></h1>
+        <p class="text-gray-400 font-bold mt-2 mb-6 text-xs"><i class="fas fa-lock mr-1"></i> Yönetici Girişi</p>
+        <input type="text" id="login-email" placeholder="Kullanıcı adı veya e-posta" class="w-full border-2 border-gray-200 p-3 rounded-xl mb-3 font-bold text-center focus:border-blue-500 outline-none">
+        <input type="password" id="login-pass" placeholder="Şifre (min 6 karakter)" class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 font-bold text-center focus:border-blue-500 outline-none" onkeypress="if(event.key==='Enter') loginApp()">
+        <button onclick="loginApp()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-700">GİRİŞ YAP</button>
+        <button onclick="registerApp()" class="w-full mt-3 bg-emerald-600 text-white py-2 rounded-xl font-bold text-sm hover:bg-emerald-700">HESAP OLUŞTUR</button>
+        <p id="login-msg" class="text-xs text-emerald-600 mt-3">Veriler yükleniyor...</p>
     </div>
 </div>
 
-<!-- YAZDIRILACAK ALANLAR (GİZLİ) -->
+<!-- YAZDIRMA ALANLARI -->
 <div id="print-area" class="hidden"></div>
 <div id="label-print-area" class="hidden"></div>
 <div id="contract-print-area" class="hidden"></div>
 <div id="repair-print-area" class="hidden"></div>
 
-<!-- SIDEBAR (Mobilde gizli, masaüstünde görünür) -->
-<aside id="sidebar" class="bg-gray-800 text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-screen md:h-full shadow-2xl md:shadow-none overflow-y-auto">
-    <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0 bg-white p-2">
-        <img id="sidebar-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Logo" class="h-full object-contain">
+<!-- SIDEBAR -->
+<aside id="sidebar" class="bg-gray-800 text-white w-72 flex-shrink-0 hidden md:flex flex-col h-screen overflow-y-auto">
+    <div class="p-4 border-b border-gray-700 text-center">
+        <img id="sidebar-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" class="h-12 mx-auto">
+        <span class="text-xs font-bold mt-2 block">SALBAŞ İLETİŞİM</span>
     </div>
-    <nav class="flex-1 py-4 pb-24">
-        <ul class="space-y-1 px-3 text-sm" id="main-menu">
-            <li><a href="#" onclick="simulateNavigation('Anasayfa', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition bg-blue-600 text-white"><i class="fas fa-th-large w-5 text-center"></i><span>Anasayfa</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Satış Yap', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-edit w-5 text-center"></i><span>Satış Yap</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Raporlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-chart-bar w-5 text-center"></i><span>Raporlar &amp; Geçmiş</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Müşteriler', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-users w-5 text-center"></i><span>Müşteriler</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Ürünler', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-box w-5 text-center"></i><span>Ürünler &amp; Etiket</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Gelir Gider', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-exchange-alt w-5 text-center"></i><span>Gelir / Gider İşle</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Stok Sayımı', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-gray-300 hover:bg-gray-700 hover:text-white"><i class="fas fa-clipboard-check w-5 text-center"></i><span>Akıllı Stok Sayımı</span></a></li>
-            <li class="mt-4 pt-4 border-t border-gray-700"></li>
-            <li><a href="#" onclick="toggleSubmenu('tlSub', this)" class="flex items-center justify-between px-3 py-2.5 text-blue-300 hover:bg-gray-700 hover:text-blue-200 rounded-lg transition font-bold"><div class="flex items-center gap-3"><i class="fas fa-mobile-alt w-5 text-center"></i><span>TL Yükleme</span></div><i class="fas fa-chevron-right text-xs transition-transform duration-200 submenu-icon"></i></a>
-                <ul id="tlSub" class="hidden pl-11 pr-3 py-2 space-y-3 text-sm text-gray-400"><li><a href="https://www.turkcell.com.tr/yukle/tl-paket-yukle" target="_blank" class="hover:text-yellow-400 transition block">- Turkcell</a></li><li><a href="https://www.vodafone.com.tr/oss/yanimda/kolay-paket-al" target="_blank" class="hover:text-red-400 transition block">- Vodafone</a></li><li><a href="https://onlineislemler.turktelekom.com.tr/kredi-karti-paket-satin-alma" target="_blank" class="hover:text-blue-400 transition block">- Türk Telekom</a></li></ul>
-            </li>
-            <li><a href="#" onclick="toggleSubmenu('oyunSub', this)" class="flex items-center justify-between px-3 py-2.5 text-orange-300 hover:bg-gray-700 hover:text-orange-200 rounded-lg transition font-bold"><div class="flex items-center gap-3"><i class="fas fa-gamepad w-5 text-center"></i><span>Oyun Yükle</span></div><i class="fas fa-chevron-right text-xs transition-transform duration-200 submenu-icon"></i></a>
-                <ul id="oyunSub" class="hidden pl-11 pr-3 py-2 space-y-3 text-sm text-gray-400"><li><a href="https://www.eneba.com/tr/store/pubg-mobile" target="_blank" class="hover:text-orange-400 transition block">- Eneba (PUBG)</a></li><li><a href="https://www.midasbuy.com/midasbuy/tr/buy/pubgm" target="_blank" class="hover:text-orange-400 transition block">- Midasbuy (PUBG)</a></li></ul>
-            </li>
-            <li><a href="#" onclick="toggleSubmenu('faturaSub', this)" class="flex items-center justify-between px-3 py-2.5 text-teal-300 hover:bg-gray-700 hover:text-teal-200 rounded-lg transition font-bold"><div class="flex items-center gap-3"><i class="fas fa-file-invoice-dollar w-5 text-center"></i><span>Fatura Öde</span></div><i class="fas fa-chevron-right text-xs transition-transform duration-200 submenu-icon"></i></a>
-                <ul id="faturaSub" class="hidden pl-11 pr-3 py-2 space-y-3 text-sm text-gray-400"><li><a href="https://www.enerjisa.com.tr/tr/online-hizmetler/fatura-odeme" target="_blank" class="hover:text-teal-400 transition block">- Elektrik Öde</a></li><li><a href="https://www.aski.gov.tr/" target="_blank" class="hover:text-teal-400 transition block">- Su Öde</a></li><li><a href="https://bireysel.turktelekom.com.tr/" target="_blank" class="hover:text-teal-400 transition block">- İnternet Öde</a></li></ul>
-            </li>
-            <li><a href="https://panel.isyerimpos.com/Merchant/Payment" target="_blank" class="menu-item flex items-center gap-3 px-3 py-2.5 text-emerald-400 hover:bg-gray-700 hover:text-emerald-300 rounded-lg transition font-bold"><i class="fas fa-credit-card w-5 text-center"></i><span>Kart Taksit İşlemleri</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Teknik Servis', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-pink-400 hover:bg-gray-700 hover:text-pink-300 rounded-lg transition font-bold"><i class="fas fa-tools w-5 text-center"></i><span>Teknik Servis</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Reklam Paneli', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-purple-400 hover:bg-gray-700 hover:text-purple-300 rounded-lg transition font-bold"><i class="fas fa-bullhorn w-5 text-center"></i><span>SMS/WP Reklam</span></a></li>
-            <li class="mt-4 pt-4 border-t border-gray-700"></li>
-            <li><a href="#" onclick="simulateNavigation('İşlem Tüneli', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-indigo-400 hover:bg-gray-700 hover:text-indigo-300 rounded-lg transition font-bold"><i class="fas fa-history w-5 text-center"></i><span>İşlem Tüneli</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Faturasız', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-red-400 hover:bg-gray-700 hover:text-red-300 rounded-lg transition font-bold"><i class="fas fa-receipt w-5 text-center"></i><span>Faturasız Ürünler</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('2. El Alımlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-pink-400 hover:bg-gray-700 hover:text-pink-300 rounded-lg transition font-bold"><i class="fas fa-mobile-alt w-5 text-center"></i><span>2. El Cihaz Alım</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Fiş Kes', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-teal-400 hover:bg-gray-700 hover:text-teal-300 rounded-lg transition font-bold"><i class="fas fa-print w-5 text-center"></i><span>FİŞ KES</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Notlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-amber-400 hover:bg-gray-700 hover:text-amber-300 rounded-lg transition font-bold"><i class="fas fa-sticky-note w-5 text-center"></i><span>Hızlı Notlar</span></a></li>
-            <li><a href="#" onclick="simulateNavigation('Görevler', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-emerald-400 hover:bg-gray-700 hover:text-emerald-300 rounded-lg transition font-bold"><i class="fas fa-tasks w-5 text-center"></i><span>Görevler</span></a></li>
-            <li class="mt-4 pt-4 border-t border-gray-700">
-                <a href="#" onclick="toggleSubmenu('tarifeSub', this)" class="flex items-center justify-between px-3 py-2.5 text-blue-300 hover:bg-gray-700 hover:text-blue-200 rounded-lg transition font-bold"><div class="flex items-center gap-3"><i class="fas fa-sim-card w-5 text-center"></i><span>Tarifeler</span></div><i class="fas fa-chevron-right text-xs transition-transform duration-200 submenu-icon"></i></a>
-                <ul id="tarifeSub" class="hidden pl-11 pr-3 py-2 space-y-3 text-sm text-gray-400"><li><a href="#" onclick="openTarifeTab('TURKCELL')" class="hover:text-yellow-400 transition block">- Turkcell</a></li><li><a href="#" onclick="openTarifeTab('VODAFONE')" class="hover:text-red-400 transition block">- Vodafone</a></li><li><a href="#" onclick="openTarifeTab('TÜRK TELEKOM')" class="hover:text-blue-400 transition block">- Türk Telekom</a></li></ul>
-            </li>
-            <li><a href="#" onclick="toggleSubmenu('opSub', this)" class="flex items-center justify-between px-3 py-2.5 text-purple-300 hover:bg-gray-700 hover:text-purple-200 rounded-lg transition font-bold"><div class="flex items-center gap-3"><i class="fas fa-pen w-5 text-center"></i><span>Op. İşlem Notları</span></div><i class="fas fa-chevron-right text-xs transition-transform duration-200 submenu-icon"></i></a>
-                <ul id="opSub" class="hidden pl-11 pr-3 py-2 space-y-3 text-sm text-gray-400"><li><a href="#" onclick="openOpTab('TURKCELL')" class="hover:text-yellow-400 transition block">- Turkcell</a></li><li><a href="#" onclick="openOpTab('VODAFONE')" class="hover:text-red-400 transition block">- Vodafone</a></li><li><a href="#" onclick="openOpTab('TÜRK TELEKOM')" class="hover:text-blue-400 transition block">- Türk Telekom</a></li></ul>
-            </li>
-            <li class="mt-4 pt-4 border-t border-gray-700"><a href="#" onclick="simulateNavigation('Ayarlar', this)" class="menu-item flex items-center gap-3 px-3 py-2.5 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition"><i class="fas fa-cog w-5 text-center"></i><span>Ayarlar &amp; Yedek</span></a></li>
+    <nav class="flex-1 p-3">
+        <ul class="space-y-1">
+            <li><a href="#" onclick="navigate('Anasayfa')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600"><i class="fas fa-home w-5"></i>Anasayfa</a></li>
+            <li><a href="#" onclick="navigate('Satış')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-shopping-cart w-5"></i>Satış Yap</a></li>
+            <li><a href="#" onclick="navigate('Raporlar')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-chart-line w-5"></i>Raporlar</a></li>
+            <li><a href="#" onclick="navigate('Müşteriler')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-users w-5"></i>Müşteriler</a></li>
+            <li><a href="#" onclick="navigate('Ürünler')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-box w-5"></i>Ürünler</a></li>
+            <li><a href="#" onclick="navigate('GelirGider')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-coins w-5"></i>Gelir/Gider</a></li>
+            <li><a href="#" onclick="navigate('Ayarlar')" class="menu-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700"><i class="fas fa-cog w-5"></i>Ayarlar</a></li>
+            <li class="pt-4 mt-4 border-t border-gray-700"><a href="#" onclick="logout()" class="flex items-center gap-3 px-3 py-2 text-red-400 hover:bg-gray-700 rounded-lg"><i class="fas fa-sign-out-alt w-5"></i>Çıkış</a></li>
         </ul>
     </nav>
-    <!-- HESAP MAKİNESİ -->
-    <div class="border-t border-gray-700 p-3 bg-gray-900 flex-shrink-0">
-        <div class="flex items-center justify-between mb-2"><span class="text-xs font-bold text-gray-400 uppercase"><i class="fas fa-calculator mr-1"></i> Hesap Makinesi</span></div>
-        <div id="calc-display" class="bg-gray-950 text-white text-right px-3 py-2 rounded-lg font-mono text-lg font-black mb-2 min-h-[40px] overflow-hidden text-ellipsis whitespace-nowrap">0</div>
+    <!-- Hesap Makinesi -->
+    <div class="p-3 border-t border-gray-700 bg-gray-900">
+        <div id="calc-display" class="bg-gray-950 text-white text-right p-2 rounded-lg font-mono text-xl mb-2">0</div>
         <div class="grid grid-cols-4 gap-1">
-            <button onclick="calcInput('C')" class="calc-btn bg-red-600 text-white col-span-2">AC</button>
-            <button onclick="calcInput('⌫')" class="calc-btn bg-gray-600 text-white"><i class="fas fa-backspace text-xs"></i></button>
-            <button onclick="calcInput('÷')" class="calc-btn bg-amber-500 text-white">÷</button>
-            <button onclick="calcInput('7')" class="calc-btn bg-gray-700 text-white">7</button>
-            <button onclick="calcInput('8')" class="calc-btn bg-gray-700 text-white">8</button>
-            <button onclick="calcInput('9')" class="calc-btn bg-gray-700 text-white">9</button>
-            <button onclick="calcInput('×')" class="calc-btn bg-amber-500 text-white">×</button>
-            <button onclick="calcInput('4')" class="calc-btn bg-gray-700 text-white">4</button>
-            <button onclick="calcInput('5')" class="calc-btn bg-gray-700 text-white">5</button>
-            <button onclick="calcInput('6')" class="calc-btn bg-gray-700 text-white">6</button>
-            <button onclick="calcInput('-')" class="calc-btn bg-amber-500 text-white">-</button>
-            <button onclick="calcInput('1')" class="calc-btn bg-gray-700 text-white">1</button>
-            <button onclick="calcInput('2')" class="calc-btn bg-gray-700 text-white">2</button>
-            <button onclick="calcInput('3')" class="calc-btn bg-gray-700 text-white">3</button>
-            <button onclick="calcInput('+')" class="calc-btn bg-amber-500 text-white">+</button>
-            <button onclick="calcInput('%')" class="calc-btn bg-gray-600 text-white">%</button>
-            <button onclick="calcInput('0')" class="calc-btn bg-gray-700 text-white">0</button>
-            <button onclick="calcInput('.')" class="calc-btn bg-gray-700 text-white">.</button>
-            <button onclick="calcInput('=')" class="calc-btn bg-blue-600 text-white">=</button>
+            <button onclick="calc('C')" class="calc-btn bg-red-600 col-span-2">AC</button>
+            <button onclick="calc('÷')" class="calc-btn bg-amber-500">÷</button>
+            <button onclick="calc('×')" class="calc-btn bg-amber-500">×</button>
+            <button onclick="calc('7')" class="calc-btn bg-gray-700">7</button>
+            <button onclick="calc('8')" class="calc-btn bg-gray-700">8</button>
+            <button onclick="calc('9')" class="calc-btn bg-gray-700">9</button>
+            <button onclick="calc('-')" class="calc-btn bg-amber-500">-</button>
+            <button onclick="calc('4')" class="calc-btn bg-gray-700">4</button>
+            <button onclick="calc('5')" class="calc-btn bg-gray-700">5</button>
+            <button onclick="calc('6')" class="calc-btn bg-gray-700">6</button>
+            <button onclick="calc('+')" class="calc-btn bg-amber-500">+</button>
+            <button onclick="calc('1')" class="calc-btn bg-gray-700">1</button>
+            <button onclick="calc('2')" class="calc-btn bg-gray-700">2</button>
+            <button onclick="calc('3')" class="calc-btn bg-gray-700">3</button>
+            <button onclick="calc('=')" class="calc-btn bg-blue-600">=</button>
+            <button onclick="calc('0')" class="calc-btn bg-gray-700 col-span-2">0</button>
+            <button onclick="calc('.')" class="calc-btn bg-gray-700">.</button>
         </div>
     </div>
 </aside>
 
-<div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative">
-    <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-6 z-10 flex-shrink-0">
-        <div class="flex items-center gap-4">
-            <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none"><i class="fas fa-bars text-xl"></i></button>
-            <div class="flex items-center"><h2 id="header-title" class="font-bold text-gray-700 uppercase text-sm md:text-base truncate">ANASAYFA</h2><span class="ml-2 text-gray-400 text-sm hidden sm:inline-block font-semibold">| Yönetim Paneli</span></div>
-        </div>
-        <div class="flex items-center gap-3 sm:gap-5 text-sm">
-            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-black border border-blue-200 hidden md:flex items-center gap-1"><i class="fas fa-cloud"></i> Bulut Aktif</span>
-            <span id="header-date" class="text-xs md:text-sm font-bold text-gray-500"></span>
-            <div class="relative flex items-center gap-2 cursor-pointer border-l pl-4 border-gray-200" onclick="toggleDropdown('profileDropdown')">
-                <div class="text-right hidden sm:block"><div class="font-bold text-gray-800 text-xs" id="user-email-display">Yükleniyor...</div><div class="text-gray-500 text-[10px]">İŞLETME SAHİBİ</div></div>
-                <div class="h-8 w-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center overflow-hidden"><img id="user-photo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Kullanıcı" class="w-full h-full object-cover"></div>
-                <div id="profileDropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 z-50 text-sm cursor-default"><a href="#" onclick="logoutApp()" class="block px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-100"><i class="fas fa-power-off mr-2"></i> Çıkış Yap</a></div>
+<!-- ANA İÇERİK -->
+<div class="flex-1 flex flex-col overflow-hidden">
+    <header class="h-14 bg-white shadow-sm flex items-center justify-between px-4">
+        <button id="mobileMenuBtn" class="md:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
+        <h2 id="header-title" class="font-bold">ANASAYFA</h2>
+        <div class="flex items-center gap-3">
+            <span id="header-date" class="text-xs text-gray-500"></span>
+            <div class="relative cursor-pointer" onclick="document.getElementById('userMenu').classList.toggle('hidden')">
+                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div id="userMenu" class="hidden absolute right-0 mt-2 w-40 bg-white rounded shadow-lg z-50">
+                    <a href="#" onclick="logout()" class="block px-4 py-2 text-red-600 border-t"><i class="fas fa-sign-out-alt mr-2"></i>Çıkış</a>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 relative">
-        <!-- Sayfalar buraya dinamik olarak eklenecek (Anasayfa, Satış Yap vb.) -->
-        <div id="page-anasayfa" class="page-content block">
-            <div class="bg-red-50 border border-red-200 rounded-lg shadow-sm p-4 mb-4" id="dash-stok-uyari">
-               <h4 class="text-sm font-bold text-red-600 mb-2"><i class="fas fa-exclamation-triangle"></i> Kritik Stok Uyarısı (Tükenenler - 0 ve Altı)</h4>
-                <div id="dash-stok-listesi" class="flex flex-wrap gap-2"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-[10px] font-bold border border-red-200">Veri yükleniyor...</span></div>
+    <main class="flex-1 overflow-auto p-4" id="main-content">
+        <!-- Sayfalar dinamik yüklenecek -->
+        <div id="page-anasayfa" class="page">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded shadow border-l-4 border-emerald-500"><p class="text-xs text-gray-400">BUGÜN CİRO</p><h3 id="todayCiro" class="text-2xl font-bold">₺0</h3></div>
+                <div class="bg-white p-4 rounded shadow border-l-4 border-blue-500"><p class="text-xs text-gray-400">BUGÜN KÂR</p><h3 id="todayKar" class="text-2xl font-bold">₺0</h3></div>
+                <div class="bg-white p-4 rounded shadow border-l-4 border-purple-500"><p class="text-xs text-gray-400">AYLIK CİRO</p><h3 id="monthCiro" class="text-2xl font-bold">₺0</h3></div>
+                <div class="bg-white p-4 rounded shadow border-l-4 border-amber-500"><p class="text-xs text-gray-400">TOPLAM STOK</p><h3 id="totalStock" class="text-2xl font-bold">₺0</h3></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-emerald-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bugün Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-bugun" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-bugun" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-blue-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Hafta Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-hafta" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-hafta" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-indigo-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Bu Ay Ciro / Kâr</p><div class="flex items-end space-x-2"><h3 id="dash-ciro-ay" class="text-2xl font-black text-gray-800">₺0</h3><span id="dash-kar-ay" class="text-sm font-bold text-emerald-500 mb-1">(+₺0)</span></div></div>
-                <div class="bg-white p-5 border border-gray-200 rounded-lg shadow-sm border-t-4 border-t-amber-500"><p class="text-xs font-bold text-gray-400 uppercase mb-2">Toplam Stok Maliyeti</p><h3 id="dash-stok-deger" class="text-2xl font-black text-gray-800">₺0</h3></div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm"><h4 class="text-sm font-bold text-gray-600 mb-4">30 Günlük Satış Grafiği</h4><div id="chart-30-days" class="w-full h-[250px]"></div></div>
-                <div class="bg-white p-4 border border-gray-200 rounded-lg shadow-sm"><h4 class="text-sm font-bold text-gray-600 mb-4">6 Aylık Satış Grafiği</h4><div id="chart-6-months" class="w-full h-[250px]"></div></div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Açık Hesap Alacakları (Top 5)</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Müşteri</th><th class="p-3 text-right">Borç Tutarı</th></tr></thead><tbody id="dash-alacak-list" class="divide-y divide-gray-100"><tr><td class="p-3 text-center text-gray-400" colspan="2">Veri yükleniyor...</td></tr></tbody></table></div>
-                <div class="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Son 5 Satış İşlemi</div><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-xs text-gray-500"><tr><th class="p-3">Zaman</th><th class="p-3">Tür</th><th class="p-3">Ürünler</th><th class="p-3 text-right">Tutar</th></tr></thead><tbody id="dash-son-satislar" class="divide-y divide-gray-100"><tr><td class="p-3 text-center text-gray-400" colspan="4">Veri yükleniyor...</td></tr></tbody></table></div>
-            </div>
+            <div class="bg-white p-4 rounded shadow mb-6"><h4 class="font-bold mb-3">30 Günlük Satış</h4><div id="chart" class="h-64"></div></div>
         </div>
-        <!-- Diğer sayfalar da aynı şekilde eklenecek, ancak kod kalabalığı olmaması için ana sayfa gösteriliyor. Gerekirse diğer sayfaların HTML'lerini de ekleyebiliriz. -->
+        <div id="page-satis" class="page hidden">Satış sayfası içeriği buraya gelecek...</div>
+        <div id="page-raporlar" class="page hidden">Raporlar sayfası...</div>
+        <div id="page-müşteriler" class="page hidden">Müşteriler...</div>
+        <div id="page-ürünler" class="page hidden">Ürünler...</div>
+        <div id="page-gelirgider" class="page hidden">Gelir/Gider...</div>
+        <div id="page-ayarlar" class="page hidden">Ayarlar...</div>
     </main>
 </div>
 
-<!-- MODALLAR -->
-<div id="modal-bg" class="fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm hidden">
-    <div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
-        <h3 class="font-black text-xl mb-6 uppercase tracking-tighter text-blue-600">Ürün Bilgileri</h3>
-        <input type="hidden" id="m-p-edit-idx" value="-1">
-        <div class="space-y-3 mb-6">
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Barkod Numarası</label><input type="text" id="m-p-barcode" placeholder="Barkod" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ürün Adı</label><input type="text" id="m-p-name" placeholder="Ürün Adı" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Stok Miktarı</label><input type="number" id="m-p-stock" value="1" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Alış Fiyatı (₺)</label><input type="number" id="m-p-buy" value="0" step="0.01" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Satış Fiyatı (₺)</label><input type="number" id="m-p-sell1" placeholder="Satış Fiyatı" step="0.01" class="w-full border p-3 rounded-xl font-black bg-emerald-50 text-emerald-700 outline-none focus:border-emerald-500"></div>
-            <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Hızlı Satış Kategorisi</label><select id="m-p-category" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500"><option value="">Hızlı Satışta Gösterme</option><option value="Liste 1">Liste 1</option><option value="Liste 2">Liste 2</option><option value="Liste 3">Liste 3</option><option value="Liste 4">Liste 4</option><option value="Liste 5">Liste 5</option><option value="Liste 6">Liste 6</option><option value="Liste 7">Liste 7</option><option value="Liste 8">Liste 8</option></select></div>
-        </div>
-        <div class="space-y-2"><button onclick="saveProduct()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-black shadow-lg hover:bg-blue-700 transition">ÜRÜNÜ KAYDET</button><button onclick="closeModal()" class="w-full bg-gray-200 text-gray-600 py-3 rounded-xl font-black hover:bg-gray-300 transition">İptal</button></div>
-    </div>
-    <!-- Diğer modallar da buraya eklenebilir -->
-</div>
-
-<div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col items-end gap-2 pointer-events-none"></div>
+<div id="toastContainer" class="fixed bottom-5 right-5 z-50"></div>
 
 <script>
-/* ========================================================
-   TÜM JAVASCRIPT KODU (DÜZELTİLMİŞ VE ÇALIŞIR HALDE)
-======================================================== */
-// (Kod buraya gelecek - yukarıdaki düzeltilmiş script bloğunun aynısı)
-// Not: Kod çok uzun olduğu için buraya koymadım, ancak yukarıda verdiğim düzeltilmiş kodun tamamını buraya yapıştırmalısınız.
-// Yukarıdaki uzun script bloğunu kopyalayıp buraya yapıştırın.
+// ========================================================
+// FIREBASE KONFIGÜRASYONU
+// ========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyCVXLj-shpgrxz1L8d2JTNdPUlOgb81gqU",
+    authDomain: "salbas-iletisim-takippro.firebaseapp.com",
+    projectId: "salbas-iletisim-takippro",
+    storageBucket: "salbas-iletisim-takippro.firebasestorage.app",
+    messagingSenderId: "149024377345",
+    appId: "1:149024377345:web:56fbbc0b3e75475f3d8e00"
+};
+
+firebase.initializeApp(firebaseConfig);
+const dbCloud = firebase.firestore();
+const auth = firebase.auth();
+
+// ========================================================
+// GLOBAL VERİLER
+// ========================================================
+let db = { products: [], customers: [], sales: [], finances: [], logs: [] };
+let cart = [];
+let chart = null;
+let currentUser = null;
+
+// ========================================================
+// YARDIMCI FONKSİYONLAR
+// ========================================================
+function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `bg-white px-4 py-2 rounded shadow-lg border-l-4 mb-2 animate-fade-in-up ${type === 'error' ? 'border-red-500' : 'border-green-500'}`;
+    toast.innerHTML = `<span class="text-sm">${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function formatDate() {
+    const d = new Date();
+    return `${d.getDate()} ${d.toLocaleString('tr', { month: 'short' })} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+document.getElementById('header-date').innerText = formatDate();
+setInterval(() => { document.getElementById('header-date').innerText = formatDate(); }, 60000);
+
+// ========================================================
+// HESAP MAKİNESİ
+// ========================================================
+let calcExpr = '';
+function calc(val) {
+    const display = document.getElementById('calc-display');
+    if (val === 'C') { calcExpr = ''; display.innerText = '0'; return; }
+    if (val === '=') {
+        try {
+            let expr = calcExpr.replace(/×/g, '*').replace(/÷/g, '/');
+            let result = eval(expr);
+            display.innerText = result;
+            calcExpr = result.toString();
+        } catch(e) { display.innerText = 'Hata'; calcExpr = ''; }
+        return;
+    }
+    calcExpr += val;
+    display.innerText = calcExpr;
+}
+
+// ========================================================
+// NAVİGASYON
+// ========================================================
+function navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+    document.getElementById(`page-${page.toLowerCase()}`).classList.remove('hidden');
+    document.getElementById('header-title').innerText = page.toUpperCase();
+    if (page === 'Anasayfa') renderDashboard();
+    if (page === 'Ürünler') renderProducts();
+    if (page === 'Müşteriler') renderCustomers();
+    if (page === 'GelirGider') renderFinance();
+}
+
+// ========================================================
+// DASHBOARD
+// ========================================================
+function renderDashboard() {
+    const today = new Date().toISOString().split('T')[0];
+    const todaySales = db.sales.filter(s => s.date?.startsWith(today) && !s.isRefunded);
+    const monthSales = db.sales.filter(s => s.date?.startsWith(today.slice(0,7)) && !s.isRefunded);
+    
+    const todayCiro = todaySales.reduce((a,b) => a + b.total, 0);
+    const todayKar = todaySales.reduce((a,b) => a + (b.profit || 0), 0);
+    const monthCiro = monthSales.reduce((a,b) => a + b.total, 0);
+    const totalStock = db.products.reduce((a,b) => a + (b.buy * b.stock), 0);
+    
+    document.getElementById('todayCiro').innerText = `₺${todayCiro.toFixed(2)}`;
+    document.getElementById('todayKar').innerText = `₺${todayKar.toFixed(2)}`;
+    document.getElementById('monthCiro').innerText = `₺${monthCiro.toFixed(2)}`;
+    document.getElementById('totalStock').innerText = `₺${totalStock.toFixed(2)}`;
+    
+    // Grafik
+    const last30 = [];
+    for(let i=29; i>=0; i--) {
+        let d = new Date(); d.setDate(d.getDate() - i);
+        let dateStr = d.toISOString().split('T')[0];
+        let dailyTotal = db.sales.filter(s => s.date?.startsWith(dateStr) && !s.isRefunded).reduce((a,b) => a + b.total, 0);
+        last30.push(dailyTotal);
+    }
+    if(chart) chart.destroy();
+    chart = new ApexCharts(document.getElementById('chart'), {
+        series: [{ name: 'Ciro', data: last30 }],
+        chart: { type: 'area', height: 250, toolbar: { show: false } },
+        stroke: { curve: 'smooth', width: 2 },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.7, opacityTo: 0.1 } },
+        colors: ['#3b82f6']
+    });
+    chart.render();
+}
+
+// ========================================================
+// ÜRÜN YÖNETİMİ
+// ========================================================
+function renderProducts() {
+    const container = document.getElementById('page-ürünler');
+    if(!container) return;
+    if(db.products.length === 0) {
+        container.innerHTML = '<div class="bg-white p-8 text-center rounded shadow"><p class="text-gray-400">Henüz ürün yok. Yeni ürün eklemek için butona tıklayın.</p><button onclick="showProductModal()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">+ Ürün Ekle</button></div>';
+        return;
+    }
+    let html = `<div class="bg-white rounded shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-800 text-white"><tr><th class="p-3 text-left">Barkod</th><th class="p-3 text-left">Ürün Adı</th><th class="p-3 text-center">Stok</th><th class="p-3 text-right">Satış Fiyatı</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody>`;
+    db.products.forEach((p, i) => {
+        html += `<tr class="border-b hover:bg-gray-50"><td class="p-3 text-xs">${p.barcode}</td><td class="p-3 font-bold">${p.name}</td><td class="p-3 text-center"><input type="number" value="${p.stock}" onchange="updateStock(${i}, this.value)" class="w-16 text-center border rounded p-1"></td><td class="p-3 text-right font-bold text-emerald-600">₺${p.sell1}</td><td class="p-3 text-center"><button onclick="deleteProduct(${i})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+    });
+    html += `</tbody></table><div class="p-3 bg-gray-50"><button onclick="showProductModal()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">+ Yeni Ürün</button></div></div>`;
+    container.innerHTML = html;
+}
+
+function showProductModal() {
+    const name = prompt('Ürün adı:');
+    if(!name) return;
+    const price = parseFloat(prompt('Satış fiyatı (₺):'));
+    if(isNaN(price)) return;
+    const stock = parseInt(prompt('Stok miktarı:', '1')) || 1;
+    const buy = parseFloat(prompt('Alış fiyatı (₺):', '0')) || 0;
+    db.products.push({
+        id: Date.now(),
+        barcode: Date.now().toString(),
+        name: name,
+        sell1: price,
+        buy: buy,
+        stock: stock
+    });
+    sync();
+    renderProducts();
+}
+
+function updateStock(index, value) {
+    db.products[index].stock = parseInt(value) || 0;
+    sync();
+}
+
+function deleteProduct(index) {
+    if(confirm('Ürünü silmek istediğinize emin misiniz?')) {
+        db.products.splice(index, 1);
+        sync();
+        renderProducts();
+    }
+}
+
+// ========================================================
+// MÜŞTERİ YÖNETİMİ
+// ========================================================
+function renderCustomers() {
+    const container = document.getElementById('page-müşteriler');
+    if(!container) return;
+    if(db.customers.length === 0) {
+        container.innerHTML = '<div class="bg-white p-8 text-center rounded shadow"><p class="text-gray-400">Henüz müşteri yok.</p><button onclick="showCustomerModal()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">+ Müşteri Ekle</button></div>';
+        return;
+    }
+    let html = `<div class="bg-white rounded shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-800 text-white"><tr><th class="p-3 text-left">Müşteri Adı</th><th class="p-3 text-left">Telefon</th><th class="p-3 text-right">Borç</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody>`;
+    db.customers.forEach((c, i) => {
+        html += `<tr class="border-b hover:bg-gray-50"><td class="p-3 font-bold">${c.name}</td><td class="p-3">${c.tel || '-'}</td><td class="p-3 text-right text-red-500 font-bold">₺${c.debt || 0}</td><td class="p-3 text-center"><button onclick="payDebt(${i})" class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs">Tahsilat</button> <button onclick="deleteCustomer(${i})" class="text-red-500 ml-2"><i class="fas fa-trash"></i></button></td></tr>`;
+    });
+    html += `</tbody></table><div class="p-3 bg-gray-50"><button onclick="showCustomerModal()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm">+ Yeni Müşteri</button></div></div>`;
+    container.innerHTML = html;
+}
+
+function showCustomerModal() {
+    const name = prompt('Müşteri adı:');
+    if(!name) return;
+    const tel = prompt('Telefon:');
+    db.customers.push({ id: Date.now(), name, tel, debt: 0 });
+    sync();
+    renderCustomers();
+}
+
+function payDebt(index) {
+    const amount = parseFloat(prompt('Tahsilat tutarı (₺):'));
+    if(isNaN(amount) || amount <= 0) return;
+    db.customers[index].debt = (db.customers[index].debt || 0) - amount;
+    db.finances.push({
+        id: Date.now(),
+        type: 'Gelir',
+        amount: amount,
+        desc: `Tahsilat (${db.customers[index].name})`,
+        date: new Date().toISOString()
+    });
+    sync();
+    renderCustomers();
+    renderFinance();
+}
+
+function deleteCustomer(index) {
+    if(confirm('Müşteriyi silmek istediğinize emin misiniz?')) {
+        db.customers.splice(index, 1);
+        sync();
+        renderCustomers();
+    }
+}
+
+// ========================================================
+// GELİR/GİDER
+// ========================================================
+function renderFinance() {
+    const container = document.getElementById('page-gelirgider');
+    if(!container) return;
+    let html = `<div class="bg-white rounded shadow p-4 mb-4"><div class="flex gap-3"><input type="text" id="finDesc" placeholder="Açıklama" class="flex-1 border rounded p-2"><input type="number" id="finAmount" placeholder="Tutar" class="w-32 border rounded p-2"><select id="finType" class="border rounded p-2"><option value="Gelir">Gelir</option><option value="Gider">Gider</option></select><button onclick="addFinance()" class="bg-blue-600 text-white px-4 rounded">Ekle</button></div></div>`;
+    html += `<div class="bg-white rounded shadow overflow-hidden"><table class="w-full text-sm"><thead class="bg-gray-800 text-white"><tr><th class="p-3">Tarih</th><th class="p-3">Açıklama</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">İşlem</th></tr></thead><tbody>`;
+    db.finances.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(f => {
+        html += `<tr class="border-b"><td class="p-3 text-xs">${new Date(f.date).toLocaleDateString()}</td><td class="p-3">${f.desc}</td><td class="p-3 text-right font-bold ${f.type === 'Gelir' ? 'text-emerald-600' : 'text-red-500'}">${f.type === 'Gelir' ? '+' : '-'}₺${f.amount}</td><td class="p-3 text-center"><button onclick="deleteFinance(${f.id})" class="text-red-500"><i class="fas fa-trash"></i></button></td></tr>`;
+    });
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+}
+
+function addFinance() {
+    const desc = document.getElementById('finDesc')?.value;
+    const amount = parseFloat(document.getElementById('finAmount')?.value);
+    const type = document.getElementById('finType')?.value;
+    if(!desc || isNaN(amount)) return showToast('Tüm alanları doldurun!', 'error');
+    db.finances.push({ id: Date.now(), type, amount, desc, date: new Date().toISOString() });
+    sync();
+    renderFinance();
+    document.getElementById('finDesc').value = '';
+    document.getElementById('finAmount').value = '';
+}
+
+function deleteFinance(id) {
+    db.finances = db.finances.filter(f => f.id !== id);
+    sync();
+    renderFinance();
+}
+
+// ========================================================
+// VERİ SENKRONİZASYONU
+// ========================================================
+function sync() {
+    if(!currentUser) return;
+    const shopId = currentUser.email.toLowerCase();
+    dbCloud.collection('shops').doc(shopId).set({
+        products: db.products,
+        customers: db.customers,
+        sales: db.sales,
+        finances: db.finances,
+        logs: db.logs,
+        lastSync: new Date().toISOString()
+    }).catch(e => console.error('Sync error:', e));
+    // Local backup
+    localStorage.setItem(`shop_${shopId}`, JSON.stringify(db));
+}
+
+async function loadData(user) {
+    currentUser = user;
+    const shopId = user.email.toLowerCase();
+    const doc = await dbCloud.collection('shops').doc(shopId).get();
+    if(doc.exists) {
+        const data = doc.data();
+        db.products = data.products || [];
+        db.customers = data.customers || [];
+        db.sales = data.sales || [];
+        db.finances = data.finances || [];
+        db.logs = data.logs || [];
+    } else {
+        // Local yedekten yükle
+        const local = localStorage.getItem(`shop_${shopId}`);
+        if(local) {
+            const data = JSON.parse(local);
+            db.products = data.products || [];
+            db.customers = data.customers || [];
+            db.sales = data.sales || [];
+            db.finances = data.finances || [];
+        }
+    }
+    document.getElementById('login-screen').style.display = 'none';
+    renderDashboard();
+    showToast('Veriler yüklendi!', 'success');
+}
+
+// ========================================================
+// GİRİŞ/ÇIKIŞ
+// ========================================================
+function loginApp() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if(!email || !pass) return showToast('E-posta ve şifre girin!', 'error');
+    let fullEmail = email.includes('@') ? email : email + '@salbas.dukkan';
+    auth.signInWithEmailAndPassword(fullEmail, pass)
+        .then(user => loadData(user.user))
+        .catch(err => showToast('Giriş hatası: ' + err.message, 'error'));
+}
+
+function registerApp() {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if(!email || !pass || pass.length < 6) return showToast('Şifre en az 6 karakter olmalı!', 'error');
+    let fullEmail = email.includes('@') ? email : email + '@salbas.dukkan';
+    auth.createUserWithEmailAndPassword(fullEmail, pass)
+        .then(user => loadData(user.user))
+        .catch(err => showToast('Kayıt hatası: ' + err.message, 'error'));
+}
+
+function logout() {
+    auth.signOut().then(() => {
+        location.reload();
+    });
+}
+
+// ========================================================
+// MOBİL MENÜ
+// ========================================================
+document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('hidden');
+});
+
+// ========================================================
+// SAYFA YÜKLENDİĞİNDE
+// ========================================================
+auth.onAuthStateChanged(user => {
+    if(user) {
+        loadData(user);
+    } else {
+        document.getElementById('login-screen').style.display = 'flex';
+    }
+});
 </script>
 </body>
 </html>
