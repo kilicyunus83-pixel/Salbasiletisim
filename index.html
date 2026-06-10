@@ -48,7 +48,6 @@
 </head>
 <body class="bg-lightbg font-sans text-gray-800 h-screen flex overflow-hidden">
 
-<!-- GİRİŞ EKRANI -->
 <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[200] flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-md rounded-3xl p-8 shadow-2xl text-center relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
@@ -74,7 +73,6 @@
     </div>
 </div>
 
-<!-- YAZDIRILACAK ALANLAR -->
 <div id="print-area" class="hidden">
     <div id="receipt-preview-container" class="font-mono text-black relative thickness-normal bg-white mx-auto">
         <div class="text-center mb-4 border-b border-dashed border-gray-400 pb-2">
@@ -128,7 +126,6 @@
 </div>
 <div id="repair-print-area" class="hidden mx-auto"></div>
 
-<!-- SIDEBAR -->
 <aside id="sidebar" class="bg-dark text-white w-64 flex-shrink-0 hidden md:flex flex-col transition-all duration-300 z-[100] fixed md:relative inset-y-0 left-0 h-[100dvh] md:h-full shadow-2xl md:shadow-none">
     <div class="h-16 flex items-center justify-center border-b border-gray-700 flex-shrink-0 bg-white p-2">
         <img id="sidebar-logo" src="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" alt="Logo" class="h-full object-contain">
@@ -207,7 +204,6 @@
             </li>
         </ul>
     </nav>
-    <!-- HESAP MAKİNESİ -->
     <div class="border-t border-gray-700 p-3 bg-gray-900 flex-shrink-0">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-400 uppercase"><i class="fas fa-calculator mr-1"></i> Hesap Makinesi</span>
@@ -235,7 +231,7 @@
             <button onclick="calcInput('=')" class="calc-btn bg-blue-600 text-white">=</button>
         </div>
     </div>
-</aside>
+</</aside>
 
 <div class="flex-1 flex flex-col w-full h-screen overflow-hidden relative">
     <header class="h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-6 z-10 flex-shrink-0">
@@ -266,7 +262,6 @@
 
     <main class="flex-1 overflow-y-auto p-4 lg:p-6 pb-20 relative">
 
-        <!-- ANASAYFA -->
         <div id="page-anasayfa" class="page-content block">
             <div class="bg-red-50 border border-red-200 rounded-lg shadow-sm p-4 mb-4 hidden" id="dash-stok-uyari">
                <h4 class="text-sm font-bold text-red-600 mb-2"><i class="fas fa-exclamation-triangle"></i> Kritik Stok Uyarısı (Tükenenler - 0 ve Altı)</h4>
@@ -288,7 +283,6 @@
             </div>
         </div>
 
-        <!-- SATIŞ YAP -->
         <div id="page-satis-yap" class="page-content hidden">
     <div class="flex flex-col lg:flex-row gap-4">
         <div class="flex-1 flex flex-col bg-white border border-gray-200 rounded-lg shadow-sm min-h-[400px]">
@@ -349,7 +343,6 @@
             </div>
         </div>
 
-        <!-- MÜŞTERİLER -->
         <div id="page-musteriler" class="page-content hidden">
             <div class="bg-white p-4 border border-gray-200 rounded-t-lg shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                 <h3 class="font-bold text-gray-700 whitespace-nowrap">Kayıtlı Müşteriler <span id="cust-count" class="text-xs font-normal text-gray-400 ml-2">0 kişi</span></h3>
@@ -366,7 +359,6 @@
             </div>
             <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-50 border-b text-gray-600 font-bold text-xs uppercase"><tr><th class="p-3">Müşteri</th><th class="p-3">Telefon</th><th class="p-3 text-right text-red-600">Kalan Borcu</th><th class="p-3 text-center">Tahsilat / İşlem</th></tr></thead><tbody id="cust-table" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
-        <!-- MÜŞTERİ DETAY -->
         <div id="page-musteri-detay" class="page-content hidden">
             <div class="bg-white p-4 border border-gray-200 rounded-t-lg shadow-sm flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
                 <div class="flex items-center space-x-3"><button onclick="simulateNavigation('Müşteriler')" class="text-gray-400 hover:text-blue-600"><i class="fas fa-arrow-left text-xl"></i></button><h3 class="font-bold text-gray-700 text-xl" id="cd-name">Müşteri Adı</h3></div>
@@ -382,8 +374,7 @@
             <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-x-auto"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Müşteri İşlem Geçmişi</div><table class="w-full text-left text-sm"><thead class="bg-white border-b text-xs uppercase text-gray-500"><tr><th class="p-3">Tarih</th><th class="p-3">İşlem Türü</th><th class="p-3">Detay</th><th class="p-3 text-right">Tutar</th><th class="p-3 text-center">Durum</th></tr></thead><tbody id="cd-history-table" class="divide-y divide-gray-100"></tbody></table></div>
         </div>
 
-        <!-- ÜRÜNLER -->
-       <div id="page-urunler" class="page-content hidden">
+        <div id="page-urunler" class="page-content hidden">
             <div class="bg-white p-4 border border-gray-200 rounded-t-lg shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center space-x-2 w-full md:w-auto">
                     <div class="relative w-full md:w-80">
@@ -412,8 +403,7 @@
                     <tbody id="prod-table" class="divide-y divide-gray-200"></tbody>
                 </table>
             </div>
-        </div>        <!-- RAPORLAR -->
-      <div id="page-raporlar" class="page-content hidden">
+        </div>        <div id="page-raporlar" class="page-content hidden">
             <div class="flex flex-col lg:flex-row gap-4 mb-6 items-center justify-between">
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm">
@@ -458,7 +448,6 @@
                 </table>
             </div>
         </div>
-        <!-- GELİR GİDER -->
         <div id="page-finans" class="page-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
@@ -476,7 +465,6 @@
             </div>
         </div>
 
-        <!-- TEKNİK SERVİS -->
         <div id="page-garanti" class="page-content hidden h-full">
             <div class="flex flex-col xl:flex-row gap-6 h-[calc(100vh-120px)]">
                 <div class="w-full xl:w-1/3 bg-white p-6 shadow-sm rounded-xl border border-gray-200 overflow-y-auto">
@@ -513,7 +501,6 @@
             </div>
         </div>
 
-        <!-- REKLAM -->
         <div id="page-reklam" class="page-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-6 border rounded-lg shadow-sm"><h3 class="mb-4 font-bold text-purple-600 text-lg border-b pb-2"><i class="fas fa-bullhorn"></i> Mesaj Şablonu</h3><textarea id="reklam-text" rows="5" class="w-full border p-3 rounded-lg text-sm mb-3" placeholder="Mesaj yazın..."></textarea></div>
@@ -524,7 +511,6 @@
             </div>
         </div>
 
-        <!-- STOK SAYIMI -->
         <div id="page-stok-sayimi" class="page-content hidden">
             <div class="bg-blue-50 p-4 border border-blue-200 rounded-t-lg shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                 <div><h3 class="font-bold text-blue-800 text-lg"><i class="fas fa-barcode mr-2"></i>Akıllı Stok Sayımı</h3><p class="text-xs text-blue-600">Barkodu art arda okutarak stoğu artırın.</p></div>
@@ -537,7 +523,6 @@
             <div class="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-x-auto"><table class="w-full text-left text-sm"><thead class="bg-gray-800 text-white font-bold text-xs uppercase"><tr><th class="p-3">Barkod</th><th class="p-3">Ürün Adı</th><th class="p-3 text-center">Sistem Stok</th><th class="p-3 text-right text-amber-300">Toplam Maliyet</th><th class="p-3 text-center bg-blue-700">Yeni Sayılan</th></tr></thead><tbody id="sayim-table" class="divide-y divide-gray-200"></tbody></table></div>
         </div>
 
-        <!-- İŞLEM TÜNELİ -->
         <div id="page-islem-tüneli" class="page-content hidden">
             <div class="bg-white p-4 md:p-5 rounded-xl border shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-end">
                 <div class="flex-1 w-full"><label class="text-[10px] md:text-xs font-black uppercase mb-1 block text-indigo-600">Dükkan İşlem Kaydı</label>
@@ -552,7 +537,6 @@
             </div>
         </div>
 
-        <!-- FATURASIZ -->
         <div id="page-faturasiz" class="page-content hidden">
             <div class="bg-white p-4 md:p-6 rounded-xl shadow-sm mb-6 border flex flex-col md:flex-row gap-4 items-end">
                 <input type="hidden" id="fu-edit-id" value="">
@@ -564,7 +548,6 @@
             <div class="bg-white border rounded-xl overflow-x-auto shadow-sm"><table class="w-full text-left"><thead class="bg-gray-800 text-white uppercase text-[10px] font-bold"><tr><th class="p-3 md:p-4">Ürün Adı</th><th class="p-3 md:p-4 text-right">Fiyat</th><th class="p-3 md:p-4 text-center">İşlem</th></tr></thead><tbody id="fu-table" class="divide-y font-bold text-xs md:text-sm"></tbody></table></div>
         </div>
 
-        <!-- 2. EL ALIM -->
         <div id="page-ikinci-el" class="page-content hidden h-full">
             <div class="flex flex-col md:flex-row gap-6 h-[calc(100vh-120px)]">
                 <div class="w-full md:w-1/3 bg-white p-6 shadow-sm rounded-xl border border-gray-200 overflow-y-auto">
@@ -604,7 +587,6 @@
             </div>
         </div>
 
-        <!-- FİŞ KES -->
         <div id="page-fis-kes" class="page-content hidden h-full">
             <div class="flex flex-col md:flex-row gap-6 h-[calc(100vh-120px)]">
                 <div class="w-full md:w-1/2 bg-white p-6 shadow-sm rounded-xl border border-gray-200 overflow-y-auto">
@@ -657,7 +639,6 @@
             </div>
         </div>
 
-        <!-- NOTLAR -->
         <div id="page-notlar" class="page-content hidden">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border h-fit md:sticky md:top-0">
@@ -671,7 +652,6 @@
             </div>
         </div>
 
-        <!-- GÖREVLER -->
         <div id="page-gorevler" class="page-content hidden">
             <div class="max-w-2xl mx-auto bg-white border rounded-xl md:rounded-2xl shadow-xl overflow-hidden mt-4 md:mt-10">
                 <div class="p-4 md:p-6 bg-emerald-500 text-white flex gap-2 md:gap-3">
@@ -683,7 +663,6 @@
             </div>
         </div>
 
-        <!-- TARİFELER -->
         <div id="page-tarifeler" class="page-content hidden">
             <div id="tarife-header" class="p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg bg-blue-600"><h3 class="text-2xl md:text-3xl font-black tracking-tighter uppercase" id="tarife-title-text">Tarifeler</h3></div>
             <div class="bg-white p-4 md:p-6 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end mb-6">
@@ -697,7 +676,6 @@
             <div class="bg-white border rounded-xl shadow-sm overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500"><tr><th class="p-3 md:p-4 w-16">Görsel</th><th class="p-3 md:p-4">Tarife / Paket Adı</th><th class="p-3 md:p-4 text-right">Fiyat</th><th class="p-3 md:p-4 text-center">İşlem</th></tr></thead><tbody id="tarife-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody></table></div>
         </div>
 
-        <!-- OPERATÖRLER -->
         <div id="page-operatorler" class="page-content hidden">
             <div id="op-header" class="p-6 md:p-8 rounded-2xl text-white mb-6 shadow-lg bg-blue-600"><h3 class="text-2xl md:text-3xl font-black tracking-tighter uppercase" id="op-title-text">İşlem Notları</h3></div>
             <div class="bg-white p-4 md:p-6 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end mb-6">
@@ -709,7 +687,6 @@
             <div class="bg-white border rounded-xl shadow-sm overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-100 font-black uppercase text-[10px] text-gray-500"><tr><th class="p-3 md:p-4 w-16 md:w-24">Saat</th><th class="p-3 md:p-4">İşlem Özeti</th><th class="p-3 md:p-4 text-center w-24">İşlemler</th></tr></thead><tbody id="op-log-table" class="divide-y font-bold text-gray-700 text-xs md:text-sm"></tbody></table></div>
         </div>
 
-        <!-- AYARLAR -->
         <div id="page-ayarlar" class="page-content hidden">
             <div class="max-w-xl mx-auto space-y-6 pt-6 pb-12">
                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
@@ -760,7 +737,6 @@
     </main>
 </div>
 
-<!-- MODALLER -->
 <div id="modal-bg" class="hidden fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm">
 <div id="prod-modal" class="hidden bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl">
         <h3 class="font-black text-xl mb-6 uppercase tracking-tighter text-blue-600">Ürün Bilgileri</h3>
@@ -768,7 +744,7 @@
         <div class="space-y-3 mb-6">
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Barkod Numarası</label>
-                <input type="text" id="m-p-barcode" placeholder="Barkod" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500">
+                <input type="text" id="m-p-barcode" oninput="checkExistingBarcode(this.value)" placeholder="Barkod" class="w-full border p-3 rounded-xl font-bold bg-gray-50 outline-none focus:border-blue-500">
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Ürün Adı</label>
@@ -1760,17 +1736,62 @@ function yeniUrunEkleModal() {
     document.getElementById('m-p-category').value = '';
     openModal('prod-modal');
 }
+
+function checkExistingBarcode(barcode) {
+    const idx = parseInt(document.getElementById('m-p-edit-idx').value);
+    // Eğer halihazırda düzenleme modundaysak kontrolü çalıştırma
+    if (idx > -1) return;
+
+    const cleanBarcode = barcode.trim();
+    if (!cleanBarcode) return;
+
+    const existingIdx = db.products.findIndex(x => x.barcode.toLowerCase() === cleanBarcode.toLowerCase());
+    if (existingIdx > -1) {
+        const p = db.products[existingIdx];
+        showToast(`Bu barkod ile kayıtlı ürün bulundu: "${p.name}". Düzenleme moduna geçildi.`, 'info');
+        
+        document.getElementById('m-p-edit-idx').value = existingIdx;
+        document.getElementById('m-p-name').value = p.name;
+        document.getElementById('m-p-stock').value = p.stock;
+        document.getElementById('m-p-buy').value = p.buy;
+        document.getElementById('m-p-sell1').value = p.sell1;
+        document.getElementById('m-p-category').value = p.category || '';
+    }
+}
+
 function saveProduct() {
     const idx = parseInt(document.getElementById('m-p-edit-idx').value);
+    const barcodeVal = document.getElementById('m-p-barcode').value.trim() || Date.now().toString();
+    const nameVal = document.getElementById('m-p-name').value.trim();
+    
+    if(!nameVal) return showToast('Ürün adı boş bırakılamaz!', 'error');
+
     const p = {
-        barcode: document.getElementById('m-p-barcode').value || Date.now().toString(),
-        name: document.getElementById('m-p-name').value,
+        barcode: barcodeVal,
+        name: nameVal,
         stock: Number(document.getElementById('m-p-stock').value),
         buy: Number(document.getElementById('m-p-buy').value),
         sell1: Number(document.getElementById('m-p-sell1').value),
         category: document.getElementById('m-p-category').value
     };
-    if(!p.name) return showToast('Ürün adı boş bırakılamaz!', 'error');
+
+    // Güvenlik duvarı: Yeni ekleme modunda butona basıldıysa ancak barkod listede varsa engelle ve yönlendir
+    if (idx === -1) {
+        const existingIdx = db.products.findIndex(x => x.barcode.toLowerCase() === p.barcode.toLowerCase());
+        if (existingIdx > -1) {
+            const existingProd = db.products[existingIdx];
+            showToast(`Hata: Bu barkod zaten "${existingProd.name}" ürününe ait! Düzenleme moduna alındı.`, 'error');
+            
+            document.getElementById('m-p-edit-idx').value = existingIdx;
+            document.getElementById('m-p-name').value = existingProd.name;
+            document.getElementById('m-p-stock').value = existingProd.stock;
+            document.getElementById('m-p-buy').value = existingProd.buy;
+            document.getElementById('m-p-sell1').value = existingProd.sell1;
+            document.getElementById('m-p-category').value = existingProd.category || '';
+            return;
+        }
+    }
+
     if(idx > -1) db.products[idx] = p; else db.products.push(p);
     
     document.getElementById('m-p-barcode').value = '';
@@ -2361,7 +2382,8 @@ function editNote(id) {
 }
 
 function renderNotes() {
-    document.getElementById('notes-container').innerHTML=db.notes.map(n=>`<div class="bg-amber-100 p-4 rounded shadow relative"><p class="text-sm font-bold text-gray-800 break-words pr-6">${n.text}</p><span class="text-[10px] text-amber-600 block mt-2">${new Date(n.date).toLocaleString('tr-TR')}</span><div class="absolute top-2 right-2 flex gap-1"><button onclick="editNote(${n.id})" class="text-amber-500 hover:text-amber-700"><i class="fas fa-edit text-xs"></i></button><button onclick="if(confirm('Sil?')){db.notes=db.notes.filter(x=>x.id!==${n.id});sync()}" class="text-amber-400 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('');
+    document.getElementById('notes-container').innerHTML=db.notes.map(n=>`<div class="bg-amber-100 p-4 rounded shadow relative"><p class="text-sm font-bold text-gray-800 break-words pr-6">${n.text}</p><span class="text-[10px] text-amber-600 block mt-2">${new Date(n.date).toLocaleString('tr-TR')}</span><div class="absolute top-2 right-2 flex gap-1"><button onclick="editNote(${
+        n.id});sync()}" class="text-amber-400 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button></div></div>`).join('');
 }
 
 function addTask() {
@@ -2452,7 +2474,6 @@ function editTarife(id) {
     document.getElementById('tarife-name').focus();
 }
 
-// Resmi yeni sekmede tam ekran göster
 function showFullImage(src) {
     const w = window.open();
     if (w) {
@@ -2582,11 +2603,7 @@ function renderFaturasiz() {
 ======================================================== */
 function openTaksitModal() {
     const t = Number(document.getElementById('pos-toplam').value);
-    
-    // Sepet boş olsa bile ekranın açılması için hata veren kısıtlamayı kaldırdık.
-    // Eğer sepette ürün varsa o tutarı yazar, yoksa senin fiyat girmen için kutuyu boş bırakır.
     document.getElementById('taksit-tutar').value = t > 0 ? t : ''; 
-    
     document.getElementById('taksit-ay').value = '2'; 
     updateTaksitOran(); 
     document.getElementById('taksit-sonuc').classList.add('hidden'); 
@@ -2639,7 +2656,9 @@ function importData(e) {
         e.target.value = '';
     }; 
     reader.readAsText(file);
-}/* ========================================================
+}
+
+/* ========================================================
    VERİLERİ BULUTTAN ÇEKME (Sistemi Açan Kod)
 ======================================================== */
 async function loadCloudData(uid) {
@@ -2723,6 +2742,7 @@ async function loadCloudData(uid) {
         }
     }
 }
+
 /* ========================================================
    TÜMÜNÜ RENDER ET
 ======================================================== */
